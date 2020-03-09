@@ -2,6 +2,7 @@ import React from 'react';
 import { aPageList, aPageCard } from './aPage';
 import { NavLink } from 'react-router-dom'
 import { Home } from '../Home';
+import { DepatmentUsers } from './DepatmentUsers';
 
 /** Компонент для отображения списка департаментов */
 export class DepartmentsList extends aPageList {
@@ -64,6 +65,7 @@ export class DepartmentCard extends aPageCard {
                     </div>
                     {this.viewButtons()}
                 </form>
+                <DepatmentUsers />
             </>
         );
     }
@@ -81,7 +83,6 @@ export class DepartmentCard extends aPageCard {
                     </div>
                     {this.createButtons()}
                 </form>
-
             </>
         );
     }
@@ -95,7 +96,7 @@ export class DepartmentCard extends aPageCard {
         var department = Home.data;
         return (
             <>
-                <div className="alert alert-danger" role="alert">Данное дейтсвие нельзя будет отменить!</div>
+                <div className="alert alert-danger" role="alert">Безвозратное удаление департамента и связаных с ним пользователей! Данное дейтсвие нельзя будет отменить!</div>
                 <form className="mb-3">
                     {
                         Object.keys(department).map((keyName, i) => (
@@ -109,6 +110,7 @@ export class DepartmentCard extends aPageCard {
                     }
                     {this.deleteButtons()}
                 </form>
+                <DepatmentUsers/>
             </>
         );
     }

@@ -107,7 +107,7 @@ export class UserCard extends aPageCard {
         delete user.departmentId;
         return (
             <>
-                <div className="alert alert-danger" role="alert">Данное дейтсвие нельзя будет отменить!</div>
+                <div className="alert alert-danger" role="alert">Безвозвратное удаление пользователя! Данное дейтсвие нельзя будет отменить!</div>
                 <form className="mb-3">
                     {
                         Object.keys(user).map((keyName, i) => (
