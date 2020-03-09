@@ -48,7 +48,7 @@ export class DepartmentCard extends aPageCard {
     apiName = 'departments';
 
     async viewLoad() {
-        const response = await fetch(`/api/departments/${Home.id}`);
+        const response = await fetch(`/api/${this.apiName}/${Home.id}`);
         Home.data = await response.json();
         this.setState({ cartTitle: `Департамент: [#${Home.data.id}] ${Home.data.name}`, loading: false, cartContents: this[Home.method + 'Render']() });
     }
@@ -81,12 +81,13 @@ export class DepartmentCard extends aPageCard {
                     </div>
                     {this.createButtons()}
                 </form>
+
             </>
         );
     }
 
     async deleteLoad() {
-        const response = await fetch(`/api/departments/${Home.id}`);
+        const response = await fetch(`/api/${this.apiName}/${Home.id}`);
         Home.data = await response.json();
         this.setState({ cartTitle: 'Удаление объекта', loading: false, cartContents: this[Home.method + 'Render']() });
     }
