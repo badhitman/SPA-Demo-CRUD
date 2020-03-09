@@ -7,7 +7,7 @@ import { DepartmentsList, DepartmentCard } from './pages/Departments';
 export class Home extends Component {
     static displayName = Home.name;
 
-    /** достуаные типы данных (список REST котроллеров) */
+    /** доступные типы данных (список REST котроллеров) */
     static allowsControllers = ['users', 'departments'];
 
     /** Имя метода для отображения списка объектов */
