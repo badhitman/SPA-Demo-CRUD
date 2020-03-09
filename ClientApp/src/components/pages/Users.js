@@ -102,7 +102,7 @@ export class UserCard extends aPageCard {
     }
     deleteRender() {
         var user = Home.data;
-        user.departmenName = user.departments[user.departmentId].name;
+        user.departmen = user.departments[user.departmentId].name;
         delete user.departments;
         delete user.departmentId;
         return (
