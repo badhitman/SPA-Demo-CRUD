@@ -1,16 +1,18 @@
 # SPA-Demo-CRUD
-demo app (crud): react // c# // .net core // RESTful web-api
+demo app (crud): react // c# .net core // RESTful web-api
 
-![список доступных департаментов](./screenshots/departments-list.jpg)
+СЂРµС€РµРЅРёРµ РЅРµ РёРјРµРµС‚ РїСЂР°РєС‚РёС‡РµСЃРєРѕРіРѕ РїСЂРёРјРµРЅРµРЅРёСЏ. РѕР±С‹С‡РЅР°СЏ РґРµРјРєР° РґР»СЏ С‡Р°СЃС‚РЅС‹С… РЅСѓР¶Рґ.
 
-![карточка департамента 1](./screenshots/departments-card.jpg)
+![СЃРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… РґРµРїР°СЂС‚Р°РјРµРЅС‚РѕРІ](./screenshots/departments-list.jpg)
 
-![карточка департамента 2](./screenshots/departments-card-empty.jpg)
+![РєР°СЂС‚РѕС‡РєР° РґРµРїР°СЂС‚Р°РјРµРЅС‚Р° 1](./screenshots/departments-card.jpg)
 
-![карточка департамента 3](./screenshots/departments-delete.jpg)
+![РєР°СЂС‚РѕС‡РєР° РґРµРїР°СЂС‚Р°РјРµРЅС‚Р° 2](./screenshots/departments-card-empty.jpg)
 
-![список пользователей](./screenshots/user-list.jpg)
+![РєР°СЂС‚РѕС‡РєР° РґРµРїР°СЂС‚Р°РјРµРЅС‚Р° 3](./screenshots/departments-delete.jpg)
 
-![карточка пользователя 1](./screenshots/user-card.jpg)
+![СЃРїРёСЃРѕРє РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№](./screenshots/user-list.jpg)
 
-![карточка пользователя 2](./screenshots/user-delete.jpg)
+![РєР°СЂС‚РѕС‡РєР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ 1](./screenshots/user-card.jpg)
+
+![РєР°СЂС‚РѕС‡РєР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ 2](./screenshots/user-delete.jpg)

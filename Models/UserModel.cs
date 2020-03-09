@@ -1,4 +1,4 @@
-﻿namespace SimpleSPA.Models
+namespace SimpleSPA.Models
 {
     /// <summary>
     /// Пользователь/сотрудник
