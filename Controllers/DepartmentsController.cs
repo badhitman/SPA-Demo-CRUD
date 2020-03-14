@@ -27,7 +27,7 @@ namespace SimpleSPA.Controllers
 
         // GET: api/Departments/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<DepartmentModel>> GetDepartmentModel(int id)
+        public async Task<ActionResult<object>> GetDepartmentModel(int id)
         {
             var departmentModel = await _context.Departments.FindAsync(id);
 
@@ -36,7 +36,11 @@ namespace SimpleSPA.Controllers
                 return NotFound();
             }
 
-            return departmentModel;
+            List<UserModel> usersByDepartment = await _context.Users.Where(x => x.DepartmentId == id).ToListAsync();
+
+            //List<object>  usersByDepartment.Select(x => new { x.Id, x.Name }).ToList();
+            /**/
+            return new { departmentModel.Id, departmentModel.Name, Users = usersByDepartment.Select(x => new { x.Id, x.Name }).ToList() };
         }
 
         // PUT: api/Departments/5

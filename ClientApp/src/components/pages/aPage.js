@@ -154,6 +154,19 @@ export class aPageCard extends aPage {
         }
     }
 
+    mapObject(obj, skipFields = []) {
+        return Object.keys(obj).map((keyName, i) => {
+            return Array.isArray(obj[keyName]) || skipFields.includes(keyName)
+                ? <input type='hidden' key={i} name={keyName} id={keyName} defaultValue={obj[keyName]}></input>
+                : <div className='form-group row' key={i}>
+                    <label htmlFor={keyName} className='col-sm-2 col-form-label'>{keyName}</label>
+                    <div className='col-sm-10'>
+                        <input name={keyName} id={keyName} readOnly={true} defaultValue={obj[keyName]} className='form-control' type='text' />
+                    </div>
+                </div>
+        })
+    }
+
     /** Набор кнопок для режима просмотра/редактирования объекта */
     viewButtons() {
         return (<div className="btn-toolbar justify-content-end" role="toolbar" aria-label="Toolbar with button groups">

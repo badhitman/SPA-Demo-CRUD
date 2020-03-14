@@ -103,22 +103,11 @@ export class UserCard extends aPageCard {
     deleteRender() {
         var user = Home.data;
         user.departmen = user.departments[user.departmentId].name;
-        delete user.departments;
-        delete user.departmentId;
         return (
             <>
                 <div className="alert alert-danger" role="alert">Безвозвратное удаление пользователя! Данное дейтсвие нельзя будет отменить!</div>
                 <form className="mb-3">
-                    {
-                        Object.keys(user).map((keyName, i) => (
-                            <div className='form-group row' key={i}>
-                                <label htmlFor={keyName} className='col-sm-2 col-form-label'>{keyName}</label>
-                                <div className='col-sm-10'>
-                                    <input name={keyName} id={keyName} readOnly={true} defaultValue={user[keyName]} className='form-control' type='text' />
-                                </div>
-                            </div>
-                        ))
-                    }
+                    {this.mapObject(user, ['departmentId','id'])}
                     {this.deleteButtons()}
                 </form>
             </>

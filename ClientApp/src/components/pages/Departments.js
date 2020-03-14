@@ -98,16 +98,7 @@ export class DepartmentCard extends aPageCard {
             <>
                 <div className="alert alert-danger" role="alert">Безвозратное удаление департамента и связаных с ним пользователей! Данное дейтсвие нельзя будет отменить!</div>
                 <form className="mb-3">
-                    {
-                        Object.keys(department).map((keyName, i) => (
-                            <div className='form-group row' key={i}>
-                                <label htmlFor={keyName} className='col-sm-2 col-form-label'>{keyName}</label>
-                                <div className='col-sm-10'>
-                                    <input name={keyName} id={keyName} readOnly={true} defaultValue={department[keyName]} className='form-control' type='text' />
-                                </div>
-                            </div>
-                        ))
-                    }
+                    {this.mapObject(department, ['id'])}
                     {this.deleteButtons()}
                 </form>
                 <DepatmentUsers/>

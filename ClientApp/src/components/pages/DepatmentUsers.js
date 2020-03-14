@@ -7,22 +7,8 @@ export class DepatmentUsers extends Component {
     static displayName = DepatmentUsers.name;
     apiName = 'usersbydepartments';
 
-    constructor(props) {
-        super(props);
-
-        this.state = { users: [], loading: true };
-    }
-
-    componentDidMount() {
-        this.viewLoad();
-    }
-
     render() {
-        if (this.state.loading) {
-            return <p><em>Loading...</em></p>;
-        }
-
-        if (this.state.users.length === 0) {
+        if (Home.data.users.length === 0) {
             return <footer className='blockquote-footer'>Сотрудников нет. Ни одному сотруднику не назначен департамент: #{Home.data.id} "{Home.data.name}"</footer>;
         }
 
@@ -37,7 +23,7 @@ export class DepatmentUsers extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {this.state.users.map(function (user) {
+                        {Home.data.users.map(function (user) {
                             return (
                                 <tr key={user.id}>
                                     <th scope="row">{user.id}</th>
@@ -48,12 +34,5 @@ export class DepatmentUsers extends Component {
                 </table>
             </>
         );
-    }
-
-
-    async viewLoad() {
-        const response = await fetch(`/api/${this.apiName}/${Home.id}`);
-        const users = await response.json();
-        this.setState({ users: users, loading: false });
     }
 }
