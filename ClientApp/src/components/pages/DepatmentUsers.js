@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Home } from '../Home';
+import App from '../../App';
 import { NavLink } from 'react-router-dom'
 
 /** Пользователи в контексте департаментов */
@@ -8,8 +8,8 @@ export class DepatmentUsers extends Component {
     apiName = 'usersbydepartments';
 
     render() {
-        if (Home.data.users.length === 0) {
-            return <footer className='blockquote-footer'>Сотрудников нет. Ни одному сотруднику не назначен департамент: #{Home.data.id} "{Home.data.name}"</footer>;
+        if (App.data.users.length === 0) {
+            return <footer className='blockquote-footer'>Сотрудников нет. Ни одному сотруднику не назначен департамент: #{App.data.id} "{App.data.name}"</footer>;
         }
 
         return (
@@ -23,11 +23,11 @@ export class DepatmentUsers extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {Home.data.users.map(function (user) {
+                        {App.data.users.map(function (user) {
                             return (
                                 <tr key={user.id}>
                                     <th scope="row">{user.id}</th>
-                                    <td><NavLink to={`/users/${Home.viewNameMethod}/${user.id}`}>{user.name}</NavLink></td>
+                                    <td><NavLink to={`/users/${App.viewNameMethod}/${user.id}`}>{user.name}</NavLink></td>
                                 </tr>)
                         })}
                     </tbody>

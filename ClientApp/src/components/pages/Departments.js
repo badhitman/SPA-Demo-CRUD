@@ -1,7 +1,7 @@
 import React from 'react';
 import { aPageList, aPageCard } from './aPage';
 import { NavLink } from 'react-router-dom'
-import { Home } from '../Home';
+import App from '../../App';
 import { DepatmentUsers } from './DepatmentUsers';
 
 /** Компонент для отображения списка департаментов */
@@ -10,12 +10,12 @@ export class DepartmentsList extends aPageList {
     apiName = 'departments';
     listCardHeader = 'Справочник департаментов';
 
-    listRender() {
-        var departments = Home.data;
+    body() {
+        var departments = App.data;
         var apiName = this.apiName;
         return (
             <>
-                <NavLink to={`/${apiName}/${Home.createNameMethod}/`} className="btn btn-primary btn-block" role="button">Создать новый департамент</NavLink>
+                <NavLink to={`/${apiName}/${App.createNameMethod}/`} className="btn btn-primary btn-block" role="button">Создать новый департамент</NavLink>
 
                 <table className='table table-striped mt-4' aria-labelledby="tabelLabel">
                     <thead>
@@ -29,10 +29,10 @@ export class DepartmentsList extends aPageList {
                             return <tr key={department.id}>
                                 <td>{department.id}</td>
                                 <td>
-                                    <NavLink to={`/${apiName}/${Home.viewNameMethod}/${department.id}`} title='кликните для редактирования'>
+                                    <NavLink to={`/${apiName}/${App.viewNameMethod}/${department.id}`} title='кликните для редактирования'>
                                         {department.name}
                                     </NavLink>
-                                    <NavLink to={`/${apiName}/${Home.deleteNameMethod}/${department.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
+                                    <NavLink to={`/${apiName}/${App.deleteNameMethod}/${department.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
                                 </td>
                             </tr>
                         })}
@@ -43,18 +43,18 @@ export class DepartmentsList extends aPageList {
     }
 }
 
-/** Компонент для отображения и управления конкретными объектами/департаментами */
-export class DepartmentCard extends aPageCard {
-    static displayName = DepartmentCard.name;
+/** Отображение/редактирование существующего департамента */
+export class viewDepartment extends aPageCard {
+    static displayName = viewDepartment.name;
     apiName = 'departments';
 
-    async viewLoad() {
-        const response = await fetch(`/api/${this.apiName}/${Home.id}`);
-        Home.data = await response.json();
-        this.setState({ cartTitle: `Департамент: [#${Home.data.id}] ${Home.data.name}`, loading: false, cartContents: this[Home.method + 'Render']() });
+    async load() {
+        const response = await fetch(`/api/${this.apiName}/${App.id}`);
+        App.data = await response.json();
+        this.setState({ cardTitle: `Департамент: [#${App.data.id}] ${App.data.name}`, loading: false, cardContents: this.body() });
     }
-    viewRender() {
-        var department = Home.data;
+    body() {
+        var department = App.data;
         return (
             <>
                 <form className='mb-2'>
@@ -69,11 +69,16 @@ export class DepartmentCard extends aPageCard {
             </>
         );
     }
+}
 
-    async createLoad() {
-        this.setState({ cartTitle: 'Создание нового департамента', loading: false, cartContents: this[Home.method + 'Render']() });
+/** Создание нового департамента */
+export class createDepartment extends viewDepartment {
+    static displayName = createDepartment.name;
+
+    async load() {
+        this.setState({ cardTitle: 'Создание нового департамента', loading: false, cardContents: this.body() });
     }
-    createRender() {
+    body() {
         return (
             <>
                 <form>
@@ -86,22 +91,27 @@ export class DepartmentCard extends aPageCard {
             </>
         );
     }
+}
 
-    async deleteLoad() {
-        const response = await fetch(`/api/${this.apiName}/${Home.id}`);
-        Home.data = await response.json();
-        this.setState({ cartTitle: 'Удаление объекта', loading: false, cartContents: this[Home.method + 'Render']() });
+/** Удаление департамента */
+export class deleteDepartment extends viewDepartment {
+    static displayName = deleteDepartment.name;
+
+    async load() {
+        const response = await fetch(`/api/${this.apiName}/${App.id}`);
+        App.data = await response.json();
+        this.setState({ cardTitle: 'Удаление объекта', loading: false, cardContents: this.body() });
     }
-    deleteRender() {
-        var department = Home.data;
+    body() {
+        var department = App.data;
         return (
             <>
                 <div className="alert alert-danger" role="alert">Безвозратное удаление департамента и связаных с ним пользователей! Данное дейтсвие нельзя будет отменить!</div>
                 <form className="mb-3">
-                    {this.mapObject(department, ['id'])}
+                    {this.mapObjectToReadonlyForm(department, ['id'])}
                     {this.deleteButtons()}
                 </form>
-                <DepatmentUsers/>
+                <DepatmentUsers />
             </>
         );
     }

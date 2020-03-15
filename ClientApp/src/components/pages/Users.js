@@ -1,7 +1,7 @@
 import React from 'react';
 import { aPageList, aPageCard } from './aPage';
 import { NavLink } from 'react-router-dom'
-import { Home } from '../Home';
+import App from '../../App';
 
 /** Компонент для отображения списка пользователей */
 export class UsersList extends aPageList {
@@ -9,12 +9,12 @@ export class UsersList extends aPageList {
     apiName = 'users';
     listCardHeader = 'Справочник пользователей';
 
-    listRender() {
-        var users = Home.data;
+    body() {
+        var users = App.data;
         const apiName = this.apiName;
         return (
             <>
-                <NavLink to={`/${apiName}/${Home.createNameMethod}/`} className="btn btn-primary btn-block" role="button" >Создать нового пользователя</NavLink>
+                <NavLink to={`/${apiName}/${App.createNameMethod}/`} className="btn btn-primary btn-block" role="button" >Создать нового пользователя</NavLink>
 
                 <table className='table table-striped mt-4' aria-labelledby="tabelLabel">
                     <thead>
@@ -29,10 +29,10 @@ export class UsersList extends aPageList {
                             return <tr key={user.id}>
                                 <td>{user.id}</td>
                                 <td>
-                                    <NavLink to={`/${apiName}/${Home.viewNameMethod}/${user.id}`} title='кликните для редактирования'>
+                                    <NavLink to={`/${apiName}/${App.viewNameMethod}/${user.id}`} title='кликните для редактирования'>
                                         {user.name}
                                     </NavLink>
-                                    <NavLink to={`/${apiName}/${Home.deleteNameMethod}/${user.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
+                                    <NavLink to={`/${apiName}/${App.deleteNameMethod}/${user.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
                                 </td>
                                 <td><span className="badge badge-light">{user.department}</span></td>
                             </tr>
@@ -44,47 +44,50 @@ export class UsersList extends aPageList {
     }
 }
 
-/** Компонент для отображения и управления конкретными объектами/пользователями */
-export class UserCard extends aPageCard {
-    static displayName = UserCard.name;
+/** Отображение/редактирование существующего объекта/пользователя */
+export class viewUser extends aPageCard {
+    static displayName = viewUser.name;
     apiName = 'users';
 
-    async viewLoad() {
-        const response = await fetch(`/api/${this.apiName}/${Home.id}`);
-        Home.data = await response.json();
-        this.setState({ cartTitle: `Пользователь: [#${Home.data.id}] ${Home.data.name}`, loading: false, cartContents: this[Home.method + 'Render']() });
+    async load() {
+        const response = await fetch(`/api/${this.apiName}/${App.id}`);
+        App.data = await response.json();
+        this.setState({ cardTitle: `Пользователь: [#${App.data.id}] ${App.data.name}`, loading: false, cardContents: this.body() });
     }
-    viewRender() {
-        var user = Home.data;
-        var departments = Home.data.departments;
+    body() {
+        var user = App.data;
+        var departments = user.departments;
         return (
-            <>
-                <form className='mb-2'>
-                    <input name='id' defaultValue={user.id} type='hidden' />
-                    <div className="form-group">
-                        <label htmlFor="user-input">Пользователь</label>
-                        <input name='name' defaultValue={user.name} type="text" className="form-control" id="user-input" placeholder="Новое имя" />
-                    </div>
-                    <div className="form-group">
-                        <select name='DepartmentId' className='custom-select' defaultValue={user.departmentId}>
-                            {departments.map(function (department) {
-                                return <option key={department.id} value={department.id}>{department.name}</option>
-                            })}
-                        </select>
-                    </div>
-                    {this.viewButtons()}
-                </form>
-            </>
+            <form className='mb-2' key='view-form'>
+                <input name='id' defaultValue={user.id} type='hidden' />
+                <div className="form-group">
+                    <label htmlFor="user-input">Пользователь</label>
+                    <input name='name' defaultValue={user.name} type="text" className="form-control" id="user-input" placeholder="Новое имя" />
+                </div>
+                <div className="form-group">
+                    <select name='DepartmentId' className='custom-select' defaultValue={user.departmentId}>
+                        {departments.map(function (department) {
+                            return <option key={department.id} value={department.id}>{department.name}</option>
+                        })}
+                    </select>
+                </div>
+                {this.viewButtons()}
+            </form>
         );
     }
+}
 
-    async createLoad() {
-        this.setState({ cartTitle: 'Создание нового пользователя', loading: false, cartContents: this[Home.method + 'Render']() });
+/** Создание нового объекта/пользователя */
+export class createUser extends viewUser {
+    static displayName = createUser.name;
+
+    async load() {
+        this.setState({ cardTitle: 'Создание нового пользователя', loading: false, cardContents: this.body() });
     }
-    createRender() {
+    body() {
         return (
             <>
-                <form>
+                <form key='create-form'>
                     <div className="form-group">
                         <label htmlFor="user-input">Имя/ФИО</label>
                         <input name='name' type="text" className="form-control" id="user-input" placeholder="Имя нового пользователя" />
@@ -94,20 +97,25 @@ export class UserCard extends aPageCard {
             </>
         );
     }
+}
 
-    async deleteLoad() {
-        const response = await fetch(`/api/${this.apiName}/${Home.id}`);
-        Home.data = await response.json();
-        this.setState({ cartTitle: 'Удаление объекта', loading: false, cartContents: this[Home.method + 'Render']() });
+/** Удаление объекта/пользователя */
+export class deleteUser extends viewUser {
+    static displayName = deleteUser.name;
+
+    async load() {
+        const response = await fetch(`/api/${this.apiName}/${App.id}`);
+        App.data = await response.json();
+        this.setState({ cardTitle: 'Удаление объекта', loading: false, cardContents: this.body() });
     }
-    deleteRender() {
-        var user = Home.data;
+    body() {
+        var user = App.data;
         user.departmen = user.departments[user.departmentId].name;
         return (
             <>
                 <div className="alert alert-danger" role="alert">Безвозвратное удаление пользователя! Данное дейтсвие нельзя будет отменить!</div>
-                <form className="mb-3">
-                    {this.mapObject(user, ['departmentId','id'])}
+                <form className="mb-3" key='delete-form'>
+                    {this.mapObjectToReadonlyForm(user, ['departmentId', 'id'])}
                     {this.deleteButtons()}
                 </form>
             </>
