@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -5,9 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SimpleSPA.Models;
+using SPADemoCRUD.Models;
+using System;
 
-namespace SimpleSPA
+namespace SPADemoCRUD
 {
     public class Startup
     {
@@ -31,13 +33,15 @@ namespace SimpleSPA
             {
                 configuration.RootPath = "ClientApp/build";
             });
-            //services.AddDistributedMemoryCache();
-            //services.AddSession(options =>
-            //{
-            //    options.Cookie.Name = ".MyApp.Session";
-            //    options.IdleTimeout = TimeSpan.FromSeconds(3600);
-            //    options.Cookie.IsEssential = true;
-            //});
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.Cookie.Name = ".MyApp.Session";
+                options.IdleTimeout = TimeSpan.FromSeconds(3600);
+                options.Cookie.IsEssential = true;
+            });
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/login/"); });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,7 +61,10 @@ namespace SimpleSPA
 
             app.UseRouting();
 
-            //app.UseSession();
+            app.UseSession();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

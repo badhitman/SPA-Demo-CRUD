@@ -1,3 +1,6 @@
+////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
 import React from 'react';
 import { aPageList, aPageCard } from './aPage';
 import { NavLink } from 'react-router-dom'
@@ -49,7 +52,7 @@ export class viewDepartment extends aPageCard {
     apiName = 'departments';
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/${App.id}`);
+        const response = await fetch(`/api/${this.apiName}/${App.id}`, { credentials: 'include' });
         App.data = await response.json();
         this.setState({ cardTitle: `Департамент: [#${App.data.id}] ${App.data.name}`, loading: false, cardContents: this.body() });
     }
@@ -98,7 +101,7 @@ export class deleteDepartment extends viewDepartment {
     static displayName = deleteDepartment.name;
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/${App.id}`);
+        const response = await fetch(`/api/${this.apiName}/${App.id}`, { credentials: 'include' });
         App.data = await response.json();
         this.setState({ cardTitle: 'Удаление объекта', loading: false, cardContents: this.body() });
     }

@@ -1,3 +1,6 @@
+////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
 import React, { Component } from 'react';
 import App from '../../App';
 import jQuery from 'jquery';
@@ -45,7 +48,7 @@ export class aPageList extends aPage {
     listCardHeader = '';
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/`);
+        const response = await fetch(`/api/${this.apiName}/`, { credentials: 'include' });
         App.data = await response.json();
         this.setState({ cardTitle: this.listCardHeader, loading: false, cardContents: this.body() });
     }
@@ -55,14 +58,13 @@ export class aPageList extends aPage {
 export class aPageCard extends aPage {
     static displayName = aPageCard.name;
     apiName = '';
+    /** имя кнопки отправки данных на сервер (с последующим переходом к списку) */
+    okButtonName = 'okButton';
+    /** имя кнопки только отправки данных на сервер (без последующего перехода)*/
+    saveButtonName = 'saveButton';
 
     constructor(props) {
         super(props);
-
-        /** имя кнопки отправки данных на сервер (с последующим переходом к списку) */
-        this.okButtonName = 'okButton';
-        /** имя кнопки только отправки данных на сервер (без последующего перехода)*/
-        this.saveButtonName = 'saveButton';
 
         this.handleClickButton = this.handleClickButton.bind(this);
     }
@@ -74,7 +76,7 @@ export class aPageCard extends aPage {
     async handleClickButton(e) {
         var nameButton = e.target.name;
         var form = e.target.form;
-        //var formData;
+
         var result;
         const apiName = this.apiName;
 
@@ -96,6 +98,7 @@ export class aPageCard extends aPage {
             switch (App.method) {
                 case App.viewNameMethod:
                     result = await fetch(`/api/${apiName}/${App.data.id}`, {
+                        credentials: 'include',
                         method: 'PUT',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -105,6 +108,7 @@ export class aPageCard extends aPage {
                     break;
                 case App.createNameMethod:
                     result = await fetch(`/api/${apiName}/`, {
+                        credentials: 'include',
                         method: 'POST',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -114,6 +118,7 @@ export class aPageCard extends aPage {
                     break;
                 case App.deleteNameMethod:
                     result = await fetch(`/api/${apiName}/${App.data.id}`, {
+                        credentials: 'include',
                         method: 'DELETE',
                         body: JSON.stringify(sendedFormData),
                         headers: {

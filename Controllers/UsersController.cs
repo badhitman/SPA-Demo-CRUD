@@ -1,15 +1,20 @@
+////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SimpleSPA.Models;
+using SPADemoCRUD.Models;
 
-namespace SimpleSPA.Controllers
+namespace SPADemoCRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
@@ -39,7 +44,7 @@ namespace SimpleSPA.Controllers
                 return NotFound();
             }
             var departments = await _context.Departments.ToListAsync();
-            return new { userModel.Id, userModel.Name, userModel.DepartmentId, departments };
+            return new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, departments };
         }
 
         // PUT: api/Users/5

@@ -1,9 +1,11 @@
+////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router';
-import { Redirect } from 'react-router';
 import { Layout } from './components/Layout';
 import { NotFound } from './components/NotFound';
-import { Home } from './components/Home';
+import { Hub } from './components/Hub';
 
 import './custom.css'
 
@@ -12,7 +14,7 @@ export default class App extends Component {
     static displayName = App.name;
 
     /** доступные типы данных (список REST котроллеров) */
-    static allowsControllers = ['users', 'departments'];
+    static allowsControllers = ['users', 'departments', 'signin'];
 
     /** Имя метода для отображения списка объектов */
     static listNameMethod = 'list';
@@ -30,15 +32,17 @@ export default class App extends Component {
     /** ID запрашиваемого объекта */
     static id;
 
-    /** context json data */
+    /** context data */
     static data = { id: '', name: '' };
+
+    /** context session */
+    static session = { isAuthenticated: false, name: '', role: '' };
 
     render() {
         return (
             <Layout>
                 <Switch>
-                    <Route path='/:controller/:method/:id?' component={Home} />
-                    <Redirect exact from='/' to={`/users/${App.listNameMethod}`} />
+                    <Route path='/:controller?/:method?/:id?' component={Hub} />
                     <Route component={NotFound} />
                 </Switch>
             </Layout>

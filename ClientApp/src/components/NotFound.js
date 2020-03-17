@@ -1,3 +1,6 @@
+////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
 import React, { Component } from 'react';
 
 export class NotFound extends Component {

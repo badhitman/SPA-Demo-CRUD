@@ -1,5 +1,5 @@
 # SPA-Demo-CRUD
-demo app (crud): react // c# .net core // RESTful web-api
+demo app (crud): react // c# .net core && web-api // authorization + registration
 
 решение не имеет практического применения. обычная демка для частных нужд.
 

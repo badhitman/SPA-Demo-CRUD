@@ -1,11 +1,10 @@
 ////////////////////////////////////////////////
 // https://github.com/badhitman 
 ////////////////////////////////////////////////
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SimpleSPA.Models
+namespace SPADemoCRUD.Models
 {
     public class LiteEntityModel
     {

@@ -1,3 +1,6 @@
+////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
 import React from 'react';
 import { aPageList, aPageCard } from './aPage';
 import { NavLink } from 'react-router-dom'
@@ -30,7 +33,7 @@ export class UsersList extends aPageList {
                                 <td>{user.id}</td>
                                 <td>
                                     <NavLink to={`/${apiName}/${App.viewNameMethod}/${user.id}`} title='кликните для редактирования'>
-                                        {user.name}
+                                        {user.name} {user.Email}
                                     </NavLink>
                                     <NavLink to={`/${apiName}/${App.deleteNameMethod}/${user.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
                                 </td>
@@ -50,7 +53,7 @@ export class viewUser extends aPageCard {
     apiName = 'users';
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/${App.id}`);
+        const response = await fetch(`/api/${this.apiName}/${App.id}`, { credentials: 'include' });
         App.data = await response.json();
         this.setState({ cardTitle: `Пользователь: [#${App.data.id}] ${App.data.name}`, loading: false, cardContents: this.body() });
     }
@@ -70,6 +73,14 @@ export class viewUser extends aPageCard {
                             return <option key={department.id} value={department.id}>{department.name}</option>
                         })}
                     </select>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="user-email">Email</label>
+                    <input name='user-email' defaultValue={user.Email} type="email" className="form-control" id="user-email" />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="user-telegram-id">Telegram идентификатор</label>
+                    <input readOnly={true} name='user-telegram-id' defaultValue={user.TelegramId} type="number" className="form-control" id="user-telegram-id" />
                 </div>
                 {this.viewButtons()}
             </form>
@@ -104,7 +115,7 @@ export class deleteUser extends viewUser {
     static displayName = deleteUser.name;
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/${App.id}`);
+        const response = await fetch(`/api/${this.apiName}/${App.id}`, { credentials: 'include' });
         App.data = await response.json();
         this.setState({ cardTitle: 'Удаление объекта', loading: false, cardContents: this.body() });
     }
