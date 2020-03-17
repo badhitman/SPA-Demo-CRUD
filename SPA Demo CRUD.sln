@@ -1,9 +1,10 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SPA Demo CRUD", "SPA Demo CRUD.csproj", "{4AD171A3-D732-4B0D-84CA-DF2335A62DDA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "reCaptcha", "reCaptcha\reCaptcha.csproj", "{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +16,10 @@ Global
 		{4AD171A3-D732-4B0D-84CA-DF2335A62DDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AD171A3-D732-4B0D-84CA-DF2335A62DDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AD171A3-D732-4B0D-84CA-DF2335A62DDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
