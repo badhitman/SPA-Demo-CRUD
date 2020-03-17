@@ -117,8 +117,8 @@ export class SignIn extends Component {
                                     <div className='col'>
                                         <div className="form-group">
                                             <label htmlFor="UsernameRegister">Username</label>
-                                            <input type="text" className="form-control" name='UsernameRegister' id="UsernameRegister" aria-describedby="UsernameRegisterHelp" placeholder="Enter username" />
-                                            <small id="UsernameRegisterHelp" className="form-text text-muted">Для регистрации, укажите Username</small>
+                                            <input type="text" className="form-control" name='UsernameRegister' id="UsernameRegister" aria-describedby="UsernameRegisterHelp" placeholder="Enter public name" />
+                                            <small id="UsernameRegisterHelp" className="form-text text-muted">Публичное имя</small>
                                         </div>
                                     </div>
                                 </div>

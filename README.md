@@ -3,6 +3,14 @@ demo app (crud): react // c# .net core && web-api // authorization + registratio
 
 решение не имеет практического применения. обычная демка для частных нужд.
 
+![домашняя страница незарегистрированного пользователя](./screenshots/home-page-guest.jpg)
+
+![страница входа/регистрации пользователя](./screenshots/log-in.jpg)
+
+![домашняя страница зарегистрированного пользователя](./screenshots/home-page-user.jpg)
+
+![страница выхода из сессии пользователя](./screenshots/log-out.jpg)
+
 ![список доступных департаментов](./screenshots/departments-list.jpg)
 
 ![карточка департамента 1](./screenshots/departments-card.jpg)
