@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD
@@ -18,8 +19,12 @@ namespace SPADemoCRUD
 
                 try
                 {
-                    var context = services.GetRequiredService<AppDataBaseContext>();
-                    SampleDemoData.Initialize(context);
+                    AppDataBaseContext context = services.GetRequiredService<AppDataBaseContext>();
+                    IOptions<AppConfig> options = services.GetRequiredService<IOptions<AppConfig>>();
+                    if (options.Value.HasDemoData)
+                    {
+                        SampleDemoData.Initialize(context);
+                    }
                 }
                 catch (Exception ex)
                 {
