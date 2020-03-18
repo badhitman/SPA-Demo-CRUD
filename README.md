@@ -1,5 +1,5 @@
 # SPA-Demo-CRUD
-demo app (crud): react // c# .net core && web-api // authorization + registration (with (reCaptcha v2)[https://github.com/badhitman/reCaptcha])
+demo app (crud): react // c# .net core && web-api // authorization + registration + (reCaptcha v2)[https://github.com/badhitman/reCaptcha]
 
 решение не имеет практического применения. обычная демка для частных нужд.
 
