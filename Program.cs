@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,6 +25,22 @@ namespace SPADemoCRUD
                     if (options.Value.HasDemoData)
                     {
                         SampleDemoData.Initialize(context);
+                    }
+                    if (options.Value.SetUserRootById > 0)
+                    {
+                        UserModel user = context.Users.FirstOrDefault(x => x.Id == options.Value.SetUserRootById);
+                        if (user != null)
+                        {
+                            RoleModel rootRole = context.Roles.FirstOrDefault(x => x.Name.ToLower() == "root");
+                            if (rootRole is null)
+                            {
+                                rootRole = new RoleModel() { Name = "root" };
+                                context.Roles.Add(rootRole);
+                                context.SaveChanges();
+                            }
+                            user.RoleId = rootRole.Id;
+                            context.SaveChanges();
+                        }
                     }
                 }
                 catch (Exception ex)
