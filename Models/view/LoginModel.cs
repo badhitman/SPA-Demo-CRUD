@@ -14,5 +14,7 @@ namespace SPADemoCRUD.Models
         [Required(ErrorMessage = "Не указан пароль")]
         [DataType(DataType.Password)]
         public string PasswordLogin { get; set; }
+
+        public string g_recaptcha_response { get; set; }
     }
 }

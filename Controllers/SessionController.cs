@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using reCaptcha.Models.VerifyingUsersResponse;
+using reCaptcha.stat;
 using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
@@ -20,9 +23,11 @@ namespace SPADemoCRUD.Controllers
     public class SessionController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
+        private readonly AppConfig AppOptions;
 
-        public SessionController(AppDataBaseContext context)
+        public SessionController(AppDataBaseContext context, IOptions<AppConfig> options)
         {
+            AppOptions = options.Value;
             _context = context;
         }
 
@@ -31,15 +36,38 @@ namespace SPADemoCRUD.Controllers
         public ActionResult<object> Get()
         {
             string role = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+            if (User.Identity.IsAuthenticated || (!AppOptions.IsEnableReCaptchaV2 && !AppOptions.IsEnableReCaptchaV2Invisible))
+            {
+                return new { User.Identity.IsAuthenticated, User.Identity.Name, role };
+            }
+            else if (AppOptions.IsEnableReCaptchaV2)
+            {
+                return new { User.Identity.IsAuthenticated, User.Identity.Name, role, AppOptions.reCaptchaV2PublicKey };
+            }
+            else if (AppOptions.IsEnableReCaptchaV2Invisible)
+            {
+                return new { User.Identity.IsAuthenticated, User.Identity.Name, role, AppOptions.reCaptchaV2InvisiblePublicKey };
+            }
+
             return new { User.Identity.IsAuthenticated, User.Identity.Name, role };
         }
 
         [HttpPost]
-        public async void Post([FromBody] RegisterModel value)
+        public async void Post([FromBody] RegisterModel regUser)
         {
             if (ModelState.IsValid)
             {
-                UserModel user = _context.Users.FirstOrDefault(u => u.Email == value.EmailRegister);
+                if (AppOptions.IsEnableReCaptchaV2 || AppOptions.IsEnableReCaptchaV2Invisible)
+                {
+                    reCaptcha2ResponseModel reCaptcha2Status = reCaptchaVerifier.reCaptcha2SiteVerify(AppOptions.reCaptchaV2PrivatKey, regUser.g_recaptcha_response, HttpContext.Connection.RemoteIpAddress.ToString());
+
+                    if (reCaptcha2Status is null || !reCaptcha2Status.success || (reCaptcha2Status.ErrorСodes != null && reCaptcha2Status.ErrorСodes.Length > 0))
+                    {
+                        ModelState.AddModelError("", "Вы не прошли проверку reCaptcha. Повторите попытку ещё раз.");
+                    }
+                }
+
+                UserModel user = _context.Users.FirstOrDefault(u => u.Email == regUser.EmailRegister);
                 if (user == null)
                 {
                     RoleModel userRole = _context.Roles.FirstOrDefault(x => x.Name.ToLower() == "user");
@@ -58,7 +86,7 @@ namespace SPADemoCRUD.Controllers
                         _context.SaveChanges();
                     }
 
-                    user = new UserModel { Email = value.EmailRegister, Name = value.UsernameRegister, Password = value.PasswordRegister, RoleId = userRole.Id, DepartmentId = userDepartment.Id };
+                    user = new UserModel { Email = regUser.EmailRegister, Name = regUser.UsernameRegister, Password = regUser.PasswordRegister, RoleId = userRole.Id, DepartmentId = userDepartment.Id };
                     _context.Users.Add(user);
                     _context.SaveChanges();
 
@@ -72,11 +100,21 @@ namespace SPADemoCRUD.Controllers
         }
 
         [HttpPut]
-        public void Put([FromBody] LoginModel senderUser)
+        public async void Put([FromBody] LoginModel loginUser)
         {
             if (ModelState.IsValid)
             {
-                UserModel user = _context.Users.Include(x => x.Role).FirstOrDefault(u => u.Email == senderUser.EmailLogin && u.Password == senderUser.PasswordLogin);
+                if (AppOptions.IsEnableReCaptchaV2 || AppOptions.IsEnableReCaptchaV2Invisible)
+                {
+                    reCaptcha2ResponseModel reCaptcha2Status = reCaptchaVerifier.reCaptcha2SiteVerify(AppOptions.reCaptchaV2PrivatKey, loginUser.g_recaptcha_response, HttpContext.Connection.RemoteIpAddress.ToString());
+
+                    if (reCaptcha2Status is null || !reCaptcha2Status.success || (reCaptcha2Status.ErrorСodes != null && reCaptcha2Status.ErrorСodes.Length > 0))
+                    {
+                        ModelState.AddModelError("", "Вы не прошли проверку reCaptcha. Повторите попытку ещё раз.");
+                    }
+                }
+
+                UserModel user = _context.Users.Include(x => x.Role).FirstOrDefault(u => u.Email == loginUser.EmailLogin && u.Password == loginUser.PasswordLogin);
                 if (user != null)
                 {
                     _ = Authenticate(user);

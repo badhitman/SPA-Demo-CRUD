@@ -26,6 +26,9 @@ export class SignIn extends Component {
             return obj;
         }, {});
 
+        var tmp = jQuery(`#recaptchaWıdget${form.name} textarea`).first().val();
+        sendedFormData.g_recaptcha_response = tmp;
+
         try {
             var fetchInitOptions = {};
             switch (form.name) {
@@ -77,7 +80,6 @@ export class SignIn extends Component {
                 </form>
             );
         }
-
         return (
             <div className="row">
                 <div className="col-sm-5 mb-3">
@@ -97,6 +99,7 @@ export class SignIn extends Component {
                                 </div>
                                 <button type="button" className="btn btn-primary" onClick={this.handleClickButton}>Вход</button>
                             </form>
+                            <div id={`recaptchaWıdget${this.authorisationFormName}`} className="g-recaptcha mt-2" data-sitekey={App.session.reCaptchaV2PublicKey}></div>
                         </div>
                     </div>
                 </div>
@@ -138,10 +141,20 @@ export class SignIn extends Component {
                                 </div>
                                 <button type="button" className="btn btn-primary" onClick={this.handleClickButton}>Регистрация</button>
                             </form>
+                            <div id={`recaptchaWıdget${this.registrationFormName}`} className="g-recaptcha mt-2" data-sitekey={App.session.reCaptchaV2PublicKey}></div>
                         </div>
                     </div>
                 </div>
             </div>
         );
+    }
+
+    componentDidMount() {
+        if (jQuery.find(`#recaptchaWıdget${this.authorisationFormName}`).length) {
+            grecaptcha.render(`recaptchaWıdget${this.authorisationFormName}`);
+        }
+        if (jQuery.find(`#recaptchaWıdget${this.registrationFormName}`).length) {
+            grecaptcha.render(`recaptchaWıdget${this.registrationFormName}`);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 namespace SPADemoCRUD.Models
@@ -22,5 +23,7 @@ namespace SPADemoCRUD.Models
         [DataType(DataType.Password)]
         [Compare("PasswordRegister", ErrorMessage = "Пароль введен неверно")]
         public string ConfirmPasswordRegister { get; set; }
+
+        public string g_recaptcha_response { get; set; }
     }
 }
