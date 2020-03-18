@@ -24,3 +24,5 @@ demo app (crud): react // c# .net core && web-api // authorization + registratio
 ![карточка пользователя 1](./screenshots/user-card.jpg)
 
 ![карточка пользователя 2](./screenshots/user-delete.jpg)
+
+![конфигурационный файл приложения](./screenshots/appsettings.json.jpg)
