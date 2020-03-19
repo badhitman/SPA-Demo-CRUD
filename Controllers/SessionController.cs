@@ -70,6 +70,11 @@ namespace SPADemoCRUD.Controllers
         [HttpPost]
         public async void Post([FromBody] RegisterModel regUser)
         {
+            if (!AppOptions.AllowedWebRegistration)
+            {
+                return;
+            }
+
             if (ModelState.IsValid)
             {
                 if (AppOptions.IsEnableReCaptchaV2 || AppOptions.IsEnableReCaptchaV2Invisible)
@@ -117,6 +122,11 @@ namespace SPADemoCRUD.Controllers
         [HttpPut]
         public async void Put([FromBody] LoginModel loginUser)
         {
+            if (!AppOptions.AllowedWebLogin)
+            {
+                return;
+            }
+
             if (ModelState.IsValid)
             {
                 if (AppOptions.IsEnableReCaptchaV2 || AppOptions.IsEnableReCaptchaV2Invisible)

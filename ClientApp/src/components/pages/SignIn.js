@@ -85,63 +85,67 @@ export class SignIn extends Component {
                 <div className="col-sm-5 mb-3">
                     <div className="card">
                         <div className="card-body">
-                            <h5 className="card-title">Вход</h5>
-                            <p className="card-text">Вход в существующий акаунт</p>
-                            <form name={this.authorisationFormName}>
-                                <div className="form-group">
-                                    <label htmlFor="EmailAuth">Email address</label>
-                                    <input type="email" className="form-control" name='EmailLogin' id="EmailAuth" aria-describedby="emailAuthHelp" placeholder="Enter email" />
-                                    <small id="emailAuthHelp" className="form-text text-muted">Для входа, укажите свой Email</small>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="exampleInputPassword1">Password</label>
-                                    <input type="password" className="form-control" name='PasswordLogin' id="exampleInputPassword1" placeholder="Password" />
-                                </div>
-                                <button type="button" className="btn btn-primary" onClick={this.handleClickButton}>Вход</button>
-                            </form>
-                            {this.getRecaptchaDiv(this.authorisationFormName)}
+                            <fieldset disabled={App.session.allowedWebLogin !== true}>
+                                <h5 className="card-title">Вход</h5>
+                                <p className="card-text">Вход в существующий акаунт</p>
+                                <form name={this.authorisationFormName}>
+                                    <div className="form-group">
+                                        <label htmlFor="EmailAuth">Email address</label>
+                                        <input type="email" className="form-control" name='EmailLogin' id="EmailAuth" aria-describedby="emailAuthHelp" placeholder="Enter email" />
+                                        <small id="emailAuthHelp" className="form-text text-muted">Для входа, укажите свой Email</small>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="exampleInputPassword1">Password</label>
+                                        <input type="password" className="form-control" name='PasswordLogin' id="exampleInputPassword1" placeholder="Password" />
+                                    </div>
+                                    <button type="button" className="btn btn-primary" onClick={this.handleClickButton}>Вход</button>
+                                </form>
+                                {this.getRecaptchaDiv(this.authorisationFormName)}
+                            </fieldset>
                         </div>
                     </div>
                 </div>
                 <div className="col-sm-7">
                     <div className="card">
                         <div className="card-body">
-                            <h5 className="card-title">Регистрация</h5>
-                            <p className="card-text">Регистрация нового акаунта</p>
-                            <form name={this.registrationFormName}>
-                                <div className='form-row'>
-                                    <div className='col'>
-                                        <div className="form-group">
-                                            <label htmlFor="EmailRegister">Email address</label>
-                                            <input type="email" className="form-control" name='EmailRegister' id="EmailRegister" aria-describedby="emailRegisterHelp" placeholder="Enter email" />
-                                            <small id="emailRegisterHelp" className="form-text text-muted">Для регистрации, укажите Email</small>
+                            <fieldset disabled={App.session.allowedWebRegistration !== true}>
+                                <h5 className="card-title">Регистрация</h5>
+                                <p className="card-text">Регистрация нового акаунта</p>
+                                <form name={this.registrationFormName}>
+                                    <div className='form-row'>
+                                        <div className='col'>
+                                            <div className="form-group">
+                                                <label htmlFor="EmailRegister">Email address</label>
+                                                <input type="email" className="form-control" name='EmailRegister' id="EmailRegister" aria-describedby="emailRegisterHelp" placeholder="Enter email" />
+                                                <small id="emailRegisterHelp" className="form-text text-muted">Для регистрации, укажите Email</small>
+                                            </div>
+                                        </div>
+                                        <div className='col'>
+                                            <div className="form-group">
+                                                <label htmlFor="UsernameRegister">Username</label>
+                                                <input type="text" className="form-control" name='UsernameRegister' id="UsernameRegister" aria-describedby="UsernameRegisterHelp" placeholder="Enter public name" />
+                                                <small id="UsernameRegisterHelp" className="form-text text-muted">Публичное имя</small>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className='col'>
-                                        <div className="form-group">
-                                            <label htmlFor="UsernameRegister">Username</label>
-                                            <input type="text" className="form-control" name='UsernameRegister' id="UsernameRegister" aria-describedby="UsernameRegisterHelp" placeholder="Enter public name" />
-                                            <small id="UsernameRegisterHelp" className="form-text text-muted">Публичное имя</small>
+                                    <div className='form-row'>
+                                        <div className='col'>
+                                            <div className="form-group">
+                                                <label htmlFor="PasswordRegister">Пароль</label>
+                                                <input type="password" className="form-control" name='PasswordRegister' id="PasswordRegister" placeholder="Password" />
+                                            </div>
+                                        </div>
+                                        <div className='col'>
+                                            <div className="form-group">
+                                                <label htmlFor="ConfirmPasswordRegister">Повтор пароля</label>
+                                                <input type="password" className="form-control" name='ConfirmPasswordRegister' id="ConfirmPassword" placeholder="Confirm password" />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className='form-row'>
-                                    <div className='col'>
-                                        <div className="form-group">
-                                            <label htmlFor="PasswordRegister">Пароль</label>
-                                            <input type="password" className="form-control" name='PasswordRegister' id="PasswordRegister" placeholder="Password" />
-                                        </div>
-                                    </div>
-                                    <div className='col'>
-                                        <div className="form-group">
-                                            <label htmlFor="ConfirmPasswordRegister">Повтор пароля</label>
-                                            <input type="password" className="form-control" name='ConfirmPasswordRegister' id="ConfirmPassword" placeholder="Confirm password" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="button" className="btn btn-primary" onClick={this.handleClickButton}>Регистрация</button>
-                            </form>
-                            {this.getRecaptchaDiv(this.registrationFormName)}
+                                    <button type="button" className="btn btn-primary" onClick={this.handleClickButton}>Регистрация</button>
+                                </form>
+                                {this.getRecaptchaDiv(this.registrationFormName)}
+                            </fieldset>
                         </div>
                     </div>
                 </div>
@@ -154,9 +158,17 @@ export class SignIn extends Component {
      * @param {any} prefix - префикс: регистрация или авторизация
      */
     getRecaptchaDiv(prefix) {
-        var PublicKey = this.getRecaptchaPublicKey();// 
+        if (App.session.allowedWebLogin !== true && prefix === this.authorisationFormName) {
+            return <div className="alert alert-warning mt-3 mb-1" role="alert">Авторизация при помощи Web формы отключена администратором!</div>;
+        }
+        if (App.session.allowedWebRegistration !== true && prefix === this.registrationFormName) {
+            return <div className="alert alert-warning mt-3 mb-1" role="alert">Регистрация при помощи Web формы отключена администратором!</div>;
+        }
 
-        if (App.session.isAuthenticated === false && PublicKey !== null && PublicKey.length > 0) {
+        const PublicKey = this.getRecaptchaPublicKey();
+
+        if (App.session.isAuthenticated === false && PublicKey !== null && PublicKey.length > 0 &&
+            (App.session.allowedWebLogin === true || App.session.allowedWebRegistration === true)) {
             return (<div id={`recaptchaWıdget${prefix}`} className="g-recaptcha mt-2" data-sitekey={PublicKey}></div>);
         }
 
@@ -165,6 +177,10 @@ export class SignIn extends Component {
 
     /** Получить публичный ключ reCaptcha (null если ни одного ключа не установлено). Приоритет/порядок проверки наличия установленного ключа: 1) Invisible 2) Widget */
     getRecaptchaPublicKey() {
+        if (App.session.allowedWebLogin === false && App.session.allowedWebRegistration === false) {
+            return null;
+        }
+
         // firs priority try Invisible version reCaptcha
         var PublicKey = App.session.reCaptchaV2InvisiblePublicKey;
         if (PublicKey && PublicKey.length > 0) {
@@ -181,6 +197,10 @@ export class SignIn extends Component {
     }
 
     componentDidMount() {
+        if (App.session.allowedWebLogin === false && App.session.allowedWebRegistration === false) {
+            return;
+        }
+
         var PublicKey = this.getRecaptchaPublicKey();
         if (App.session.isAuthenticated === false && PublicKey !== null && PublicKey.length > 0) {
             if (jQuery.find(`#recaptchaWıdget${this.authorisationFormName}`).length) {
