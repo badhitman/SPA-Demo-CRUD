@@ -14,7 +14,7 @@ namespace SPADemoCRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "root, admin, user")]
     public class UsersController : ControllerBase
     {
         private readonly AppDataBaseContext _context;

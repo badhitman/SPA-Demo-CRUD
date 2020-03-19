@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 import React, { Component } from 'react';
-import App from '../../App';
+import App from '../../../App';
 import { NavLink } from 'react-router-dom'
 
 /** Пользователи в контексте департаментов */

@@ -120,7 +120,7 @@ namespace SPADemoCRUD.Controllers
         }
 
         [HttpPut]
-        public async void Put([FromBody] LoginModel loginUser)
+        public void Put([FromBody] LoginModel loginUser)
         {
             if (!AppOptions.AllowedWebLogin)
             {
