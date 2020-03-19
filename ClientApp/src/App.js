@@ -36,7 +36,28 @@ export default class App extends Component {
     static data = { id: '', name: '' };
 
     /** context session */
-    static session = { isAuthenticated: false, name: '', role: '' };
+    static session =
+        {
+            /** Пользователь авторизован */
+            isAuthenticated: false,
+            /** Имя (публичное) авторизованного пользователя */
+            name: '',
+            /** Роль, под которой авторизован пользователь в текущей сессии. При изменении роли пользователю необходимо заново авторизоваться */
+            role: '',
+
+            /** Публичный ключ для работы reCaptcha v2 Invisible */
+            reCaptchaV2InvisiblePublicKey: '',
+            /** Публичный ключ для работы reCaptcha v2 Invisible */
+            reCaptchaV2PublicKey: '',
+
+            /** Разрешение авторизаии через Web форму */
+            AllowedWebLogin: false,
+            /** Разрешение регистрации через Web форму */
+            AllowedWebRegistration: false,
+
+            /** Сообщение/пояснение ответа сервера */
+            message: ''
+        };
 
     render() {
         return (

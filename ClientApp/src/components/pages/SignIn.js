@@ -99,7 +99,7 @@ export class SignIn extends Component {
                                 </div>
                                 <button type="button" className="btn btn-primary" onClick={this.handleClickButton}>Вход</button>
                             </form>
-                            <div id={`recaptchaWıdget${this.authorisationFormName}`} className="g-recaptcha mt-2" data-sitekey={App.session.reCaptchaV2PublicKey}></div>
+                            {this.getRecaptchaDiv(this.authorisationFormName)}
                         </div>
                     </div>
                 </div>
@@ -141,7 +141,7 @@ export class SignIn extends Component {
                                 </div>
                                 <button type="button" className="btn btn-primary" onClick={this.handleClickButton}>Регистрация</button>
                             </form>
-                            <div id={`recaptchaWıdget${this.registrationFormName}`} className="g-recaptcha mt-2" data-sitekey={App.session.reCaptchaV2PublicKey}></div>
+                            {this.getRecaptchaDiv(this.registrationFormName)}
                         </div>
                     </div>
                 </div>
@@ -149,12 +149,47 @@ export class SignIn extends Component {
         );
     }
 
-    componentDidMount() {
-        if (jQuery.find(`#recaptchaWıdget${this.authorisationFormName}`).length) {
-            grecaptcha.render(`recaptchaWıdget${this.authorisationFormName}`);
+    /**
+     * Получить блок формы reCaptcha
+     * @param {any} prefix - префикс: регистрация или авторизация
+     */
+    getRecaptchaDiv(prefix) {
+        var PublicKey = this.getRecaptchaPublicKey();// 
+
+        if (App.session.isAuthenticated === false && PublicKey !== null && PublicKey.length > 0) {
+            return (<div id={`recaptchaWıdget${prefix}`} className="g-recaptcha mt-2" data-sitekey={PublicKey}></div>);
         }
-        if (jQuery.find(`#recaptchaWıdget${this.registrationFormName}`).length) {
-            grecaptcha.render(`recaptchaWıdget${this.registrationFormName}`);
+
+        return <></>;
+    }
+
+    /** Получить публичный ключ reCaptcha (null если ни одного ключа не установлено). Приоритет/порядок проверки наличия установленного ключа: 1) Invisible 2) Widget */
+    getRecaptchaPublicKey() {
+        // firs priority try Invisible version reCaptcha
+        var PublicKey = App.session.reCaptchaV2InvisiblePublicKey;
+        if (PublicKey && PublicKey.length > 0) {
+            return PublicKey;
+        }
+
+        // second try Widget version reCaptcha
+        PublicKey = App.session.reCaptchaV2PublicKey;
+        if (PublicKey && PublicKey.length > 0) {
+            return PublicKey;
+        }
+
+        return null;
+    }
+
+    componentDidMount() {
+        var PublicKey = this.getRecaptchaPublicKey();
+        if (App.session.isAuthenticated === false && PublicKey !== null && PublicKey.length > 0) {
+            if (jQuery.find(`#recaptchaWıdget${this.authorisationFormName}`).length) {
+                grecaptcha.render(`recaptchaWıdget${this.authorisationFormName}`);
+            }
+            //
+            if (jQuery.find(`#recaptchaWıdget${this.registrationFormName}`).length) {
+                grecaptcha.render(`recaptchaWıdget${this.registrationFormName}`);
+            }
         }
     }
 }

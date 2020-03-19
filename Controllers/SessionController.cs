@@ -35,21 +35,36 @@ namespace SPADemoCRUD.Controllers
         [HttpGet]
         public ActionResult<object> Get()
         {
-            string role = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
-            if (User.Identity.IsAuthenticated || (!AppOptions.IsEnableReCaptchaV2 && !AppOptions.IsEnableReCaptchaV2Invisible))
+            if (User.Identity.IsAuthenticated)
             {
-                return new { User.Identity.IsAuthenticated, User.Identity.Name, role };
-            }
-            else if (AppOptions.IsEnableReCaptchaV2)
-            {
-                return new { User.Identity.IsAuthenticated, User.Identity.Name, role, AppOptions.reCaptchaV2PublicKey };
-            }
-            else if (AppOptions.IsEnableReCaptchaV2Invisible)
-            {
-                return new { User.Identity.IsAuthenticated, User.Identity.Name, role, AppOptions.reCaptchaV2InvisiblePublicKey };
+                string role = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+                return new
+                {
+                    User.Identity.IsAuthenticated,
+                    User.Identity.Name,
+                    role
+                };
             }
 
-            return new { User.Identity.IsAuthenticated, User.Identity.Name, role };
+            if (AppOptions.AllowedWebLogin || AppOptions.AllowedWebRegistration)
+            {
+                return new
+                {
+                    isAuthenticated = false,
+
+                    AppOptions.reCaptchaV2InvisiblePublicKey,
+                    AppOptions.reCaptchaV2PublicKey,
+
+                    AppOptions.AllowedWebLogin,
+                    AppOptions.AllowedWebRegistration
+                };
+            }
+
+            return new
+            {
+                isAuthenticated = false,
+                message = "Web авторизация/регистрация отключена администратором"
+            };
         }
 
         [HttpPost]
