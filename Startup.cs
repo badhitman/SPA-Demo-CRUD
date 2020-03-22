@@ -86,7 +86,13 @@ namespace SPADemoCRUD
                 options.Cookie.IsEssential = true;
             });
             services.AddMemoryCache();
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.LoginPath = new PathString("/login/"); });
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => 
+            { 
+                options.LoginPath = new PathString("/signin/");
+                options.AccessDeniedPath = new PathString("/accessdenied/");
+                options.SlidingExpiration = true;
+                options.LogoutPath = new PathString("/signin/");
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

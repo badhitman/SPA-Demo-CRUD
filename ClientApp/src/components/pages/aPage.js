@@ -4,7 +4,7 @@
 import React, { Component } from 'react';
 import App from '../../App';
 import jQuery from 'jquery';
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom';
 
 /** Базовый (типа абстрактный) компонент */
 export class aPage extends Component {
@@ -49,8 +49,17 @@ export class aPageList extends aPage {
 
     async load() {
         const response = await fetch(`/api/${this.apiName}/`, { credentials: 'include' });
-        App.data = await response.json();
-        this.setState({ cardTitle: this.listCardHeader, loading: false, cardContents: this.body() });
+        if (response.redirected === true) {
+            window.location.href = response.url;
+        }
+        try {
+            App.data = await response.json();
+            this.setState({ cardTitle: this.listCardHeader, loading: false, cardContents: this.body() });
+        }
+        catch(err){
+            this.setState({
+                cardTitle: `Ошибка...`, loading: false, cardContents: <p>{err}</p> });
+        }
     }
 }
 
@@ -131,6 +140,10 @@ export class aPageCard extends aPage {
                     console.error(msg);
                     alert(msg);
                     break;
+            }
+
+            if (result.redirected === true) {
+                window.location.href = result.url;
             }
 
             if (result.ok) {

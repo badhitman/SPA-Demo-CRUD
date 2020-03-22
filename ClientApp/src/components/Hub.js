@@ -19,6 +19,7 @@ import { deleteDepartment } from './pages/departments/deleteDepartment';
 import { SignIn } from './pages/SignIn';
 import { NavMenu } from './NavMenu';
 import App from '../App';
+import { AccessDenied } from './AccessDenied';
 
 export class Hub extends Component {
     static displayName = Hub.name;
@@ -54,6 +55,7 @@ export class Hub extends Component {
                         <Route path={`/departments/${App.createNameMethod}`} component={createDepartment} />
                         <Route path={`/departments/${App.deleteNameMethod}`} component={deleteDepartment} />
 
+                        <Route path={'/accessdenied/'} component={AccessDenied} />
                         <Route component={NotFound} />
                     </Switch>
                 </main>
