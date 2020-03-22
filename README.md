@@ -7,7 +7,9 @@ demo app (crud): react // c# .net core && web-api // authorization + registratio
 
 ![страница входа/регистрации пользователя 1](./screenshots/log-in.jpg)
 
-![страница входа/регистрации пользователя 2](./screenshots/log-in-off-registration.jpg)
+![страница входа/регистрации пользователя 2](./screenshots/log-in-2.jpg)
+
+![страница входа/регистрации пользователя 3](./screenshots/log-in-off-registration.jpg)
 
 ![домашняя страница зарегистрированного пользователя](./screenshots/home-page-user.jpg)
 

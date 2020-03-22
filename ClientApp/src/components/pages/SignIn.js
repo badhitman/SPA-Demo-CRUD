@@ -80,7 +80,7 @@ export class SignIn extends Component {
                 jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(5000); }));
                 // console.error(msg);
                 const msg = `Ошибка обработки HTTP запроса. Status: ${result.status}`;
-                alert(msg);
+                //alert(msg);
             }
 
         } catch (error) {
