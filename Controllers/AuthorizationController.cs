@@ -21,7 +21,7 @@ namespace SPADemoCRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthorizationController : SessionController
+    public class AuthorizationController : aSessionController
     {
 
         public AuthorizationController(AppDataBaseContext db_context, IOptions<AppConfig> options) : base(db_context, options) { }

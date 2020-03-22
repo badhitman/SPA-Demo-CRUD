@@ -23,7 +23,7 @@ namespace SPADemoCRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RegistrationController : SessionController
+    public class RegistrationController : aSessionController
     {
         public RegistrationController(AppDataBaseContext db_context, IOptions<AppConfig> options) : base(db_context, options) { }
 

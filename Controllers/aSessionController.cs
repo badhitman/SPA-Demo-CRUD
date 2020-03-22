@@ -11,12 +11,12 @@ using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
 {
-    public class SessionController : ControllerBase
+    public abstract class aSessionController : ControllerBase
     {
         protected readonly AppConfig AppOptions;
         protected readonly AppDataBaseContext DbContext;
 
-        public SessionController(AppDataBaseContext db_context, IOptions<AppConfig> options)
+        public aSessionController(AppDataBaseContext db_context, IOptions<AppConfig> options)
         {
             AppOptions = options.Value;
             DbContext = db_context;
