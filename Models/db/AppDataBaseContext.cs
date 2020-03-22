@@ -9,7 +9,6 @@ namespace SPADemoCRUD.Models
     {
         public DbSet<DepartmentModel> Departments { get; set; }
         public DbSet<UserModel> Users { get; set; }
-        public DbSet<RoleModel> Roles { get; set; }
 
         public AppDataBaseContext(DbContextOptions<AppDataBaseContext> options)
             : base(options)

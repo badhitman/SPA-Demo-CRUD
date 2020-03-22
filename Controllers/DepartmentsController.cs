@@ -13,7 +13,7 @@ namespace SPADemoCRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "root, admin")]
+    [Authorize(Policy = "AccessMinLevelAdmin")]
     public class DepartmentsController : ControllerBase
     {
         private readonly AppDataBaseContext _context;

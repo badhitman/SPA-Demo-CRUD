@@ -7,6 +7,9 @@ import { Layout } from './components/Layout';
 import { NotFound } from './components/NotFound';
 import { Hub } from './components/Hub';
 
+import jquery from 'jquery';
+import './jquery.cookie.js';
+
 import './custom.css'
 
 /** Контекст приложения */
@@ -14,7 +17,17 @@ export default class App extends Component {
     static displayName = App.name;
 
     /** доступные типы данных (список REST котроллеров) */
-    static allowsControllers = ['users', 'departments', 'signin'];
+    static allowsControllers =
+        [
+            /** Пользователи */
+            'users',
+            /** Департаменты/отделы */
+            'departments',
+            /** Роли/Права */
+            'roles',
+            /** Сессия (logIn/logOut) */
+            'signin'
+        ];
 
     /** Имя метода для отображения списка объектов */
     static listNameMethod = 'list';
@@ -53,13 +66,58 @@ export default class App extends Component {
             /** Разрешение авторизаии через Web форму */
             AllowedWebLogin: false,
             /** Разрешение регистрации через Web форму */
-            AllowedWebRegistration: false,
-
-            /** Сообщение/пояснение ответа сервера */
-            message: ''
+            AllowedWebRegistration: false
         };
 
+    static readSession() {
+        var name = jquery.cookie('name');
+        var role = jquery.cookie('role');
+
+        if (name && name.length > 0) {
+            App.session =
+            {
+                name: name,
+                role: role,
+                isAuthenticated: true
+            };
+        }
+        else {
+            var AllowedWebLogin = jquery.cookie('AllowedWebLogin');
+            if (AllowedWebLogin && AllowedWebLogin.length > 0) {
+                AllowedWebLogin = (AllowedWebLogin.toLowerCase() === "true");
+            }
+            else {
+                AllowedWebLogin = false;
+            }
+
+            var AllowedWebRegistration = jquery.cookie('AllowedWebRegistration');
+            if (AllowedWebRegistration && AllowedWebRegistration.length > 0) {
+                AllowedWebRegistration = (AllowedWebRegistration.toLowerCase() === "true");
+            }
+            else {
+                AllowedWebRegistration = false;
+            }
+
+            App.session =
+            {
+                AllowedWebLogin: AllowedWebLogin,
+                AllowedWebRegistration: AllowedWebRegistration,
+                isAuthenticated: false
+            };
+
+            if (AllowedWebLogin === true || AllowedWebRegistration === true) {
+                App.session.reCaptchaV2InvisiblePublicKey = jquery.cookie('reCaptchaV2InvisiblePublicKey');
+                App.session.reCaptchaV2PublicKey = jquery.cookie('reCaptchaV2PublicKey');
+            }
+            else {
+                App.session.reCaptchaV2InvisiblePublicKey = '';
+                App.session.reCaptchaV2PublicKey = '';
+            }
+        }
+    }
+
     render() {
+        App.readSession();
         return (
             <Layout>
                 <Switch>

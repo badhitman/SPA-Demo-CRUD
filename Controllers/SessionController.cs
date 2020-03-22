@@ -1,181 +1,92 @@
-////////////////////////////////////////////////
-// © https://github.com/badhitman - @fakegov 
-////////////////////////////////////////////////
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using reCaptcha.Models.VerifyingUsersResponse;
-using reCaptcha.stat;
 using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class SessionController : ControllerBase
     {
-        private readonly AppDataBaseContext _context;
-        private readonly AppConfig AppOptions;
+        protected readonly AppConfig AppOptions;
+        protected readonly AppDataBaseContext DbContext;
 
-        public SessionController(AppDataBaseContext context, IOptions<AppConfig> options)
+        public SessionController(AppDataBaseContext db_context, IOptions<AppConfig> options)
         {
             AppOptions = options.Value;
-            _context = context;
+            DbContext = db_context;
         }
 
-        // GET: api/Account
-        [HttpGet]
-        public ActionResult<object> Get()
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                string role = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
-                return new
-                {
-                    User.Identity.IsAuthenticated,
-                    User.Identity.Name,
-                    role
-                };
-            }
-
-            if (AppOptions.AllowedWebLogin || AppOptions.AllowedWebRegistration)
-            {
-                return new
-                {
-                    isAuthenticated = false,
-
-                    AppOptions.reCaptchaV2InvisiblePublicKey,
-                    AppOptions.reCaptchaV2PublicKey,
-
-                    AppOptions.AllowedWebLogin,
-                    AppOptions.AllowedWebRegistration
-                };
-            }
-
-            return new
-            {
-                isAuthenticated = false,
-                message = "Web авторизация/регистрация отключена администратором"
-            };
-        }
-
-        [HttpPost]
-        public async void Post([FromBody] RegisterModel regUser)
-        {
-            if (!AppOptions.AllowedWebRegistration)
-            {
-                return;
-            }
-
-            if (ModelState.IsValid)
-            {
-                if (AppOptions.IsEnableReCaptchaV2 || AppOptions.IsEnableReCaptchaV2Invisible)
-                {
-                    reCaptcha2ResponseModel reCaptcha2Status = reCaptchaVerifier.reCaptcha2SiteVerify(AppOptions.reCaptchaV2PrivatKey, regUser.g_recaptcha_response, HttpContext.Connection.RemoteIpAddress.ToString());
-
-                    if (reCaptcha2Status is null || !reCaptcha2Status.success || (reCaptcha2Status.ErrorСodes != null && reCaptcha2Status.ErrorСodes.Length > 0))
-                    {
-                        ModelState.AddModelError("", "Вы не прошли проверку reCaptcha. Повторите попытку ещё раз.");
-                    }
-                }
-
-                UserModel user = _context.Users.FirstOrDefault(u => u.Email == regUser.EmailRegister);
-                if (user == null)
-                {
-                    RoleModel userRole = _context.Roles.FirstOrDefault(x => x.Name.ToLower() == "user");
-                    if (userRole is null)
-                    {
-                        userRole = new RoleModel() { Name = "user" };
-                        _context.Roles.Add(userRole);
-                        _context.SaveChanges();
-                    }
-
-                    DepartmentModel userDepartment = _context.Departments.FirstOrDefault(x => x.Name.ToLower() == "user");
-                    if (userDepartment is null)
-                    {
-                        userDepartment = new DepartmentModel() { Name = "user" };
-                        _context.Departments.Add(userDepartment);
-                        _context.SaveChanges();
-                    }
-
-                    user = new UserModel { Email = regUser.EmailRegister, Name = regUser.UsernameRegister, Password = regUser.PasswordRegister, RoleId = userRole.Id, DepartmentId = userDepartment.Id };
-                    _context.Users.Add(user);
-                    _context.SaveChanges();
-
-                    await Authenticate(user);
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Некорректные логин и(или) пароль");
-                }
-            }
-        }
-
-        [HttpPut]
-        public void Put([FromBody] LoginModel loginUser)
-        {
-            if (!AppOptions.AllowedWebLogin)
-            {
-                return;
-            }
-
-            if (ModelState.IsValid)
-            {
-                if (AppOptions.IsEnableReCaptchaV2 || AppOptions.IsEnableReCaptchaV2Invisible)
-                {
-                    reCaptcha2ResponseModel reCaptcha2Status = reCaptchaVerifier.reCaptcha2SiteVerify(AppOptions.reCaptchaV2PrivatKey, loginUser.g_recaptcha_response, HttpContext.Connection.RemoteIpAddress.ToString());
-
-                    if (reCaptcha2Status is null || !reCaptcha2Status.success || (reCaptcha2Status.ErrorСodes != null && reCaptcha2Status.ErrorСodes.Length > 0))
-                    {
-                        ModelState.AddModelError("", "Вы не прошли проверку reCaptcha. Повторите попытку ещё раз.");
-                    }
-                }
-
-                UserModel user = _context.Users.Include(x => x.Role).FirstOrDefault(u => u.Email == loginUser.EmailLogin && u.Password == loginUser.PasswordLogin);
-                if (user != null)
-                {
-                    _ = Authenticate(user);
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Некорректные логин и(или) пароль");
-                }
-            }
-        }
-
-        private async Task Authenticate(UserModel user)
+        protected async Task Authenticate(UserModel user)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role?.Name)
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role.ToString())
             };
             //
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(id);
+            HttpContext.User = claimsPrincipal;
             //
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+            UpdateSession(HttpContext, AppOptions);
         }
 
-        // GET: api/Account/xyz-xyz-xyz-xyz
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<object>> LoginByToken(string id)
-        //{
-        //    return null;
-        //}
-
-        [HttpDelete]
-        [Authorize]
-        public async void Delete()
+        public static void UpdateSession(HttpContext httpContext, AppConfig AppOptions)
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            CookieOptions cookieOptions = new CookieOptions()
+            {
+                Expires = DateTime.Now.AddSeconds(AppOptions.SessionCookieExpiresSeconds),
+                HttpOnly = false,
+                Secure = AppOptions.SessionCookieSslSecureOnly
+            };
+
+            if (httpContext.User.Identity.IsAuthenticated)
+            {
+                httpContext.Response.Cookies.Delete("AllowedWebLogin");
+                httpContext.Response.Cookies.Delete("AllowedWebRegistration");
+                httpContext.Response.Cookies.Delete("reCaptchaV2InvisiblePublicKey");
+                httpContext.Response.Cookies.Delete("reCaptchaV2PublicKey");
+
+                httpContext.Response.Cookies.Append("name", httpContext.User.Identity.Name, cookieOptions);
+                string role = httpContext.User.HasClaim(c => c.Type == ClaimTypes.Role)
+                ? httpContext.User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value
+                : "guest";
+                httpContext.Response.Cookies.Append("role", role, cookieOptions);
+            }
+            else
+            {
+                httpContext.Response.Cookies.Delete("name");
+                httpContext.Response.Cookies.Delete("role");
+
+                if (AppOptions.AllowedWebLogin || AppOptions.AllowedWebRegistration)
+                {
+                    httpContext.Response.Cookies.Append("AllowedWebLogin", AppOptions.AllowedWebLogin.ToString(), cookieOptions);
+                    httpContext.Response.Cookies.Append("AllowedWebRegistration", AppOptions.AllowedWebRegistration.ToString(), cookieOptions);
+                    if (!string.IsNullOrWhiteSpace(AppOptions.reCaptchaV2InvisiblePublicKey))
+                    {
+                        httpContext.Response.Cookies.Append("reCaptchaV2InvisiblePublicKey", AppOptions.reCaptchaV2InvisiblePublicKey, cookieOptions);
+                    }
+                    else
+                    {
+                        httpContext.Response.Cookies.Delete("reCaptchaV2InvisiblePublicKey");
+                    }
+                    if (!string.IsNullOrWhiteSpace(AppOptions.reCaptchaV2PublicKey))
+                    {
+                        httpContext.Response.Cookies.Append("reCaptchaV2PublicKey", AppOptions.reCaptchaV2PublicKey ?? "", cookieOptions);
+                    }
+                    else
+                    {
+                        httpContext.Response.Cookies.Delete("reCaptchaV2PublicKey");
+                    }
+                }
+            }
         }
     }
 }

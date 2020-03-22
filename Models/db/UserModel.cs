@@ -13,8 +13,7 @@ namespace SPADemoCRUD.Models
         public int DepartmentId { get; set; }
         public DepartmentModel Department { get; set; }
 
-        public int RoleId { get; set; }
-        public RoleModel Role { get; set; }
+        public AccessLevelUserRolesEnum Role { get; set; } = AccessLevelUserRolesEnum.Guest;
 
         public long TelegramId { get; set; }
 

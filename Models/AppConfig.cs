@@ -3,7 +3,7 @@
     public class AppConfig
     {
         #region reCaptcha
-        
+
         /// <summary>
         /// (ПУБЛИЧНЫЙ. reCaptcha V2)
         /// Используйте этот ключ в HTML-коде, который ваш сайт передает на устройства пользователей.
@@ -27,8 +27,10 @@
         /// </summary>
         public string reCaptchaV2InvisiblePrivatKey { get; set; }
         public bool IsEnableReCaptchaV2Invisible => !string.IsNullOrEmpty(reCaptchaV2InvisiblePublicKey) && !string.IsNullOrEmpty(reCaptchaV2InvisiblePrivatKey);
-        
+
         #endregion
+
+        #region session
 
         /// <summary>
         /// Разрешение Web регистрации. Если False то регистрация через веб интерфейс запрещён
@@ -41,14 +43,26 @@
         public bool AllowedWebLogin { get; set; } = false;
 
         /// <summary>
-        /// Установка прав пользователю ROOT по его ID.
-        /// Указав в этом параметре ID пользователя, система при запуске назначит ему (пользовтаелю) права ROOT
+        /// Срок жизни сессии и связаных с ней кукисов
         /// </summary>
-        public int SetUserRootById { get; set; }
+        public int SessionCookieExpiresSeconds { get; set; } = 60 * 60;
+
+        /// <summary>
+        /// Передавать cookie через Secure Sockets Layer (SSL) - то есть только по протоколу HTTPS
+        /// </summary>
+        public bool SessionCookieSslSecureOnly { get; set; } = false;
+
+        #endregion
 
         /// <summary>
         /// Флаг/Признак того что при первычной инициализации/создании базы данных требуется загрузить демо данные
         /// </summary>
         public bool HasDemoData { get; set; } = true;
+
+        /// <summary>
+        /// Установка прав пользователю ROOT по его ID.
+        /// Указав в этом параметре ID пользователя, система при запуске назначит ему (пользовтаелю) права ROOT
+        /// </summary>
+        public int SetUserRootById { get; set; }
     }
 }

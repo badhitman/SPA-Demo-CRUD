@@ -12,9 +12,9 @@ namespace SPADemoCRUD.Models
         [DataType(DataType.EmailAddress)]
         public string EmailRegister { get; set; }
 
-        [Required(ErrorMessage = "Не указан Email")]
+        [Required(ErrorMessage = "Не указано публичное имя")]
         [DataType(DataType.Text)]
-        public string UsernameRegister { get; set; }
+        public string PublicNameRegister { get; set; }
 
         [Required(ErrorMessage = "Не указан пароль")]
         [DataType(DataType.Password)]

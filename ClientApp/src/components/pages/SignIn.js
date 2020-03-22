@@ -7,8 +7,8 @@ import jQuery from 'jquery';
 
 export class SignIn extends Component {
     static displayName = SignIn.name;
-    registrationFormName = 'reg';
-    authorisationFormName = 'auth';
+    registrationFormName = 'registration';
+    authorisationFormName = 'authorization';
     logoutFormName = 'logout';
 
     constructor(props) {
@@ -31,43 +31,84 @@ export class SignIn extends Component {
 
         try {
             var fetchInitOptions = {};
-            switch (form.name) {
-                case this.registrationFormName:
-                    fetchInitOptions.method = 'POST';
-                    fetchInitOptions.body = JSON.stringify(sendedFormData);
-                    fetchInitOptions.headers = { 'Content-Type': 'application/json; charset=utf-8' };
-                    break;
-                case this.authorisationFormName:
-                    fetchInitOptions.method = 'PUT';
-                    fetchInitOptions.body = JSON.stringify(sendedFormData);
-                    fetchInitOptions.headers = { 'Content-Type': 'application/json; charset=utf-8' };
-                    break;
-                case this.logoutFormName:
-                    fetchInitOptions.method = 'DELETE';
-                    break;
-                default:
-                    fetchInitOptions.method = 'GET';
-                    break;
-            }
 
-            var result = await fetch('/api/session/', fetchInitOptions);
-
-            if (result.ok) {
-                const response = await fetch('/api/session/', { credentials: 'include' });
-                const session = await response.json();
-                App.session = session;
-                this.props.history.push('/');
+            if (form.name === this.registrationFormName || form.name === this.authorisationFormName) {
+                fetchInitOptions.method = 'POST';
+                fetchInitOptions.body = JSON.stringify(sendedFormData);
+                fetchInitOptions.headers = { 'Content-Type': 'application/json; charset=utf-8' };
             }
             else {
+                fetchInitOptions.method = 'DELETE';
+            }
+
+            const apiControllerName = (form.name === this.authorisationFormName || form.name === this.logoutFormName)
+                ? this.authorisationFormName
+                : this.registrationFormName;
+
+            var response = await fetch(`/api/${apiControllerName}/`, fetchInitOptions);
+            //if (form.name !== this.registrationFormName) {
+            //    response = await fetch(`/api/${apiControllerName}/`, fetchInitOptions);
+            //}
+            //else {
+            //    response = await fetch(`/api/${this.authorisationFormName}/`, fetchInitOptions);
+            //}
+
+            if (form.name === this.logoutFormName) {
+                App.readSession();
+                this.props.history.push('/');
+                return;
+            }
+
+            var result = await response.json();
+
+            if (response.ok) {
+                App.readSession();
+                var domElement = jQuery(`<div class="mt-2 alert alert-${result.status}" role="alert">${result.info}</div>`);
+
+                if (result.success === true) {
+                    const history = this.props.history;
+                    jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(100); history.push('/'); }));
+                }
+                else {
+                    //grecaptcha.reset(`recaptchaWıdget${form.name}`);
+                    jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(5000); }));
+                }
+            }
+            else {
+                var errorsString = this.mapObjectToArr(result.errors).join('<br/>');
+                var domElement = jQuery(`<div class="mt-2 alert alert-danger" role="alert"><h4 class="alert-heading">${result.title}</h4><p>${errorsString}</p><hr/><p>traceId: ${result.traceId}</p></div>`);
+                jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(5000); }));
+                // console.error(msg);
                 const msg = `Ошибка обработки HTTP запроса. Status: ${result.status}`;
-                console.error(msg);
                 alert(msg);
             }
 
         } catch (error) {
             const msg = `Ошибка: ${error}`;
             console.error(msg);
-            alert(msg);
+            //alert(msg);
+        }
+    }
+
+    mapObjectToArr(obj) {
+        var errArr = Object.keys(obj).map((keyName, i) => { return `${keyName}: ${obj[keyName]}`; })
+        return errArr;
+    }
+
+    onloadCallback() {
+        if (App.session.AllowedWebLogin === false && App.session.AllowedWebRegistration === false) {
+            return;
+        }
+
+        var PublicKey = this.getRecaptchaPublicKey();
+        if (App.session.isAuthenticated !== true && PublicKey !== null && PublicKey.length > 0) {
+            if (jQuery.find(`#recaptchaWıdget${this.authorisationFormName}`).length) {
+                grecaptcha.render(`recaptchaWıdget${this.authorisationFormName}`);
+            }
+            //
+            if (jQuery.find(`#recaptchaWıdget${this.registrationFormName}`).length) {
+                grecaptcha.render(`recaptchaWıdget${this.registrationFormName}`);
+            }
         }
     }
 
@@ -80,12 +121,17 @@ export class SignIn extends Component {
                 </form>
             );
         }
+
+        var script = document.createElement('script');
+        script.src = "https://www.google.com/recaptcha/api.js?onload=onloadCallback";
+        document.head.appendChild(script);
+
         return (
             <div className="row">
                 <div className="col-sm-5 mb-3">
                     <div className="card">
                         <div className="card-body">
-                            <fieldset disabled={App.session.allowedWebLogin !== true}>
+                            <fieldset disabled={App.session.AllowedWebLogin !== true}>
                                 <h5 className="card-title">Вход</h5>
                                 <p className="card-text">Вход в существующий акаунт</p>
                                 <form name={this.authorisationFormName}>
@@ -108,7 +154,7 @@ export class SignIn extends Component {
                 <div className="col-sm-7">
                     <div className="card">
                         <div className="card-body">
-                            <fieldset disabled={App.session.allowedWebRegistration !== true}>
+                            <fieldset disabled={App.session.AllowedWebRegistration !== true}>
                                 <h5 className="card-title">Регистрация</h5>
                                 <p className="card-text">Регистрация нового акаунта</p>
                                 <form name={this.registrationFormName}>
@@ -122,9 +168,9 @@ export class SignIn extends Component {
                                         </div>
                                         <div className='col'>
                                             <div className="form-group">
-                                                <label htmlFor="UsernameRegister">Username</label>
-                                                <input type="text" className="form-control" name='UsernameRegister' id="UsernameRegister" aria-describedby="UsernameRegisterHelp" placeholder="Enter public name" />
-                                                <small id="UsernameRegisterHelp" className="form-text text-muted">Публичное имя</small>
+                                                <label htmlFor="PublicNameRegister">Username</label>
+                                                <input type="text" className="form-control" name='PublicNameRegister' id="PublicNameRegister" aria-describedby="PublicNameRegisterHelp" placeholder="Enter public name" />
+                                                <small id="PublicNameRegisterHelp" className="form-text text-muted">Публичное имя</small>
                                             </div>
                                         </div>
                                     </div>
@@ -158,17 +204,16 @@ export class SignIn extends Component {
      * @param {any} prefix - префикс: регистрация или авторизация
      */
     getRecaptchaDiv(prefix) {
-        if (App.session.allowedWebLogin !== true && prefix === this.authorisationFormName) {
+        if (App.session.AllowedWebLogin !== true && prefix === this.authorisationFormName) {
             return <div className="alert alert-warning mt-3 mb-1" role="alert">Авторизация при помощи Web формы отключена администратором!</div>;
         }
-        if (App.session.allowedWebRegistration !== true && prefix === this.registrationFormName) {
+        if (App.session.AllowedWebRegistration !== true && prefix === this.registrationFormName) {
             return <div className="alert alert-warning mt-3 mb-1" role="alert">Регистрация при помощи Web формы отключена администратором!</div>;
         }
 
         const PublicKey = this.getRecaptchaPublicKey();
-
-        if (App.session.isAuthenticated === false && PublicKey !== null && PublicKey.length > 0 &&
-            (App.session.allowedWebLogin === true || App.session.allowedWebRegistration === true)) {
+        if (App.session.isAuthenticated !== true && PublicKey !== null && PublicKey.length > 0 &&
+            (App.session.AllowedWebLogin === true || App.session.AllowedWebRegistration === true)) {
             return (<div id={`recaptchaWıdget${prefix}`} className="g-recaptcha mt-2" data-sitekey={PublicKey}></div>);
         }
 
@@ -177,7 +222,7 @@ export class SignIn extends Component {
 
     /** Получить публичный ключ reCaptcha (null если ни одного ключа не установлено). Приоритет/порядок проверки наличия установленного ключа: 1) Invisible 2) Widget */
     getRecaptchaPublicKey() {
-        if (App.session.allowedWebLogin === false && App.session.allowedWebRegistration === false) {
+        if (App.session.AllowedWebLogin === false && App.session.AllowedWebRegistration === false) {
             return null;
         }
 
@@ -196,20 +241,7 @@ export class SignIn extends Component {
         return null;
     }
 
-    componentDidMount() {
-        if (App.session.allowedWebLogin === false && App.session.allowedWebRegistration === false) {
-            return;
-        }
-
-        var PublicKey = this.getRecaptchaPublicKey();
-        if (App.session.isAuthenticated === false && PublicKey !== null && PublicKey.length > 0) {
-            if (jQuery.find(`#recaptchaWıdget${this.authorisationFormName}`).length) {
-                grecaptcha.render(`recaptchaWıdget${this.authorisationFormName}`);
-            }
-            //
-            if (jQuery.find(`#recaptchaWıdget${this.registrationFormName}`).length) {
-                grecaptcha.render(`recaptchaWıdget${this.registrationFormName}`);
-            }
-        }
-    }
+    //componentDidMount() {
+        
+    //}
 }

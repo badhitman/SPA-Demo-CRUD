@@ -15,6 +15,7 @@ namespace SPADemoCRUD.Models
         /// Чтение/Запись коментария для объекта [info]
         /// </summary>
         [Display(Name = "Наименование", Description = "Наименование объекта")]
+        [Required(ErrorMessage = "Не указано имя")]
         public string Name { get; set; } = "";
     }
 }

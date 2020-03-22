@@ -1,14 +1,19 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using SPADemoCRUD.Controllers;
 using SPADemoCRUD.Models;
+using SPADemoCRUD.Models.AuthorizePolicies;
 using System;
+using System.Security.Claims;
 
 namespace SPADemoCRUD
 {
@@ -35,7 +40,32 @@ namespace SPADemoCRUD
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDataBaseContext>(options => options.UseSqlServer(connection));
 
+            #region AccessMinLevelHandler
+            services.AddScoped<IAuthorizationHandler, AccessMinLevelHandler>();
+
+            services.AddAuthorization(opts =>
+            {
+                opts.AddPolicy("AccessMinLevel" + AccessLevelUserRolesEnum.Auth.ToString(),
+                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelUserRolesEnum.Auth)));
+                opts.AddPolicy("AccessMinLevel" + AccessLevelUserRolesEnum.Verified.ToString(),
+                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelUserRolesEnum.Verified)));
+                opts.AddPolicy("AccessMinLevel" + AccessLevelUserRolesEnum.Privileged.ToString(),
+                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelUserRolesEnum.Privileged)));
+                opts.AddPolicy("AccessMinLevel" + AccessLevelUserRolesEnum.Manager.ToString(),
+                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelUserRolesEnum.Manager)));
+                opts.AddPolicy("AccessMinLevel" + AccessLevelUserRolesEnum.Admin.ToString(),
+                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelUserRolesEnum.Admin)));
+                opts.AddPolicy("AccessMinLevel" + AccessLevelUserRolesEnum.ROOT.ToString(),
+                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelUserRolesEnum.ROOT)));
+                //
+                opts.DefaultPolicy = new AuthorizationPolicyBuilder()
+                  .RequireAuthenticatedUser()
+                  .Build();
+            });
+            #endregion
+
             services.AddControllersWithViews();
+            services.AddHttpContextAccessor();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -50,12 +80,13 @@ namespace SPADemoCRUD
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
             {
-                options.Cookie.Name = ".MyApp.Session";
-                options.IdleTimeout = TimeSpan.FromMinutes(60);
+                options.IdleTimeout = TimeSpan.FromSeconds(AppOptions.SessionCookieExpiresSeconds);
+                //
+                options.Cookie.Name = "ApplicationCookie";
                 options.Cookie.IsEssential = true;
             });
             services.AddMemoryCache();
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/login/"); });
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.LoginPath = new PathString("/login/"); });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,6 +111,12 @@ namespace SPADemoCRUD
             app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.Use(async (context, next) =>
+            {
+                SessionController.UpdateSession(context, AppOptions);
+                await next.Invoke();
+            });
 
             app.UseEndpoints(endpoints =>
             {

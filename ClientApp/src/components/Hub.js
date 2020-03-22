@@ -27,7 +27,6 @@ export class Hub extends Component {
         App.method = this.props.match.params.method;
         App.id = this.props.match.params.id;
         App.data = { id: '', name: '' };
-        this.getSession();
 
         if (App.method !== undefined && App.allowsMethods.includes(App.method) !== true) {
             console.error('Недопустимое имя метода: ' + App.method);
@@ -60,11 +59,5 @@ export class Hub extends Component {
                 </main>
             </>
         );
-    }
-
-    async getSession() {
-        const response = await fetch('/api/session/', { credentials: 'include' });
-        const session = await response.json();
-        App.session = session;
     }
 }
