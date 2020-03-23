@@ -16,6 +16,7 @@ export class viewUser extends aPageCard {
         App.data = await response.json();
         this.setState({ cardTitle: `Пользователь: [#${App.data.id}] ${App.data.name}`, loading: false, cardContents: this.body() });
     }
+
     body() {
         const user = App.data;
         const departments = user.departments;
@@ -60,5 +61,10 @@ export class viewUser extends aPageCard {
                 {this.viewButtons()}
             </form>
         );
+    }
+
+    isPrime(element, index, array) {
+        array.forEach(element => console.log(element));
+        return false;
     }
 }

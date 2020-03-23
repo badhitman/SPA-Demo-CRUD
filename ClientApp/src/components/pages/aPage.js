@@ -167,6 +167,7 @@ export class aPageCard extends aPage {
                 }
                 else if (App.method === App.createNameMethod) {
                     this.props.history.push(`/${apiName}/${App.viewNameMethod}/${result.id}/`);
+                    return;
                 }
                 else if (App.method === App.deleteNameMethod) {
                     this.props.history.push(`/${apiName}/${App.listNameMethod}/`);
@@ -228,6 +229,7 @@ export class aPageCard extends aPage {
         return (<div className="btn-toolbar justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
             <div className="btn-group" role="group" aria-label="First group">
                 <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Сохранить и перейти к списку'>Ok</button>
+                <button name={this.saveButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Записать в базу данных и продолжить редактирование'>Записать</button>
                 <NavLink className='btn btn-outline-primary' to={`/${this.apiName}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Отмена</NavLink>
             </div>
         </div>);
