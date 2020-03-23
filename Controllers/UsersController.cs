@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////
-// © https://github.com/badhitman - @fakegov 
+// В© https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
 using System.Collections.Generic;
@@ -103,7 +103,7 @@ namespace SPADemoCRUD.Controllers
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Пользователь с таким именем уже существует",
+                    Info = "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚",
                     Status = StylesMessageEnum.warning.ToString()
                 });
             }
@@ -113,7 +113,7 @@ namespace SPADemoCRUD.Controllers
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Пользователь с таким логином уже существует",
+                    Info = "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃ С‚Р°РєРёРј Р»РѕРіРёРЅРѕРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚",
                     Status = StylesMessageEnum.warning.ToString()
                 });
             }

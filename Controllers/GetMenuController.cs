@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////
-// © https://github.com/badhitman - @fakegov 
+// В© https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 using System;
 using System.Collections.Generic;
@@ -18,46 +18,46 @@ namespace SPADemoCRUD.Controllers
         {
             Title = "My",
             Href = "#",
-            Tooltip = "Личное пространство",
+            Tooltip = "Р›РёС‡РЅРѕРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ",
             Childs = new MenuItem[]
             {
-                new MenuItem() { Title = "Сообщения", Href = "/notifications/", Tooltip = "Мои уведомления" },
-                new MenuItem() { Title = "Профиль", Href = "/profile/", Tooltip = "Мои настройки" },
+                new MenuItem() { Title = "РЎРѕРѕР±С‰РµРЅРёСЏ", Href = "/notifications/", Tooltip = "РњРѕРё СѓРІРµРґРѕРјР»РµРЅРёСЏ" },
+                new MenuItem() { Title = "РџСЂРѕС„РёР»СЊ", Href = "/profile/", Tooltip = "РњРѕРё РЅР°СЃС‚СЂРѕР№РєРё" },
                 null,
-                new MenuItem() { Title = "Выход", Href = "/signin/", Tooltip = "Выйти из приложения" }
+                new MenuItem() { Title = "Р’С‹С…РѕРґ", Href = "/signin/", Tooltip = "Р’С‹Р№С‚Рё РёР· РїСЂРёР»РѕР¶РµРЅРёСЏ" }
             }
         };
         private static readonly NestedMenu users = new NestedMenu()
         {
-            Title = "Пользователи",
+            Title = "РџРѕР»СЊР·РѕРІР°С‚РµР»Рё",
             Href = "#",
-            Tooltip = "Управление пользователями",
+            Tooltip = "РЈРїСЂР°РІР»РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРјРё",
             Childs = new MenuItem[]
             {
-                new MenuItem() { Title = "Пользователи", Href = "/users/list", Tooltip = "Акаунты зарегистрированных участников" },
-                new MenuItem() { Title = "Группы", Href = "/departments/list", Tooltip = "Отделы и депаратменты" }
+                new MenuItem() { Title = "РџРѕР»СЊР·РѕРІР°С‚РµР»Рё", Href = "/users/list", Tooltip = "РђРєР°СѓРЅС‚С‹ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРЅС‹С… СѓС‡Р°СЃС‚РЅРёРєРѕРІ" },
+                new MenuItem() { Title = "Р“СЂСѓРїРїС‹", Href = "/departments/list", Tooltip = "РћС‚РґРµР»С‹ Рё РґРµРїР°СЂР°С‚РјРµРЅС‚С‹" }
             }
         };
         private static readonly NestedMenu catalogues = new NestedMenu()
         {
-            Title = "Каталоги",
+            Title = "РљР°С‚Р°Р»РѕРіРё",
             Href = "#",
-            Tooltip = "Справочники и наборы данных",
+            Tooltip = "РЎРїСЂР°РІРѕС‡РЅРёРєРё Рё РЅР°Р±РѕСЂС‹ РґР°РЅРЅС‹С…",
             Childs = new MenuItem[]
             {
-                new MenuItem() { Title = "Номенклатура", Href = "/goods/list", Tooltip = "Товары и всё такое" },
-                new MenuItem() { Title = "Адреса", Href = "/addresses/list", Tooltip = "Адресный классификатор" }
+                new MenuItem() { Title = "РќРѕРјРµРЅРєР»Р°С‚СѓСЂР°", Href = "/goods/list", Tooltip = "РўРѕРІР°СЂС‹ Рё РІСЃС‘ С‚Р°РєРѕРµ" },
+                new MenuItem() { Title = "РђРґСЂРµСЃР°", Href = "/addresses/list", Tooltip = "РђРґСЂРµСЃРЅС‹Р№ РєР»Р°СЃСЃРёС„РёРєР°С‚РѕСЂ" }
             }
         };
         private static readonly NestedMenu server = new NestedMenu()
         {
-            Title = "Сервер",
+            Title = "РЎРµСЂРІРµСЂ",
             Href = "#",
-            Tooltip = "Управление сервером",
+            Tooltip = "РЈРїСЂР°РІР»РµРЅРёРµ СЃРµСЂРІРµСЂРѕРј",
             Childs = new MenuItem[]
             {
-                new MenuItem() { Title = "Состояние", Href = "/server/list", Tooltip = "Состояние сервера/системы" },
-                new MenuItem() { Title = "Настройки", Href = "/server/view", Tooltip = "Настройки сервера" }
+                new MenuItem() { Title = "РЎРѕСЃС‚РѕСЏРЅРёРµ", Href = "/server/list", Tooltip = "РЎРѕСЃС‚РѕСЏРЅРёРµ СЃРµСЂРІРµСЂР°/СЃРёСЃС‚РµРјС‹" },
+                new MenuItem() { Title = "РќР°СЃС‚СЂРѕР№РєРё", Href = "/server/view", Tooltip = "РќР°СЃС‚СЂРѕР№РєРё СЃРµСЂРІРµСЂР°" }
             }
         };
 
@@ -88,9 +88,9 @@ namespace SPADemoCRUD.Controllers
                     {
                         new MenuItem()
                         {
-                            Title = "Вход",
+                            Title = "Р’С…РѕРґ",
                             Href = "/signin/",
-                            Tooltip = "Авторизация/Регистрация"
+                            Tooltip = "РђРІС‚РѕСЂРёР·Р°С†РёСЏ/Р РµРіРёСЃС‚СЂР°С†РёСЏ"
                         }
                     };
             }
