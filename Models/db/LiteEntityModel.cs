@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////
 // https://github.com/badhitman 
 ////////////////////////////////////////////////
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -17,5 +18,10 @@ namespace SPADemoCRUD.Models
         [Display(Name = "Наименование", Description = "Наименование объекта")]
         [Required(ErrorMessage = "Не указано имя")]
         public string Name { get; set; } = "";
+
+        /// <summary>
+        /// Признак "только для чтения". Переименовывать или удалять такой объект может только ROOT
+        /// </summary>
+        public bool Readonly { get; set; } = false;
     }
 }

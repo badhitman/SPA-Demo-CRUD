@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
+
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router';
 import { HomePage } from './pages/HomePage';
@@ -39,7 +40,7 @@ export class Hub extends Component {
 
         return (
             <>
-                <NavMenu />
+                <NavMenu key={App.session.role} />
                 <main role="main" className="pb-3">
                     <Switch>
                         <Route exact path='/' component={HomePage} />

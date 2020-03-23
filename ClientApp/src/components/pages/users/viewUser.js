@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
+
 import React from 'react';
 import { aPageCard } from '../aPage';
 import App from '../../../App';

@@ -1,6 +1,7 @@
 ﻿////////////////////////////////////////////////
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
+
 import React, { Component } from 'react';
 import App from '../../App';
 import jQuery from 'jquery';
@@ -128,6 +129,20 @@ export class SignIn extends Component {
 
         return (
             <div className="row">
+                {App.session.isDemo === true
+                    ?
+                    <div className='alert alert-info mr-3 ml-3' role='alert'>
+                        <h5 className="alert-heading">Demo доступ</h5>
+                        <p>Для демо доступа используйте один из нижеперечисленных имён (пароль у всех: demo). Имена в данном случае соотсветсвуют присвоеным им ролям.</p>
+                        
+                        <span className="badge badge-light mr-2">auth</span>
+                        <span className="badge badge-light mr-2">verified</span>
+                        <span className="badge badge-light mr-2">privileged</span>
+                        <span className="badge badge-light mr-2">manager</span>
+                        <span className="badge badge-light mr-2">admin</span>
+                        <span className="badge badge-light mr-2">root</span>                        
+                    </div>
+                    : <></>}
                 <div className="col-sm-5 mb-3">
                     <div className="card">
                         <div className="card-body">

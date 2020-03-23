@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
+
 import React, { Component } from 'react';
 import App from '../../App';
 import jQuery from 'jquery';
@@ -12,6 +13,13 @@ export class aPage extends Component {
 
     constructor(props) {
         super(props);
+
+        /** Создание метода Array.isArray(), если он ещё не реализован в браузере. */
+        if (!Array.isArray) {
+            Array.isArray = function (arg) {
+                return Object.prototype.toString.call(arg) === '[object Array]';
+            };
+        }
 
         this.state =
         {
@@ -56,9 +64,10 @@ export class aPageList extends aPage {
             App.data = await response.json();
             this.setState({ cardTitle: this.listCardHeader, loading: false, cardContents: this.body() });
         }
-        catch(err){
+        catch (err) {
             this.setState({
-                cardTitle: `Ошибка...`, loading: false, cardContents: <p>{err}</p> });
+                cardTitle: `Ошибка...`, loading: false, cardContents: <p>{err}</p>
+            });
         }
     }
 }

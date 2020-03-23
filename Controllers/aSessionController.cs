@@ -1,4 +1,8 @@
-﻿using System;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
+
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -56,7 +60,7 @@ namespace SPADemoCRUD.Controllers
 
                 httpContext.Response.Cookies.Append("name", httpContext.User.Identity.Name, cookieOptions);
                 string role = httpContext.User.HasClaim(c => c.Type == ClaimTypes.Role)
-                ? httpContext.User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value
+                ? httpContext.User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType).Value
                 : "guest";
                 httpContext.Response.Cookies.Append("role", role, cookieOptions);
             }
@@ -87,6 +91,13 @@ namespace SPADemoCRUD.Controllers
                     }
                 }
             }
+
+#if DEBUG
+            if (AppOptions.HasDemoData)
+            {
+                httpContext.Response.Cookies.Append("debug", "demo", cookieOptions);
+            }
+#endif
         }
     }
 }

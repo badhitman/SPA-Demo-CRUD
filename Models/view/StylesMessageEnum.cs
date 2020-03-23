@@ -5,7 +5,7 @@
 namespace SPADemoCRUD.Models.view
 {
     /// <summary>
-    /// стили оформления сообщения
+    /// Стили оформления сообщения (неполный набор стилей: bootstrap alerts)
     /// </summary>
     public enum StylesMessageEnum
     {

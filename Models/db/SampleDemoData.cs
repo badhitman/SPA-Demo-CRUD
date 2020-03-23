@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
+
 using System.Linq;
 
 namespace SPADemoCRUD.Models
@@ -15,8 +16,9 @@ namespace SPADemoCRUD.Models
             if (!context.Departments.Any())
             {
                 context.Departments.AddRange(
-                    new DepartmentModel { Name = "Бухгалтерия" },
+                    new DepartmentModel { Name = "user", Readonly = true },
                     new DepartmentModel { Name = "Производство" },
+                    new DepartmentModel { Name = "Бухгалтерия" },
                     new DepartmentModel { Name = "Юристы" });
                 context.SaveChanges();
             }
@@ -24,14 +26,14 @@ namespace SPADemoCRUD.Models
             if (!context.Users.Any())
             {
                 context.Users.AddRange(
-                    new UserModel { Name = "Иванова И", DepartmentId = 1, Role = AccessLevelUserRolesEnum.Admin, Email = "demo1@xxxxxxx.yy", Password = "demo" },
-                    new UserModel { Name = "Петрова П", DepartmentId = 1, Role = AccessLevelUserRolesEnum.Manager, Email = "demo2@xxxxxxx.yy", Password = "demo" },
-                    new UserModel { Name = "Сидоров С", DepartmentId = 1, Role = AccessLevelUserRolesEnum.Auth, Email = "demo3@xxxxxxx.yy", Password = "demo" },
+                    new UserModel { Name = "Иванова И", DepartmentId = 1, Role = AccessLevelUserRolesEnum.Admin, Email = "admin", Password = "demo" },
+                    new UserModel { Name = "Петрова П", DepartmentId = 1, Role = AccessLevelUserRolesEnum.Manager, Email = "manager", Password = "demo" },
+                    new UserModel { Name = "Сидоров С", DepartmentId = 1, Role = AccessLevelUserRolesEnum.Privileged, Email = "privileged", Password = "demo" },
 
-                    new UserModel { Name = "Ромашкин Р", DepartmentId = 2, Role = AccessLevelUserRolesEnum.Verified, Email = "demo4@xxxxxxx.yy", Password = "demo" },
-                    new UserModel { Name = "Лапухин Л", DepartmentId = 2, Role = AccessLevelUserRolesEnum.Verified, Email = "demo5@xxxxxxx.yy", Password = "demo" },
+                    new UserModel { Name = "Ромашкин Р", DepartmentId = 2, Role = AccessLevelUserRolesEnum.Verified, Email = "verified", Password = "demo" },
+                    new UserModel { Name = "Лапухин Л", DepartmentId = 2, Role = AccessLevelUserRolesEnum.Auth, Email = "auth", Password = "demo" },
 
-                    new UserModel { Name = "Абрамович А", DepartmentId = 3, Role = AccessLevelUserRolesEnum.ROOT, Email = "demo6@xxxxxxx.yy", Password = "demo" });
+                    new UserModel { Name = "Абрамович А", DepartmentId = 3, Role = AccessLevelUserRolesEnum.ROOT, Email = "root", Password = "demo" });
                 context.SaveChanges();
             }
 

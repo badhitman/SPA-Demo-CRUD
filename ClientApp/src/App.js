@@ -72,6 +72,7 @@ export default class App extends Component {
     static readSession() {
         var name = jquery.cookie('name');
         var role = jquery.cookie('role');
+        var isDebug = jquery.cookie('debug');
 
         if (name && name.length > 0) {
             App.session =
@@ -113,6 +114,9 @@ export default class App extends Component {
                 App.session.reCaptchaV2InvisiblePublicKey = '';
                 App.session.reCaptchaV2PublicKey = '';
             }
+        }
+        if (isDebug === 'demo') {
+            App.session.isDemo = true;
         }
     }
 
