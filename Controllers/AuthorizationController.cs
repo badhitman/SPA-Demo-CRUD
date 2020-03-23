@@ -30,7 +30,7 @@ namespace SPADemoCRUD.Controllers
         {
             if (!AppOptions.AllowedWebLogin)
             {
-                return new BadRequestObjectResult(new ServerActionResult()
+                return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
                     Info = "Возможность авторизации отключена администратором",
@@ -50,7 +50,7 @@ namespace SPADemoCRUD.Controllers
 
                     if (reCaptcha2Status is null || !reCaptcha2Status.success || (reCaptcha2Status.ErrorСodes != null && reCaptcha2Status.ErrorСodes.Length > 0))
                     {
-                        return new BadRequestObjectResult(new ServerActionResult()
+                        return new ObjectResult(new ServerActionResult()
                         {
                             Success = false,
                             Info = "Неудачная попытка входа. Ошибка валидации reCaptcha токена.",

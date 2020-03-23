@@ -18,6 +18,7 @@ export class deleteUser extends viewUser {
     body() {
         var user = App.data;
         user.departmen = user.departments[user.departmentId].name;
+        user.role = user.roles[user.role].name;
         return (
             <>
                 <div className="alert alert-danger" role="alert">Безвозвратное удаление пользователя! Данное дейтсвие нельзя будет отменить!</div>

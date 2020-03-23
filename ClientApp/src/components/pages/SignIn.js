@@ -16,6 +16,12 @@ export class SignIn extends Component {
         super(props);
 
         this.handleClickButton = this.handleClickButton.bind(this);
+        this.handleDoubleClickButton = this.handleDoubleClickButton.bind(this);
+    }
+
+    handleDoubleClickButton(e) {
+        jQuery('#EmailLogin').val(e.target.innerText);
+        jQuery('#PasswordLogin').val('demo');
     }
 
     async handleClickButton(e) {
@@ -127,20 +133,24 @@ export class SignIn extends Component {
         script.src = "https://www.google.com/recaptcha/api.js?onload=onloadCallback";
         document.head.appendChild(script);
 
+        const spanStyle = {
+            cursor: 'pointer'
+        };
         return (
             <div className="row">
                 {App.session.isDemo === true
                     ?
                     <div className='alert alert-info mr-3 ml-3' role='alert'>
                         <h5 className="alert-heading">Demo доступ</h5>
-                        <p>Для демо доступа используйте один из нижеперечисленных имён (пароль у всех: demo). Имена в данном случае соотсветсвуют присвоеным им ролям.</p>
-                        
-                        <span className="badge badge-light mr-2">auth</span>
-                        <span className="badge badge-light mr-2">verified</span>
-                        <span className="badge badge-light mr-2">privileged</span>
-                        <span className="badge badge-light mr-2">manager</span>
-                        <span className="badge badge-light mr-2">admin</span>
-                        <span className="badge badge-light mr-2">root</span>                        
+                        <p>Для демо доступа используйте один из нижеперечисленных имён (пароль у всех: demo). Имена в данном случае соотсветсвуют присвоеным им ролям</p>
+                        <div title='двойной клик для заполнения формы входа'>
+                            <span className="badge badge-light" style={spanStyle} onDoubleClick={this.handleDoubleClickButton}>auth</span>&nbsp;
+                            <span className="badge badge-light" style={spanStyle} onDoubleClick={this.handleDoubleClickButton}>verified</span>&nbsp;
+                            <span className="badge badge-light" style={spanStyle} onDoubleClick={this.handleDoubleClickButton}>privileged</span>&nbsp;
+                            <span className="badge badge-light" style={spanStyle} onDoubleClick={this.handleDoubleClickButton}>manager</span>&nbsp;
+                            <span className="badge badge-light" style={spanStyle} onDoubleClick={this.handleDoubleClickButton}>admin</span>&nbsp;
+                            <span className="badge badge-light" style={spanStyle} onDoubleClick={this.handleDoubleClickButton}>root</span>
+                        </div>
                     </div>
                     : <></>}
                 <div className="col-sm-5 mb-3">
@@ -152,12 +162,12 @@ export class SignIn extends Component {
                                 <form name={this.authorisationFormName}>
                                     <div className="form-group">
                                         <label htmlFor="EmailAuth">Email address</label>
-                                        <input type="email" className="form-control" name='EmailLogin' id="EmailAuth" aria-describedby="emailAuthHelp" placeholder="Enter email" />
+                                        <input type="email" className="form-control" name='EmailLogin' id="EmailLogin" aria-describedby="emailAuthHelp" placeholder="Enter email" />
                                         <small id="emailAuthHelp" className="form-text text-muted">Для входа, укажите свой Email</small>
                                     </div>
                                     <div className="form-group">
-                                        <label htmlFor="exampleInputPassword1">Password</label>
-                                        <input type="password" className="form-control" name='PasswordLogin' id="exampleInputPassword1" placeholder="Password" />
+                                        <label htmlFor="PasswordLogin">Password</label>
+                                        <input type="password" className="form-control" name='PasswordLogin' id="PasswordLogin" placeholder="Password" />
                                     </div>
                                     <button type="button" className="btn btn-primary" onClick={this.handleClickButton}>Вход</button>
                                 </form>
@@ -257,6 +267,6 @@ export class SignIn extends Component {
     }
 
     //componentDidMount() {
-        
+
     //}
 }

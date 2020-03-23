@@ -31,7 +31,7 @@ export class listUsers extends aPageList {
                     <tbody>
                         {users.map(function (user) {
                             return <tr key={user.id}>
-                                <td>{user.id}</td>
+                                <td>{user.id} <span className="badge badge-light">{user.role}</span></td>
                                 <td>
                                     <NavLink to={`/${apiName}/${App.viewNameMethod}/${user.id}`} title='кликните для редактирования'>
                                         {user.name} {user.Email}

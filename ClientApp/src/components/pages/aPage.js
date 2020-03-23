@@ -102,7 +102,7 @@ export class aPageCard extends aPage {
             const inputName = item.name.toLowerCase();
 
             // TODO: избавиться от этих костылей
-            if (inputName === 'id' || inputName === 'departmentid') {
+            if (inputName === 'id' || inputName === 'departmentid' || inputName === 'role' || inputName === 'telegramid') {
                 obj[item.name] = parseInt(item.value);
             }
             else {

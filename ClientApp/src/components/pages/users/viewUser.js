@@ -17,8 +17,10 @@ export class viewUser extends aPageCard {
         this.setState({ cardTitle: `Пользователь: [#${App.data.id}] ${App.data.name}`, loading: false, cardContents: this.body() });
     }
     body() {
-        var user = App.data;
-        var departments = user.departments;
+        const user = App.data;
+        const departments = user.departments;
+        const roles = user.roles;
+
         return (
             <form className='mb-2' key='view-form'>
                 <input name='id' defaultValue={user.id} type='hidden' />
@@ -26,20 +28,34 @@ export class viewUser extends aPageCard {
                     <label htmlFor="user-input">Пользователь</label>
                     <input name='name' defaultValue={user.name} type="text" className="form-control" id="user-input" placeholder="Новое имя" />
                 </div>
-                <div className="form-group">
-                    <select name='DepartmentId' className='custom-select' defaultValue={user.departmentId}>
-                        {departments.map(function (department) {
-                            return <option key={department.id} value={department.id}>{department.name}</option>
-                        })}
-                    </select>
+                <div className='form-row'>
+                    <div className='col'>
+                        <div className="form-group">
+                            <label htmlFor="DepartmentId">Отдел/Департамент</label>
+                            <select name='departmentId' id='DepartmentId' className='custom-select' defaultValue={user.departmentId}>
+                                {departments.map(function (department) {
+                                    return <option key={department.id} value={department.id}>{department.name}</option>
+                                })}
+                            </select>
+                        </div>
+                    </div>
+                    <div className='col'>
+                        <label htmlFor="RoleId">Роль (права доступа)</label>
+                        <select name='role' id='RoleId' className='custom-select' defaultValue={user.role}>
+                            {roles.map(function (role) {
+                                return <option key={role.id} value={role.id}>{role.name}</option>
+                            })}
+                        </select>
+                    </div>
                 </div>
+
                 <div className="form-group">
                     <label htmlFor="user-email">Email</label>
-                    <input name='user-email' defaultValue={user.Email} type="email" className="form-control" id="user-email" />
+                    <input name='email' defaultValue={user.email} type="email" className="form-control" id="user-email" />
                 </div>
                 <div className="form-group">
                     <label htmlFor="user-telegram-id">Telegram идентификатор</label>
-                    <input readOnly={true} name='user-telegram-id' defaultValue={user.TelegramId} type="number" className="form-control" id="user-telegram-id" />
+                    <input readOnly={true} name='telegramId' defaultValue={user.telegramId} type="number" className="form-control" id="user-telegram-id" />
                 </div>
                 {this.viewButtons()}
             </form>

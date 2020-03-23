@@ -9,11 +9,17 @@ demo app (crud): react // c# .net core && web-api // authorization + registratio
 
 ![страница входа/регистрации пользователя 2](./screenshots/log-in-2.jpg)
 
-![страница входа/регистрации пользователя 3](./screenshots/log-in-off-registration.jpg)
+![страница входа/регистрации пользователя 3](./screenshots/log-in-3.jpg)
 
-![домашняя страница зарегистрированного пользователя](./screenshots/home-page-user.jpg)
+![страница входа/регистрации пользователя (off-registration)](./screenshots/log-in-off-registration.jpg)
+
+![домашняя страница пользователя](./screenshots/menu-user.jpg)
+
+![домашняя страница администратора](./screenshots/menu-admin.jpg)
 
 ![страница выхода из сессии пользователя](./screenshots/log-out.jpg)
+
+![контроль доступа](./screenshots/access-denied.jpg)
 
 ![список доступных департаментов](./screenshots/departments-list.jpg)
 

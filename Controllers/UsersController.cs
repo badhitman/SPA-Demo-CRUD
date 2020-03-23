@@ -2,12 +2,14 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using SPADemoCRUD.Models;
 
@@ -31,7 +33,7 @@ namespace SPADemoCRUD.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetUsers()
         {
-            return await _context.Users.Include(x => x.Department).Select(x => new { x.Id, x.Name, Department = x.Department.Name }).ToListAsync();
+            return await _context.Users.Include(x => x.Department).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString() }).ToListAsync();
         }
 
         // GET: api/Users/5
@@ -44,8 +46,10 @@ namespace SPADemoCRUD.Controllers
             {
                 return NotFound();
             }
-            var departments = await _context.Departments.ToListAsync();
-            return new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, departments };
+            List<DepartmentModel> departments = await _context.Departments.ToListAsync();
+            var roles = Enum.GetValues(typeof(AccessLevelUserRolesEnum)).Cast<AccessLevelUserRolesEnum>().Select(x => new { id = x, name = x.ToString() }).ToArray();
+
+            return new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, departments, roles };
         }
 
         // PUT: api/Users/5
@@ -57,6 +61,11 @@ namespace SPADemoCRUD.Controllers
             if (id != userModel.Id)
             {
                 return BadRequest();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return new ObjectResult(ModelState);
             }
 
             _context.Entry(userModel).State = EntityState.Modified;
@@ -86,6 +95,11 @@ namespace SPADemoCRUD.Controllers
         [HttpPost]
         public async Task<ActionResult<UserModel>> PostUserModel(UserModel userModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return new ObjectResult(ModelState);
+            }
+
             _context.Users.Add(userModel);
             await _context.SaveChangesAsync();
 

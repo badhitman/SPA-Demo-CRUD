@@ -55,6 +55,11 @@ namespace SPADemoCRUD.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDepartmentModel(int id, DepartmentModel departmentModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return new ObjectResult(ModelState);
+            }
+
             if (id != departmentModel.Id)
             {
                 return BadRequest();
@@ -87,6 +92,11 @@ namespace SPADemoCRUD.Controllers
         [HttpPost]
         public async Task<ActionResult<DepartmentModel>> PostDepartmentModel(DepartmentModel departmentModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return new ObjectResult(ModelState);
+            }
+
             _context.Departments.Add(departmentModel);
             await _context.SaveChangesAsync();
 
