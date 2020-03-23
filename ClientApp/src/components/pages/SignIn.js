@@ -67,10 +67,10 @@ export class SignIn extends Component {
             }
 
             var result = await response.json();
-
+            var domElement;
             if (response.ok) {
                 App.readSession();
-                var domElement = jQuery(`<div class="mt-2 alert alert-${result.status}" role="alert">${result.info}</div>`);
+                domElement = jQuery(`<div class="mt-2 alert alert-${result.status}" role="alert">${result.info}</div>`);
 
                 if (result.success === true) {
                     const history = this.props.history;
@@ -82,8 +82,8 @@ export class SignIn extends Component {
                 }
             }
             else {
-                var errorsString = this.mapObjectToArr(result.errors).join('<br/>');
-                var domElement = jQuery(`<div class="mt-2 alert alert-danger" role="alert"><h4 class="alert-heading">${result.title}</h4><p>${errorsString}</p><hr/><p>traceId: ${result.traceId}</p></div>`);
+                var errorsString = App.mapObjectToArr(result.errors).join('<br/>');
+                domElement = jQuery(`<div class="mt-2 alert alert-danger" role="alert"><h4 class="alert-heading">${result.title}</h4><p>${errorsString}</p><hr/><p>traceId: ${result.traceId}</p></div>`);
                 jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(5000); }));
                 // console.error(msg);
                 const msg = `Ошибка обработки HTTP запроса. Status: ${result.status}`;
@@ -95,11 +95,6 @@ export class SignIn extends Component {
             console.error(msg);
             //alert(msg);
         }
-    }
-
-    mapObjectToArr(obj) {
-        var errArr = Object.keys(obj).map((keyName, i) => { return `${keyName}: ${obj[keyName]}`; })
-        return errArr;
     }
 
     onloadCallback() {

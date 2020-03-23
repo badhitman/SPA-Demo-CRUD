@@ -120,6 +120,11 @@ export default class App extends Component {
         }
     }
 
+    static mapObjectToArr(obj) {
+        var errArr = Object.keys(obj).map((keyName, i) => { return `${keyName}: ${obj[keyName]}`; })
+        return errArr;
+    }
+
     render() {
         App.readSession();
         return (

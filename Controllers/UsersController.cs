@@ -2,16 +2,16 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using SPADemoCRUD.Models;
+using SPADemoCRUD.Models.view;
 
 namespace SPADemoCRUD.Controllers
 {
@@ -47,9 +47,7 @@ namespace SPADemoCRUD.Controllers
                 return NotFound();
             }
             List<DepartmentModel> departments = await _context.Departments.ToListAsync();
-            var roles = Enum.GetValues(typeof(AccessLevelUserRolesEnum)).Cast<AccessLevelUserRolesEnum>().Select(x => new { id = x, name = x.ToString() }).ToArray();
-
-            return new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, departments, roles };
+            return new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, departments, UsersMetadataController.roles };
         }
 
         // PUT: api/Users/5
@@ -98,6 +96,26 @@ namespace SPADemoCRUD.Controllers
             if (!ModelState.IsValid)
             {
                 return new ObjectResult(ModelState);
+            }
+
+            if(_context.Users.Any(x=>x.Name == userModel.Name))
+            {
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Пользователь с таким именем уже существует",
+                    Status = StylesMessageEnum.warning.ToString()
+                });
+            }
+
+            if (_context.Users.Any(x => x.Email == userModel.Email))
+            {
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Пользователь с таким логином уже существует",
+                    Status = StylesMessageEnum.warning.ToString()
+                });
             }
 
             _context.Users.Add(userModel);

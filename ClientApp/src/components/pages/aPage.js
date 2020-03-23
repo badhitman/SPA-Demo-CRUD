@@ -95,7 +95,7 @@ export class aPageCard extends aPage {
         var nameButton = e.target.name;
         var form = e.target.form;
 
-        var result;
+        var response;
         const apiName = this.apiName;
 
         var sendedFormData = jQuery(form).serializeArray().reduce(function (obj, item) {
@@ -115,7 +115,7 @@ export class aPageCard extends aPage {
         try {
             switch (App.method) {
                 case App.viewNameMethod:
-                    result = await fetch(`/api/${apiName}/${App.data.id}`, {
+                    response = await fetch(`/api/${apiName}/${App.data.id}`, {
                         method: 'PUT',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -124,7 +124,7 @@ export class aPageCard extends aPage {
                     });
                     break;
                 case App.createNameMethod:
-                    result = await fetch(`/api/${apiName}/`, {
+                    response = await fetch(`/api/${apiName}/`, {
                         method: 'POST',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -133,7 +133,7 @@ export class aPageCard extends aPage {
                     });
                     break;
                 case App.deleteNameMethod:
-                    result = await fetch(`/api/${apiName}/${App.data.id}`, {
+                    response = await fetch(`/api/${apiName}/${App.data.id}`, {
                         method: 'DELETE',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -148,13 +148,21 @@ export class aPageCard extends aPage {
                     break;
             }
 
-            if (result.redirected === true) {
-                window.location.href = result.url;
+            if (response.redirected === true) {
+                window.location.href = response.url;
             }
 
-            if (result.ok) {
+            var result = await response.json();
+            var domElement;
+            if (response.ok) {
+                if (result.success === false) {
+                    domElement = jQuery(`<div class="mt-2 alert alert-${result.status}" role="alert">${result.info}</div>`);
+                    jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(5000); }));
+                    return;
+                }
+
                 if (App.method === App.viewNameMethod) {
-                    var domElement = jQuery('<div class="alert alert-success" role="alert">Команда успешно выполнена: <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                    domElement = jQuery('<div class="alert alert-success" role="alert">Команда успешно выполнена: <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                     jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(1000); }));
                 }
                 else if (App.method === App.createNameMethod) {
@@ -165,9 +173,12 @@ export class aPageCard extends aPage {
                 }
             }
             else {
-                const msg = `Ошибка обработки HTTP запроса. Status: ${result.status}`;
+                var errorsString = App.mapObjectToArr(result.errors).join('<br/>');
+                domElement = jQuery(`<div class="mt-2 alert alert-danger" role="alert"><h4 class="alert-heading">${result.title}</h4><p>${errorsString}</p><hr/><p>traceId: ${result.traceId}</p></div>`);
+                jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(5000); }));
+                const msg = `Ошибка обработки HTTP запроса. Status: ${response.status}`;
                 console.error(msg);
-                alert(msg);
+                return;
             }
 
             if (nameButton === this.okButtonName) {
@@ -217,7 +228,7 @@ export class aPageCard extends aPage {
         return (<div className="btn-toolbar justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
             <div className="btn-group" role="group" aria-label="First group">
                 <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Сохранить и перейти к списку'>Ok</button>
-                <NavLink className='btn btn-outline-primary' to={`/departments/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Отмена</NavLink>
+                <NavLink className='btn btn-outline-primary' to={`/${this.apiName}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Отмена</NavLink>
             </div>
         </div>);
     }
