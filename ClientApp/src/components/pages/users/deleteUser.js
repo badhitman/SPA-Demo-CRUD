@@ -10,7 +10,7 @@ export class deleteUser extends viewUser {
     static displayName = deleteUser.name;
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/${App.id}`, { credentials: 'include' });
+        const response = await fetch(`/api/${this.apiName}/${App.id}`);
         App.data = await response.json();
         this.setState({ cardTitle: 'Удаление объекта', loading: false, cardContents: this.body() });
     }

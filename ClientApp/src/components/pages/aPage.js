@@ -48,7 +48,7 @@ export class aPageList extends aPage {
     listCardHeader = '';
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/`, { credentials: 'include' });
+        const response = await fetch(`/api/${this.apiName}/`);
         if (response.redirected === true) {
             window.location.href = response.url;
         }
@@ -107,7 +107,6 @@ export class aPageCard extends aPage {
             switch (App.method) {
                 case App.viewNameMethod:
                     result = await fetch(`/api/${apiName}/${App.data.id}`, {
-                        credentials: 'include',
                         method: 'PUT',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -117,7 +116,6 @@ export class aPageCard extends aPage {
                     break;
                 case App.createNameMethod:
                     result = await fetch(`/api/${apiName}/`, {
-                        credentials: 'include',
                         method: 'POST',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -127,7 +125,6 @@ export class aPageCard extends aPage {
                     break;
                 case App.deleteNameMethod:
                     result = await fetch(`/api/${apiName}/${App.data.id}`, {
-                        credentials: 'include',
                         method: 'DELETE',
                         body: JSON.stringify(sendedFormData),
                         headers: {

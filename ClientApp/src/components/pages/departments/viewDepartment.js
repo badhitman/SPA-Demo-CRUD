@@ -12,7 +12,7 @@ export class viewDepartment extends aPageCard {
     apiName = 'departments';
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/${App.id}`, { credentials: 'include' });
+        const response = await fetch(`/api/${this.apiName}/${App.id}`);
         App.data = await response.json();
         this.setState({ cardTitle: `Департамент: [#${App.data.id}] ${App.data.name}`, loading: false, cardContents: this.body() });
     }
