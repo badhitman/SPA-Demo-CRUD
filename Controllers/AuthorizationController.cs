@@ -86,6 +86,16 @@ namespace SPADemoCRUD.Controllers
             UserModel user = DbContext.Users.Include(x => x.Department).FirstOrDefault(u => u.Email == loginUser.EmailLogin && u.Password == loginUser.PasswordLogin);
             if (user != null)
             {
+                if (user.isOffline)
+                {
+                    return new ObjectResult(new ServerActionResult()
+                    {
+                        Success = false,
+                        Info = "Вход временно невозможен. Пользователь отключён от системы",
+                        Status = StylesMessageEnum.danger.ToString(),
+                        Tag = new { user.Name, user.Role, Department = user.Department.Name }
+                    });
+                }
                 await Authenticate(user);
                 return new ObjectResult(new ServerActionResult()
                 {
@@ -101,8 +111,7 @@ namespace SPADemoCRUD.Controllers
                 {
                     Success = false,
                     Info = "Неверный логин и/или пароль.",
-                    Status = StylesMessageEnum.warning.ToString(),
-                    Tag = ModelState
+                    Status = StylesMessageEnum.warning.ToString()
                 });
             }
         }

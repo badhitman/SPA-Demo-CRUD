@@ -33,7 +33,7 @@ namespace SPADemoCRUD.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetUsers()
         {
-            return await _context.Users.Include(x => x.Department).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString() }).ToListAsync();
+            return await _context.Users.Include(x => x.Department).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString(), x.isOffline }).ToListAsync();
         }
 
         // GET: api/Users/5

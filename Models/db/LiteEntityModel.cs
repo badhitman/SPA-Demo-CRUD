@@ -23,5 +23,10 @@ namespace SPADemoCRUD.Models
         /// Признак "только для чтения". Переименовывать или удалять такой объект может только ROOT
         /// </summary>
         public bool Readonly { get; set; } = false;
+
+        /// <summary>
+        /// Объект помечен как "неактивный"
+        /// </summary>
+        public bool isOffline { get; set; } = false;
     }
 }
