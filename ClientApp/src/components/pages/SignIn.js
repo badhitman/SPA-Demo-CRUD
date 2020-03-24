@@ -15,13 +15,16 @@ export class SignIn extends Component {
     constructor(props) {
         super(props);
 
+        this.emailLoginInputRef = React.createRef();
+        this.passwordLoginInputRef = React.createRef();
+
         this.handleClickButton = this.handleClickButton.bind(this);
         this.handleDoubleClickButton = this.handleDoubleClickButton.bind(this);
     }
 
     handleDoubleClickButton(e) {
-        jQuery('#EmailLogin').val(e.target.innerText);
-        jQuery('#PasswordLogin').val('demo');
+        this.emailLoginInputRef.current.value = e.target.innerText;
+        this.passwordLoginInputRef.current.value = 'demo';
     }
 
     async handleClickButton(e) {
@@ -29,39 +32,27 @@ export class SignIn extends Component {
 
         var sendedFormData = jQuery(form).serializeArray().reduce(function (obj, item) {
             obj[item.name] = item.value;
-
             return obj;
         }, {});
 
-        var tmp = jQuery(`#recaptchaWıdget${form.name} textarea`).first().val();
-        sendedFormData.g_recaptcha_response = tmp;
+        sendedFormData.g_recaptcha_response = jQuery(`#recaptchaWıdget${form.name} textarea`).first().val();
 
         try {
             var fetchInitOptions = {};
 
-            if (form.name === this.registrationFormName || form.name === this.authorisationFormName) {
-                fetchInitOptions.method = 'POST';
+            if (form.name === this.logoutFormName) {
+                fetchInitOptions.method = 'DELETE';
+            }
+            else {
+                fetchInitOptions.method = form.name === this.registrationFormName ? 'POST' : 'PUT';
                 fetchInitOptions.body = JSON.stringify(sendedFormData);
                 fetchInitOptions.headers = { 'Content-Type': 'application/json; charset=utf-8' };
             }
-            else {
-                fetchInitOptions.method = 'DELETE';
-            }
 
-            const apiControllerName = (form.name === this.authorisationFormName || form.name === this.logoutFormName)
-                ? this.authorisationFormName
-                : this.registrationFormName;
-
-            var response = await fetch(`/api/${apiControllerName}/`, fetchInitOptions);
-            //if (form.name !== this.registrationFormName) {
-            //    response = await fetch(`/api/${apiControllerName}/`, fetchInitOptions);
-            //}
-            //else {
-            //    response = await fetch(`/api/${this.authorisationFormName}/`, fetchInitOptions);
-            //}
+            var response = await fetch(`/api/${this.authorisationFormName}/`, fetchInitOptions);
+            App.readSession();
 
             if (form.name === this.logoutFormName) {
-                App.readSession();
                 this.props.history.push('/');
                 return;
             }
@@ -69,31 +60,26 @@ export class SignIn extends Component {
             var result = await response.json();
             var domElement;
             if (response.ok) {
-                App.readSession();
                 domElement = jQuery(`<div class="mt-2 alert alert-${result.status}" role="alert">${result.info}</div>`);
 
                 if (result.success === true) {
                     const history = this.props.history;
-                    jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(100); history.push('/'); }));
+                    jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(100, function () { history.push('/'); }); }));
                 }
                 else {
-                    //grecaptcha.reset(`recaptchaWıdget${form.name}`);
-                    jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(5000); }));
+                    jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(10000); }));
                 }
             }
             else {
                 var errorsString = App.mapObjectToArr(result.errors).join('<br/>');
                 domElement = jQuery(`<div class="mt-2 alert alert-danger" role="alert"><h4 class="alert-heading">${result.title}</h4><p>${errorsString}</p><hr/><p>traceId: ${result.traceId}</p></div>`);
-                jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(5000); }));
-                // console.error(msg);
-                const msg = `Ошибка обработки HTTP запроса. Status: ${result.status}`;
-                //alert(msg);
+                jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(10000); }));
             }
 
         } catch (error) {
             const msg = `Ошибка: ${error}`;
             console.error(msg);
-            //alert(msg);
+            alert(msg);
         }
     }
 
@@ -157,12 +143,12 @@ export class SignIn extends Component {
                                 <form name={this.authorisationFormName}>
                                     <div className="form-group">
                                         <label htmlFor="EmailAuth">Email address</label>
-                                        <input type="email" className="form-control" name='EmailLogin' id="EmailLogin" aria-describedby="emailAuthHelp" placeholder="Enter email" />
+                                        <input ref={this.emailLoginInputRef} type="email" className="form-control" name='EmailLogin' id="EmailLogin" aria-describedby="emailAuthHelp" placeholder="Enter email" />
                                         <small id="emailAuthHelp" className="form-text text-muted">Для входа, укажите свой Email</small>
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="PasswordLogin">Password</label>
-                                        <input type="password" className="form-control" name='PasswordLogin' id="PasswordLogin" placeholder="Password" />
+                                        <input ref={this.passwordLoginInputRef} type="password" className="form-control" name='PasswordLogin' id="PasswordLogin" placeholder="Password" />
                                     </div>
                                     <button type="button" className="btn btn-primary" onClick={this.handleClickButton}>Вход</button>
                                 </form>
@@ -257,11 +243,6 @@ export class SignIn extends Component {
         if (PublicKey && PublicKey.length > 0) {
             return PublicKey;
         }
-
         return null;
     }
-
-    //componentDidMount() {
-
-    //}
 }

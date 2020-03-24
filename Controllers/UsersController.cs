@@ -56,14 +56,14 @@ namespace SPADemoCRUD.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUserModel(int id, UserModel userModel)
         {
-            if (id != userModel.Id)
-            {
-                return BadRequest();
-            }
-
             if (!ModelState.IsValid)
             {
                 return new ObjectResult(ModelState);
+            }
+
+            if (id != userModel.Id)
+            {
+                return BadRequest();
             }
 
             _context.Entry(userModel).State = EntityState.Modified;
@@ -84,7 +84,13 @@ namespace SPADemoCRUD.Controllers
                 }
             }
 
-            return NoContent();
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Изменения сохранены",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = userModel
+            });
         }
 
         // POST: api/Users
@@ -98,7 +104,7 @@ namespace SPADemoCRUD.Controllers
                 return new ObjectResult(ModelState);
             }
 
-            if(_context.Users.Any(x=>x.Name == userModel.Name))
+            if (_context.Users.Any(x => x.Name == userModel.Name))
             {
                 return new ObjectResult(new ServerActionResult()
                 {

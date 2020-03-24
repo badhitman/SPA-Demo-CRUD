@@ -16,7 +16,7 @@ namespace SPADemoCRUD.Controllers
     {
         private static readonly NestedMenu my = new NestedMenu()
         {
-            Title = "My",
+            Title = "me",
             Href = "#",
             Tooltip = "Личное пространство",
             Childs = new MenuItem[]
@@ -83,7 +83,7 @@ namespace SPADemoCRUD.Controllers
                     return new NestedMenu[] { users, catalogues, my };
                 case AccessLevelUserRolesEnum.ROOT:
                     return new NestedMenu[] { users, catalogues, server, my };
-                default:
+                case AccessLevelUserRolesEnum.Guest:
                     return new MenuItem[]
                     {
                         new MenuItem()
@@ -91,6 +91,16 @@ namespace SPADemoCRUD.Controllers
                             Title = "Вход",
                             Href = "/signin/",
                             Tooltip = "Авторизация/Регистрация"
+                        }
+                    };
+                default:
+                    return new MenuItem[]
+                    {
+                        new MenuItem()
+                        {
+                            Title = "Ошибка",
+                            Href = "#",
+                            Tooltip = "Ошибка ассоциации роли с меню"
                         }
                     };
             }

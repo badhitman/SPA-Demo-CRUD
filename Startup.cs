@@ -120,7 +120,7 @@ namespace SPADemoCRUD
 
             app.Use(async (context, next) =>
             {
-                aSessionController.UpdateSession(context, AppOptions);
+                AuthorizationController.UpdateSessionCookies(context, AppOptions);
                 await next.Invoke();
             });
 

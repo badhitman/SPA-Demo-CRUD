@@ -26,7 +26,7 @@ export class viewUser extends aPageCard {
             <form className='mb-2' key='view-form'>
                 <input name='id' defaultValue={user.id} type='hidden' />
                 <div className="form-group">
-                    <label htmlFor="user-input">Пользователь</label>
+                    <label htmlFor="user-input">Публичное имя</label>
                     <input name='name' defaultValue={user.name} type="text" className="form-control" id="user-input" placeholder="Новое имя" />
                 </div>
                 <div className='form-row'>
@@ -51,7 +51,7 @@ export class viewUser extends aPageCard {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="user-email">Email</label>
+                    <label htmlFor="user-email">Email/Login для входа</label>
                     <input name='email' defaultValue={user.email} type="email" className="form-control" id="user-email" />
                 </div>
                 <div className="form-group">

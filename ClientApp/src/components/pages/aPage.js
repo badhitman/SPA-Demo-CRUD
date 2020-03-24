@@ -5,7 +5,7 @@
 import React, { Component } from 'react';
 import App from '../../App';
 import jQuery from 'jquery';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Redirect } from 'react-router-dom';
 
 /** Базовый (типа абстрактный) компонент */
 export class aPage extends Component {
@@ -75,6 +75,8 @@ export class aPageList extends aPage {
 /** Карточка объекта. Базовый (типа абстрактный) компонент */
 export class aPageCard extends aPage {
     static displayName = aPageCard.name;
+    static form;
+
     apiName = '';
     /** имя кнопки отправки данных на сервер (с последующим переходом к списку) */
     okButtonName = 'okButton';
@@ -93,22 +95,29 @@ export class aPageCard extends aPage {
      */
     async handleClickButton(e) {
         var nameButton = e.target.name;
-        var form = e.target.form;
+        aPageCard.form = e.target.form;
 
         var response;
         const apiName = this.apiName;
 
-        var sendedFormData = jQuery(form).serializeArray().reduce(function (obj, item) {
-            const inputName = item.name.toLowerCase();
-
-            // TODO: избавиться от этих костылей
-            if (inputName === 'id' || inputName === 'departmentid' || inputName === 'role' || inputName === 'telegramid') {
+        var sendedFormData = jQuery(aPageCard.form).serializeArray().reduce(function (obj, item) {
+            // const inputName = item.name.toLowerCase();
+            if (item.name.toLowerCase() === 'id' || aPageCard.form[item.name].type.toLowerCase() === 'number' || aPageCard.form[item.name].tagName.toLowerCase() === 'select') {
                 obj[item.name] = parseInt(item.value);
             }
             else {
                 obj[item.name] = item.value;
             }
 
+            /*
+            form['telegramId'].type === 'number'
+            form['role'].tagName === 'SELECT'
+            form['id'].type === "hidden"
+             */
+            //var re = /^(\d+\.?\d*|\.\d+)$/;
+            //if (re.test(item.value)) {
+            //    
+            //}
             return obj;
         }, {});
 
@@ -157,13 +166,13 @@ export class aPageCard extends aPage {
             if (response.ok) {
                 if (result.success === false) {
                     domElement = jQuery(`<div class="mt-2 alert alert-${result.status}" role="alert">${result.info}</div>`);
-                    jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(5000); }));
+                    jQuery(aPageCard.form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(15000); }));
                     return;
                 }
 
                 if (App.method === App.viewNameMethod) {
                     domElement = jQuery('<div class="alert alert-success" role="alert">Команда успешно выполнена: <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                    jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(1000); }));
+                    jQuery(aPageCard.form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(1000); }));
                 }
                 else if (App.method === App.createNameMethod) {
                     this.props.history.push(`/${apiName}/${App.viewNameMethod}/${result.id}/`);
@@ -176,11 +185,13 @@ export class aPageCard extends aPage {
             else {
                 var errorsString = App.mapObjectToArr(result.errors).join('<br/>');
                 domElement = jQuery(`<div class="mt-2 alert alert-danger" role="alert"><h4 class="alert-heading">${result.title}</h4><p>${errorsString}</p><hr/><p>traceId: ${result.traceId}</p></div>`);
-                jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(5000); }));
+                jQuery(aPageCard.form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(15000); }));
                 const msg = `Ошибка обработки HTTP запроса. Status: ${response.status}`;
                 console.error(msg);
                 return;
             }
+
+            aPageCard.form = undefined;
 
             if (nameButton === this.okButtonName) {
                 this.props.history.push(`/${apiName}/${App.listNameMethod}/`);

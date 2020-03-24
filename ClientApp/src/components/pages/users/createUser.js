@@ -23,11 +23,11 @@ export class createUser extends viewUser {
             <>
                 <form key='create-form'>
                     <div className="form-group">
-                        <label htmlFor="user-email">Email</label>
+                        <label htmlFor="user-email">Email/Login для входа</label>
                         <input name='email' type="email" className="form-control" id="user-email" />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="user-input">Имя/ФИО</label>
+                        <label htmlFor="user-input">Публичное имя</label>
                         <input name='name' type="text" className="form-control" id="user-input" placeholder="Имя нового пользователя" />
                     </div>
                     <div className='form-row'>
@@ -49,7 +49,7 @@ export class createUser extends viewUser {
                                 })}
                             </select>
                         </div>
-                    </div>                    
+                    </div>
                     {this.createButtons()}
                 </form>
             </>

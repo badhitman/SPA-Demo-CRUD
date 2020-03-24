@@ -8,11 +8,11 @@ namespace SPADemoCRUD.Models
 {
     public class LoginModel
     {
-        [Required(ErrorMessage = "Не указан Email")]
+        [Required(ErrorMessage = "Не указан Email авторизации")]
         [DataType(DataType.EmailAddress)]
         public string EmailLogin { get; set; }
 
-        [Required(ErrorMessage = "Не указан пароль")]
+        [Required(ErrorMessage = "Не указан пароль авторизации")]
         [DataType(DataType.Password)]
         public string PasswordLogin { get; set; }
 
