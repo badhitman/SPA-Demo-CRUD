@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
-import { aPageList } from '../aPage';
+import { aPageList } from '../aPageList';
 import { NavLink } from 'react-router-dom'
 import App from '../../../App';
 

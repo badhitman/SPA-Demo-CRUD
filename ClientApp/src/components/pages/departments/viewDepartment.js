@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
-import { aPageCard } from '../aPage';
+import { aPageCard } from '../aPageCard';
 import App from '../../../App';
 import { DepatmentUsers } from './DepatmentUsers';
 

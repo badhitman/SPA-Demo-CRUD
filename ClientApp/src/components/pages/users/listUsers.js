@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
-import { aPageList } from '../aPage';
+import { aPageList } from '../aPageList';
 import { NavLink } from 'react-router-dom'
 import App from '../../../App';
 
@@ -30,12 +30,14 @@ export class listUsers extends aPageList {
                     </thead>
                     <tbody>
                         {users.map(function (user) {
+                            const currentNavLink = user.isOffline === true
+                                ? <del><NavLink to={`/${apiName}/${App.viewNameMethod}/${user.id}`} title='объект. отключен. кликните для редактирования'>{user.name} {user.Email}</NavLink></del>
+                                : <NavLink to={`/${apiName}/${App.viewNameMethod}/${user.id}`} title='кликните для редактирования'>{user.name} {user.Email}</NavLink>
+
                             return <tr key={user.id}>
                                 <td>{user.id} <span className="badge badge-light">{user.role}</span></td>
                                 <td>
-                                    <NavLink to={`/${apiName}/${App.viewNameMethod}/${user.id}`} title='кликните для редактирования'>
-                                        {user.name} {user.Email}
-                                    </NavLink>
+                                    {currentNavLink}
                                     <NavLink to={`/${apiName}/${App.deleteNameMethod}/${user.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
                                 </td>
                                 <td><span className="badge badge-light">{user.department}</span></td>
