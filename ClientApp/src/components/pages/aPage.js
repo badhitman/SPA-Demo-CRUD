@@ -21,6 +21,7 @@ export class aPage extends Component {
         this.state =
         {
             cardTitle: 'Loading...',
+            cardHeaderPanel: <></>,
             cardContents: <></>,
             loading: true
         };
@@ -35,7 +36,10 @@ export class aPage extends Component {
             <>
                 <div className="card">
                     <div className="card-header">
-                        {this.state.cardTitle}
+                        <div className="d-flex">
+                            <div className="mr-auto p-2">{this.state.cardTitle}</div>
+                            <div className="p-2">{this.state.cardHeaderPanel}</div>
+                        </div>                        
                     </div>
                     <div className="card-body">
                         {this.state.loading ? <p><em>Загрузка данных...</em></p> : this.state.cardContents}

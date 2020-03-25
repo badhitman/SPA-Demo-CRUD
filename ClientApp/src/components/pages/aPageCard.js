@@ -37,23 +37,12 @@ export class aPageCard extends aPage {
         const apiName = this.apiName;
 
         var sendedFormData = jQuery(aPageCard.form).serializeArray().reduce(function (obj, item) {
-            // const inputName = item.name.toLowerCase();
             if (item.name.toLowerCase() === 'id' || aPageCard.form[item.name].type.toLowerCase() === 'number' || aPageCard.form[item.name].tagName.toLowerCase() === 'select') {
                 obj[item.name] = parseInt(item.value);
             }
             else {
                 obj[item.name] = item.value;
             }
-
-            /*
-            form['telegramId'].type === 'number'
-            form['role'].tagName === 'SELECT'
-            form['id'].type === "hidden"
-             */
-            //var re = /^(\d+\.?\d*|\.\d+)$/;
-            //if (re.test(item.value)) {
-            //    
-            //}
             return obj;
         }, {});
 
@@ -184,7 +173,9 @@ export class aPageCard extends aPage {
 
     /** Набор кнопок управления для формы удаления объекта */
     deleteButtons() {
-        return (<><NavLink className='btn btn-primary btn-block' to={`/${this.apiName}/${App.listNameMethod}/`} role='button' title='Вернуться к списку'>Отмена</NavLink>
-            <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-danger btn-block" title='Подтвердить удаление объекта'>Подтверждение удаления</button></>);
+        return (<>
+            <NavLink className='btn btn-primary btn-block' to={`/${this.apiName}/${App.listNameMethod}/`} role='button' title='Вернуться к списку'>Отмена</NavLink>
+            <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-danger btn-block" title='Подтвердить удаление объекта'>Подтверждение удаления</button>
+        </>);
     }
 }

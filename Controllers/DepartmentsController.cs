@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SPADemoCRUD.Models;
+using SPADemoCRUD.Models.view;
 
 namespace SPADemoCRUD.Controllers
 {
@@ -44,9 +45,7 @@ namespace SPADemoCRUD.Controllers
 
             List<UserModel> usersByDepartment = await _context.Users.Where(x => x.DepartmentId == id).ToListAsync();
 
-            //List<object>  usersByDepartment.Select(x => new { x.Id, x.Name }).ToList();
-            /**/
-            return new { departmentModel.Id, departmentModel.Name, Users = usersByDepartment.Select(x => new { x.Id, x.Name }).ToList() };
+            return new { departmentModel.Id, departmentModel.Name, Users = usersByDepartment.Select(x => new { x.Id, x.Name, x.isDisabled }).ToList() };
         }
 
         // PUT: api/Departments/5
@@ -83,7 +82,13 @@ namespace SPADemoCRUD.Controllers
                 }
             }
 
-            return NoContent();
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Изменения сохранены",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = departmentModel
+            });
         }
 
         // POST: api/Departments
@@ -100,7 +105,7 @@ namespace SPADemoCRUD.Controllers
             _context.Departments.Add(departmentModel);
             await _context.SaveChangesAsync();
 
-            return departmentModel;
+            return CreatedAtAction(nameof(GetDepartmentModel), new { id = departmentModel.Id }, departmentModel); ;
         }
 
         // DELETE: api/Departments/5
