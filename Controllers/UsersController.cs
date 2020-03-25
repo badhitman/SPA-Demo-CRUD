@@ -33,7 +33,7 @@ namespace SPADemoCRUD.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetUsers()
         {
-            return await _context.Users.Include(x => x.Department).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString(), x.isOffline }).ToListAsync();
+            return await _context.Users.Include(x => x.Department).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString(), x.isDisabled }).ToListAsync();
         }
 
         // GET: api/Users/5
@@ -47,7 +47,7 @@ namespace SPADemoCRUD.Controllers
                 return NotFound();
             }
             List<DepartmentModel> departments = await _context.Departments.ToListAsync();
-            return new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, departments, UsersMetadataController.roles };
+            return new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, userModel.isDisabled, departments, UsersMetadataController.roles };
         }
 
         // PUT: api/Users/5
@@ -127,7 +127,7 @@ namespace SPADemoCRUD.Controllers
             _context.Users.Add(userModel);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUserModel", new { id = userModel.Id }, userModel);
+            return CreatedAtAction(nameof(GetUserModel), new { id = userModel.Id }, userModel);
         }
 
         // DELETE: api/Users/5

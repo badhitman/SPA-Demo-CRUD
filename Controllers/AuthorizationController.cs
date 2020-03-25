@@ -86,7 +86,7 @@ namespace SPADemoCRUD.Controllers
             UserModel user = DbContext.Users.Include(x => x.Department).FirstOrDefault(u => u.Email == loginUser.EmailLogin && u.Password == loginUser.PasswordLogin);
             if (user != null)
             {
-                if (user.isOffline)
+                if (user.isDisabled)
                 {
                     return new ObjectResult(new ServerActionResult()
                     {

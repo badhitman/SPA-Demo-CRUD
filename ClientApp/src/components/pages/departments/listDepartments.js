@@ -29,12 +29,14 @@ export class listDepartments extends aPageList {
                     </thead>
                     <tbody>
                         {departments.map(function (department) {
+                            const currentNavLink = department.isDisabled === true
+                                ? <del className='text-muted'><NavLink to={`/${apiName}/${App.viewNameMethod}/${department.id}`} title='кликните для редактирования'>{department.name}</NavLink></del>
+                                : <NavLink to={`/${apiName}/${App.viewNameMethod}/${department.id}`} title='кликните для редактирования'>{department.name}</NavLink>
+
                             return <tr key={department.id}>
                                 <td>{department.id}</td>
                                 <td>
-                                    <NavLink to={`/${apiName}/${App.viewNameMethod}/${department.id}`} title='кликните для редактирования'>
-                                        {department.name}
-                                    </NavLink>
+                                    {currentNavLink}
                                     <NavLink to={`/${apiName}/${App.deleteNameMethod}/${department.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
                                 </td>
                             </tr>

@@ -27,6 +27,6 @@ namespace SPADemoCRUD.Models
         /// <summary>
         /// Объект помечен как "неактивный"
         /// </summary>
-        public bool isOffline { get; set; } = false;
+        public bool isDisabled { get; set; } = false;
     }
 }
