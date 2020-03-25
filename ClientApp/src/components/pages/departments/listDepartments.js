@@ -30,7 +30,7 @@ export class listDepartments extends aPageList {
                     <tbody>
                         {departments.map(function (department) {
                             const currentNavLink = department.isDisabled === true
-                                ? <del className='text-muted'><NavLink to={`/${apiName}/${App.viewNameMethod}/${department.id}`} title='кликните для редактирования'>{department.name}</NavLink></del>
+                                ? <del><NavLink className='text-muted' to={`/${apiName}/${App.viewNameMethod}/${department.id}`} title='кликните для редактирования'>{department.name}</NavLink></del>
                                 : <NavLink to={`/${apiName}/${App.viewNameMethod}/${department.id}`} title='кликните для редактирования'>{department.name}</NavLink>
 
                             return <tr key={department.id}>

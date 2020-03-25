@@ -23,6 +23,7 @@ export class aPageCard extends aPage {
         super(props);
 
         this.handleClickButton = this.handleClickButton.bind(this);
+        this.handleClickButtonDisable = this.handleClickButtonDisable.bind(this);
     }
 
     /**
@@ -125,6 +126,25 @@ export class aPageCard extends aPage {
             const msg = `Ошибка: ${error}`;
             console.error(msg);
             alert(msg);
+        }
+    }
+
+    /** Вкл/Выкл объект */
+    async handleClickButtonDisable() {
+        const response = await fetch(`/api/${this.apiName}/${App.id}`, { method: 'PATCH' });
+        if (response.ok) {
+            var result = await response.json();
+            App.data.isDisabled = result.tag;
+            this.setState({ cardHeaderPanel: this.headerPanel() });
+        }
+    }
+
+    headerPanel() {
+        if (App.data.isDisabled === true) {
+            return <button onClick={this.handleClickButtonDisable} type="button" title='объект выключен. для включения - нажмите на кнопку' className="badge badge-pill badge-secondary">Выкл</button>;
+        }
+        else {
+            return <button onClick={this.handleClickButtonDisable} title='объект включен. для выключения - нажмите на кнопку' className="badge badge-pill badge-primary">Вкл</button>;
         }
     }
 

@@ -14,7 +14,7 @@ export class viewUser extends aPageCard {
     async load() {
         const response = await fetch(`/api/${this.apiName}/${App.id}`);
         App.data = await response.json();
-        this.setState({ cardTitle: `Пользователь: [#${App.data.id}] ${App.data.name}`, loading: false, cardContents: this.body() });
+        this.setState({ cardTitle: `Пользователь: [#${App.data.id}] ${App.data.name}`, loading: false, cardContents: this.body(), cardHeaderPanel: this.headerPanel() });
     }
 
     body() {
@@ -61,10 +61,5 @@ export class viewUser extends aPageCard {
                 {this.viewButtons()}
             </form>
         );
-    }
-
-    isPrime(element, index, array) {
-        array.forEach(element => console.log(element));
-        return false;
     }
 }

@@ -45,7 +45,7 @@ namespace SPADemoCRUD.Controllers
 
             List<UserModel> usersByDepartment = await _context.Users.Where(x => x.DepartmentId == id).ToListAsync();
 
-            return new { departmentModel.Id, departmentModel.Name, Users = usersByDepartment.Select(x => new { x.Id, x.Name, x.isDisabled }).ToList() };
+            return new { departmentModel.Id, departmentModel.Name, departmentModel.isDisabled, Users = usersByDepartment.Select(x => new { x.Id, x.Name, x.isDisabled }).ToList() };
         }
 
         // PUT: api/Departments/5
@@ -108,11 +108,36 @@ namespace SPADemoCRUD.Controllers
             return CreatedAtAction(nameof(GetDepartmentModel), new { id = departmentModel.Id }, departmentModel); ;
         }
 
+
+        // PATCH: api/Departments/5
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PatchDepartmentModel(int id)
+        {
+            var departmentModel = await _context.Departments.FindAsync(id);
+            if (departmentModel == null)
+            {
+                return NotFound();
+            }
+
+            departmentModel.isDisabled = !departmentModel.isDisabled;
+            _context.Departments.Update(departmentModel);
+            await _context.SaveChangesAsync();
+
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Объекту установлено новое состояние",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = departmentModel.isDisabled
+            });
+        }
+
+
         // DELETE: api/Departments/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<DepartmentModel>> DeleteDepartmentModel(int id)
         {
-            var departmentModel = await _context.Departments.FindAsync(id);
+            DepartmentModel departmentModel = await _context.Departments.FindAsync(id);
             if (departmentModel == null)
             {
                 return NotFound();

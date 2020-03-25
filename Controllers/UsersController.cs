@@ -130,6 +130,29 @@ namespace SPADemoCRUD.Controllers
             return CreatedAtAction(nameof(GetUserModel), new { id = userModel.Id }, userModel);
         }
 
+        // PATCH: api/Users/5
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PatchUserModel(int id)
+        {
+            var userModel = await _context.Users.FindAsync(id);
+            if (userModel == null)
+            {
+                return NotFound();
+            }
+
+            userModel.isDisabled = !userModel.isDisabled;
+            _context.Users.Update(userModel);
+            await _context.SaveChangesAsync();
+
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Объекту установлено новое состояние",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = userModel.isDisabled
+            });
+        }
+
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<UserModel>> DeleteUserModel(int id)

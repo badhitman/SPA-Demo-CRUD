@@ -31,7 +31,7 @@ export class listUsers extends aPageList {
                     <tbody>
                         {users.map(function (user) {
                             const currentNavLink = user.isDisabled === true
-                                ? <del className='text-muted'><NavLink to={`/${apiName}/${App.viewNameMethod}/${user.id}`} title='объект. отключен. кликните для редактирования'>{user.name} {user.Email}</NavLink></del>
+                                ? <del><NavLink className='text-muted' to={`/${apiName}/${App.viewNameMethod}/${user.id}`} title='объект. отключен. кликните для редактирования'>{user.name} {user.Email}</NavLink></del>
                                 : <NavLink to={`/${apiName}/${App.viewNameMethod}/${user.id}`} title='кликните для редактирования'>{user.name} {user.Email}</NavLink>
 
                             return <tr key={user.id}>
