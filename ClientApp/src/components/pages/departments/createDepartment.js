@@ -10,9 +10,9 @@ export class createDepartment extends viewDepartment {
     static displayName = createDepartment.name;
 
     async load() {
-        this.setState({ cardTitle: 'Создание нового департамента', loading: false, cardContents: this.body() });
+        this.setState({ cardTitle: 'Создание нового департамента', loading: false });
     }
-    body() {
+    cardBody() {
         return (
             <>
                 <form>

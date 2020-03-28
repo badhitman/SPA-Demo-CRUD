@@ -13,7 +13,11 @@ export class listUsers extends aPageList {
     apiName = 'users';
     listCardHeader = 'Справочник пользователей';
 
-    body() {
+    cardBody() {
+        if (this.readPagination() === true) {
+            this.load();
+            return <></>;
+        }
         var users = App.data;
         const apiName = this.apiName;
         return (
@@ -45,6 +49,7 @@ export class listUsers extends aPageList {
                         })}
                     </tbody>
                 </table>
+                {this.cardPaginator()}
             </>
         );
     }

@@ -14,9 +14,9 @@ export class deleteDepartment extends viewDepartment {
     async load() {
         const response = await fetch(`/api/${this.apiName}/${App.id}`);
         App.data = await response.json();
-        this.setState({ cardTitle: 'Удаление объекта', loading: false, cardContents: this.body() });
+        this.setState({ cardTitle: 'Удаление объекта', loading: false });
     }
-    body() {
+    cardBody() {
         var department = App.data;
         return (
             <>

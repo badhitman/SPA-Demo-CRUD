@@ -39,7 +39,7 @@ export class aPageCard extends aPage {
 
         var sendedFormData = jQuery(aPageCard.form).serializeArray().reduce(function (obj, item) {
             if (item.name.toLowerCase() === 'id' || aPageCard.form[item.name].type.toLowerCase() === 'number' || aPageCard.form[item.name].tagName.toLowerCase() === 'select') {
-                obj[item.name] = parseInt(item.value);
+                obj[item.name] = parseInt(item.value, 10);
             }
             else {
                 obj[item.name] = item.value;
@@ -135,7 +135,7 @@ export class aPageCard extends aPage {
         if (response.ok) {
             var result = await response.json();
             App.data.isDisabled = result.tag;
-            this.setState({ cardHeaderPanel: this.headerPanel() });
+            this.setState({ loading: false });
         }
     }
 

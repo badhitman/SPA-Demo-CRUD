@@ -15,10 +15,10 @@ export class viewDepartment extends aPageCard {
     async load() {
         const response = await fetch(`/api/${this.apiName}/${App.id}`);
         App.data = await response.json();
-        this.setState({ cardTitle: `Департамент: [#${App.data.id}] ${App.data.name}`, loading: false, cardContents: this.body(), cardHeaderPanel: this.headerPanel() });
+        this.setState({ cardTitle: `Департамент: [#${App.data.id}] ${App.data.name}`, loading: false });
     }
 
-    body() {
+    cardBody() {
         var department = App.data;
         return (
             <>

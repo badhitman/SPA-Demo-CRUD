@@ -14,6 +14,10 @@ export class listDepartments extends aPageList {
     listCardHeader = 'Справочник департаментов';
 
     body() {
+        if (this.readPagination() === true) {
+            this.load();
+            return <></>;
+        }
         var departments = App.data;
         var apiName = this.apiName;
         return (

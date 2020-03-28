@@ -31,9 +31,15 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<object>>> GetUsers([FromQuery] PaginationParameters pagingParameters)
         {
-            return await _context.Users.Include(x => x.Department).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString(), x.isDisabled }).ToListAsync();
+            pagingParameters.Init(_context.Users.Count());
+            IQueryable<UserModel> users = _context.Users.OrderBy(x => x.Id);
+            if (pagingParameters.PageNum > 1)
+                users = users.Skip(pagingParameters.Skip);
+
+            HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+            return await users.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString(), x.isDisabled }).ToListAsync();
         }
 
         // GET: api/Users/5

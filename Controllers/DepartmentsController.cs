@@ -27,9 +27,15 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Departments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DepartmentModel>>> GetDepartments()
+        public async Task<ActionResult<IEnumerable<DepartmentModel>>> GetDepartments([FromQuery] PaginationParameters pagingParameters)
         {
-            return await _context.Departments.ToListAsync();
+            pagingParameters.Init(_context.Departments.Count());
+            IQueryable<DepartmentModel> departments = _context.Departments.OrderBy(x => x.Id);
+            if (pagingParameters.PageNum > 1)
+                departments = departments.Skip(pagingParameters.Skip);
+
+            HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+            return await departments.Take(pagingParameters.PageSize).ToListAsync();
         }
 
         // GET: api/Departments/5
@@ -108,7 +114,6 @@ namespace SPADemoCRUD.Controllers
             return CreatedAtAction(nameof(GetDepartmentModel), new { id = departmentModel.Id }, departmentModel); ;
         }
 
-
         // PATCH: api/Departments/5
         [HttpPatch("{id}")]
         public async Task<ActionResult> PatchDepartmentModel(int id)
@@ -131,7 +136,6 @@ namespace SPADemoCRUD.Controllers
                 Tag = departmentModel.isDisabled
             });
         }
-
 
         // DELETE: api/Departments/5
         [HttpDelete("{id}")]

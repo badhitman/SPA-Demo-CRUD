@@ -13,9 +13,9 @@ export class createUser extends viewUser {
     async load() {
         const response = await fetch('/api/usersmetadata/');
         this.usersmetadata = await response.json();
-        this.setState({ cardTitle: 'Создание нового пользователя', loading: false, cardContents: this.body() });
+        this.setState({ cardTitle: 'Создание нового пользователя', loading: false });
     }
-    body() {
+    cardBody() {
         const departments = this.usersmetadata.departments;
         const roles = this.usersmetadata.roles;
 

@@ -13,9 +13,9 @@ export class deleteUser extends viewUser {
     async load() {
         const response = await fetch(`/api/${this.apiName}/${App.id}`);
         App.data = await response.json();
-        this.setState({ cardTitle: 'Удаление объекта', loading: false, cardContents: this.body() });
+        this.setState({ cardTitle: 'Удаление объекта', loading: false });
     }
-    body() {
+    cardBody() {
         var user = App.data;
         user.departmen = user.departments.find(function (element, index, array) { return element.id === user.departmentId });
         if (user.departmen === undefined) {
