@@ -139,7 +139,7 @@ export class aPageCard extends aPage {
         }
     }
 
-    headerPanel() {
+    cardHeaderPanel() {
         if (App.data.isDisabled === true) {
             return <button onClick={this.handleClickButtonDisable} type="button" title='объект выключен. для включения - нажмите на кнопку' className="badge badge-pill badge-secondary">Выкл</button>;
         }

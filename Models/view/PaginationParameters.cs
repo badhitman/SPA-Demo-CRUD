@@ -9,7 +9,7 @@ namespace SPADemoCRUD.Models.view
 {
     public class PaginationParameters
     {
-        public readonly static int[] PaginationSizes = new int[] { 10, 20, 50, 100, 200 };
+        public readonly static int[] PaginationSizes = new int[] { 5, 10, 20, 50, 100, 200 };
 
         /// <summary>
         /// Инициализация/оптимизация состояния пагинатора

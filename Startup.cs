@@ -13,7 +13,6 @@ using SPADemoCRUD.Controllers;
 using SPADemoCRUD.Models;
 using SPADemoCRUD.Models.AuthorizePolicies;
 using System;
-using System.Security.Claims;
 
 namespace SPADemoCRUD
 {

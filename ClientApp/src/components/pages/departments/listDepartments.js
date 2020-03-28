@@ -13,7 +13,7 @@ export class listDepartments extends aPageList {
     apiName = 'departments';
     listCardHeader = 'Справочник департаментов';
 
-    body() {
+    cardBody() {
         if (this.readPagination() === true) {
             this.load();
             return <></>;
@@ -47,6 +47,7 @@ export class listDepartments extends aPageList {
                         })}
                     </tbody>
                 </table>
+                {this.cardPaginator()}
             </>
         );
     }
