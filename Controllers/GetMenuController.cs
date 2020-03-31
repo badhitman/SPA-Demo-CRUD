@@ -58,7 +58,8 @@ namespace SPADemoCRUD.Controllers
             Childs = new MenuItem[]
             {
                 new MenuItem() { Title = "Состояние", Href = "/server/list", Tooltip = "Состояние сервера/системы" },
-                new MenuItem() { Title = "Настройки", Href = "/server/view", Tooltip = "Настройки сервера" }
+                new MenuItem() { Title = "Настройки", Href = "/server/view", Tooltip = "Настройки сервера" },
+                new MenuItem() { Title = "FTP", Href = "/ftp/list", Tooltip = "Файлы" }
             }
         };
 

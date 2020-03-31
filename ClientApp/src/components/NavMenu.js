@@ -61,7 +61,7 @@ export class NavMenu extends Component {
                                         :
                                         <DropdownItem key={subItem.href}>
                                             <NavItem>
-                                                <NavLink className='text-dark' tag={Link} to={subItem.href} tooltip={subItem.tooltip}>{subItem.title}</NavLink>
+                                                <NavLink className='text-dark' tag={Link} to={subItem.href} title={subItem.tooltip}>{subItem.title}</NavLink>
                                             </NavItem>
                                         </DropdownItem>
                                 })}
