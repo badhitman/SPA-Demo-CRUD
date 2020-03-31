@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MultiTool;
 using SPADemoCRUD.Models;
 using SPADemoCRUD.Models.view;
 
@@ -28,6 +24,16 @@ namespace SPADemoCRUD.Controllers
             DbContext = db_context;
             uploadsPatch = options.Value.UploadsPatch;
             DirectoryInfo uploadsDirInfo = new DirectoryInfo(uploadsPatch);
+            if (!uploadsDirInfo.Exists)
+            {
+                Directory.CreateDirectory(uploadsDirInfo.FullName);
+            }
+            uploadsDirInfo = new DirectoryInfo(Path.Combine(uploadsPatch, "thumbs"));
+            if (!uploadsDirInfo.Exists)
+            {
+                Directory.CreateDirectory(uploadsDirInfo.FullName);
+            }
+            uploadsDirInfo = new DirectoryInfo(Path.Combine(uploadsPatch, "storage"));
             if (!uploadsDirInfo.Exists)
             {
                 Directory.CreateDirectory(uploadsDirInfo.FullName);

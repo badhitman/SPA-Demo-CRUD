@@ -12,7 +12,7 @@ export class viewFile extends aPageCard {
     apiName = 'files';
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/${App.id}`);
+        const response = await fetch(`/${this.apiName}/info/${App.id}`);
         App.data = await response.json();
         this.setState({ cardTitle: `Файл: [#${App.data.id}] ${App.data.name}`, loading: false });
     }
