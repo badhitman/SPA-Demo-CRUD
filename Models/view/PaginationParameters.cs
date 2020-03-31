@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SPADemoCRUD.Models.view
@@ -20,6 +21,21 @@ namespace SPADemoCRUD.Models.view
             itemsCount = items_count;
             pageSize = CheckPageSize(pageSize);
             pageNum = CheckPageNum(pageNum);
+        }
+
+        /// <summary>
+        /// Перезагрузить состояние "пагинатора" для формирования постраничного вывода данных.
+        /// ВНИМАНИЕ! Переданый 'List' будет усечён до "актуального состояния" в зависимости от запрошеного номера страницы и настроек размера страницы
+        /// </summary>
+        /// <param name="data_list">Многострочные данные для формирования постраничного документа. Переданый список будет "усечён до актуального состояния" в зависимости от запрошеного номера страницы и настроек размера страницы</param>
+        public void Init<T>(ref List<T> data_list)
+        {
+            CountAllElements = data_list.Count;
+
+            if (PageNum == 1)
+                data_list = new List<T>(data_list.Take(PageSize));
+            else
+                data_list = new List<T>(data_list.Skip(Skip).Take(PageSize));
         }
 
         /// <summary>

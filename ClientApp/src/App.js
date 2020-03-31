@@ -27,7 +27,9 @@ export default class App extends Component {
             /** Роли/Права */
             'roles',
             /** Сессия (logIn/logOut) */
-            'signin'
+            'signin',
+            /** Файловое хранилище */
+            'files'
         ];
 
     /** Имя метода для отображения списка объектов */

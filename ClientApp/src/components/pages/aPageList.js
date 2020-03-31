@@ -16,9 +16,14 @@ import '../../jquery.cookie.js';
 /** Списки/Справочники. Базовый (типа абстрактный) компонент */
 export class aPageList extends aPage {
     static displayName = aPageList.name;
+    static lastSearchQuery = '';
+
     apiName = '';
     /** Заголовок карточки (списка) */
     listCardHeader = '';
+
+    apiPrefix = '/api';
+    apiPostfix = '';
 
     constructor(props) {
         super(props);
@@ -83,18 +88,19 @@ export class aPageList extends aPage {
             pagesCount = Math.ceil(rowsCount / pageSize);
         }
 
-        const isModifiedState = rowsCount !== this.rowsCount || pagesCount !== this.pagesCount || pageSize !== this.pageSize || pageNum !== this.pageNum;
+        const isModifiedState = rowsCount !== this.rowsCount || pagesCount !== this.pagesCount || pageSize !== this.pageSize || pageNum !== this.pageNum || aPageList.lastSearchQuery !== search;
 
         this.rowsCount = rowsCount;
         this.pagesCount = pagesCount;
         this.pageSize = pageSize;
         this.pageNum = pageNum;
+        aPageList.lastSearchQuery = search;
 
         return isModifiedState;
     }
 
     async ajax() {
-        const response = await fetch(`/api/${this.apiName}/?pageNum=${this.pageNum}&pageSize=${this.pageSize}`);
+        const response = await fetch(`${this.apiPrefix}/${this.apiName}/${this.apiPostfix}?pageNum=${this.pageNum}&pageSize=${this.pageSize}`);
         if (response.redirected === true) {
             window.location.href = response.url;
             return;
@@ -117,7 +123,7 @@ export class aPageList extends aPage {
     }
 
     cardHeaderPanel() {
-        return <span title='реализация фильтров запланирована следующим этапом'>фильтры</span>;
+        return <span title='реализация фильтров запланирована в ближайшем будущем'>фильтры</span>;
     }
 
     cardPaginator() {

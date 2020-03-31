@@ -68,5 +68,10 @@ namespace SPADemoCRUD.Models
         /// Указав в этом параметре ID пользователя, система при запуске назначит ему (пользовтаелю) права ROOT
         /// </summary>
         public int SetUserRootById { get; set; }
+
+        /// <summary>
+        /// Папка загружаемых файлов (new DirectoryInfo(AppOptions.UploadsPatch))
+        /// </summary>
+        public string UploadsPatch { get; set; } = "uploads";
     }
 }

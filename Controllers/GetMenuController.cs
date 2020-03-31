@@ -47,7 +47,8 @@ namespace SPADemoCRUD.Controllers
             Childs = new MenuItem[]
             {
                 new MenuItem() { Title = "Номенклатура", Href = "/goods/list", Tooltip = "Товары и всё такое" },
-                new MenuItem() { Title = "Адреса", Href = "/addresses/list", Tooltip = "Адресный классификатор" }
+                new MenuItem() { Title = "Адреса", Href = "/addresses/list", Tooltip = "Адресный классификатор" },
+                new MenuItem() { Title = "Файлы", Href = "/files/list", Tooltip = "Файловое хранилище" }
             }
         };
         private static readonly NestedMenu server = new NestedMenu()
@@ -58,8 +59,7 @@ namespace SPADemoCRUD.Controllers
             Childs = new MenuItem[]
             {
                 new MenuItem() { Title = "Состояние", Href = "/server/list", Tooltip = "Состояние сервера/системы" },
-                new MenuItem() { Title = "Настройки", Href = "/server/view", Tooltip = "Настройки сервера" },
-                new MenuItem() { Title = "FTP", Href = "/ftp/list", Tooltip = "Файлы" }
+                new MenuItem() { Title = "Настройки", Href = "/server/view", Tooltip = "Настройки сервера" }
             }
         };
 

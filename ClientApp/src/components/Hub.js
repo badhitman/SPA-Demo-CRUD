@@ -17,6 +17,10 @@ import { viewDepartment } from './pages/departments/viewDepartment';
 import { createDepartment } from './pages/departments/createDepartment';
 import { deleteDepartment } from './pages/departments/deleteDepartment';
 
+import { listFiles } from './pages/files/listFiles';
+import { viewFile } from './pages/files/viewFile';
+import { deleteFile } from './pages/files/deleteFile';
+
 import { SignIn } from './pages/SignIn';
 import { NavMenu } from './NavMenu';
 import App from '../App';
@@ -55,6 +59,10 @@ export class Hub extends Component {
                         <Route path={`/departments/${App.viewNameMethod}`} component={viewDepartment} />
                         <Route path={`/departments/${App.createNameMethod}`} component={createDepartment} />
                         <Route path={`/departments/${App.deleteNameMethod}`} component={deleteDepartment} />
+
+                        <Route path={`/files/${App.listNameMethod}/`} component={listFiles} />
+                        <Route path={`/files/${App.viewNameMethod}`} component={viewFile} />
+                        <Route path={`/files/${App.deleteNameMethod}`} component={deleteFile} />
 
                         <Route path={'/accessdenied/'} component={AccessDenied} />
                         <Route component={NotFound} />
