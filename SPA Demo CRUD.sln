@@ -8,6 +8,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "reCaptcha", "reCaptcha\reCa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ext", "ext", "{FD8D2A10-0360-400E-B189-7DDEEA16A567}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTool", "MultiTool\MultiTool.csproj", "{EDFB8727-A4F9-4DAA-B5FE-151AAA9559F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,12 +24,17 @@ Global
 		{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDFB8727-A4F9-4DAA-B5FE-151AAA9559F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDFB8727-A4F9-4DAA-B5FE-151AAA9559F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDFB8727-A4F9-4DAA-B5FE-151AAA9559F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDFB8727-A4F9-4DAA-B5FE-151AAA9559F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1} = {FD8D2A10-0360-400E-B189-7DDEEA16A567}
+		{EDFB8727-A4F9-4DAA-B5FE-151AAA9559F6} = {FD8D2A10-0360-400E-B189-7DDEEA16A567}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ABFEEC01-3C3A-452E-9AEE-0D9EA000F337}

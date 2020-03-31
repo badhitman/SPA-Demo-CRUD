@@ -35,7 +35,7 @@ export class listFiles extends aPageList {
                         {files.map(function (file) {
                             return <tr key={file.name}>
                                 <td>{file.name}</td>
-                                <td>{file.length}</td>
+                                <td>{file.size}</td>
                             </tr>
                         })}
                     </tbody>

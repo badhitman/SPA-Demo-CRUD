@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="MultiTool\MultiTool.csproj" />
     <ProjectReference Include="reCaptcha\reCaptcha.csproj" />
   </ItemGroup>
 

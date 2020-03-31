@@ -210,7 +210,7 @@ export class aPageList extends aPage {
                                 }
                             case PaginationTypesButton.Numb:
                                 if (item.isActive) {
-                                    return <PaginationItem key={index} active><PaginationLink tag={Link} to={item.href}>{item.title}</PaginationLink></PaginationItem>;
+                                    return <PaginationItem key={index} active><PaginationLink>{item.title}</PaginationLink></PaginationItem>;
                                 }
                                 else {
                                     return <PaginationItem key={index}><PaginationLink tag={Link} to={item.href}>{item.title}</PaginationLink></PaginationItem>;
