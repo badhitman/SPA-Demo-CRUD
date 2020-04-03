@@ -3,10 +3,18 @@
 ////////////////////////////////////////////////
 
 import React, { Component } from 'react';
+import jQuery from 'jquery';
 
 /** Базовый (типа абстрактный) компонент */
 export class aPage extends Component {
     static displayName = aPage.name;
+
+    /** Префикс/приставка url тела запроса к api */
+    apiPrefix = '/api';
+    /** имя сущьности api (тип данных) */
+    apiName = '';
+    /** Постфикс/окончание url тела запроса к api  */
+    apiPostfix = '';
 
     constructor(props) {
         super(props);
@@ -27,6 +35,29 @@ export class aPage extends Component {
 
     componentDidMount() {
         this.load();
+    }
+
+    /**
+     * Отправка уведомления клиенту в виде ALERT
+     * @param {string} message - текст сообщения
+     * @param {string} status - bootstrap статус (цветовое оформление: primary, secondary, success, danger, warning)
+     * @param {number} fadeIn - скорость вывода сообщения
+     * @param {number} fadeOut - скорость увядания сообщения
+     * @param {string} fadeBehavior - jquery флаг поведения анимации
+     */
+    clientAlert(message, status, fadeIn = 1000, fadeOut = 1000, fadeBehavior = 'swing') {
+        var domElement = jQuery(`<div class="mt-2 alert alert-${status}" role="alert">${message}</div>`);
+        jQuery('.card:first').after(domElement.hide().fadeIn(fadeIn, fadeBehavior, function () { domElement.fadeOut(fadeOut); }));
+    }
+
+    /** Рендер функциональной панели, размещённого в заголовочной части карточки (прижата к правой части) */
+    cardHeaderPanel() {
+        return <>Заглушка. Требуется переопределения в потомке</>;
+    }
+
+    /** Рендер тела карточки страницы */
+    cardBody() {
+        return <>Заглушка. Требуется переопределения в потомке</>;
     }
 
     render() {

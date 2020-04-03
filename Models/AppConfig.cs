@@ -72,7 +72,7 @@ namespace SPADemoCRUD.Models
         /// <summary>
         /// Папка загружаемых файлов (new DirectoryInfo(AppOptions.UploadsPatch))
         /// </summary>
-        public string UploadsPatch { get; set; } = "uploads";
+        public string UploadsPath { get; set; } = "uploads";
 
         /// <summary>
         /// Высота thumb картинки

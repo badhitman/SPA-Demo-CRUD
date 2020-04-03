@@ -11,9 +11,7 @@ import { aPage } from './aPage';
 /** Карточка объекта. Базовый (типа абстрактный) компонент */
 export class aPageCard extends aPage {
     static displayName = aPageCard.name;
-    static form;
 
-    apiName = '';
     /** имя кнопки отправки данных на сервер (с последующим переходом к списку) */
     okButtonName = 'okButton';
     /** имя кнопки только отправки данных на сервер (без последующего перехода)*/
@@ -22,23 +20,26 @@ export class aPageCard extends aPage {
     constructor(props) {
         super(props);
 
+        /** Обработчик нажатия кнопки "Ок" */
         this.handleClickButton = this.handleClickButton.bind(this);
+        /** Вкл/Выкл объект */
         this.handleClickButtonDisable = this.handleClickButtonDisable.bind(this);
     }
 
     /**
-     * Обработчик нажатия кнопки сохранения данных
+     * Обработчик нажатия кнопки CRUD
      * @param {any} e - context handle button
      */
     async handleClickButton(e) {
         var nameButton = e.target.name;
-        aPageCard.form = e.target.form;
+        var form = e.target.form;
 
         var response;
         const apiName = this.apiName;
+        const urlBody = `${this.apiPrefix}/${apiName}${this.apiPostfix}`;
 
-        var sendedFormData = jQuery(aPageCard.form).serializeArray().reduce(function (obj, item) {
-            if (item.name.toLowerCase() === 'id' || aPageCard.form[item.name].type.toLowerCase() === 'number' || aPageCard.form[item.name].tagName.toLowerCase() === 'select') {
+        var sendedFormData = jQuery(form).serializeArray().reduce(function (obj, item) {
+            if (item.name.toLowerCase() === 'id' || form[item.name].type.toLowerCase() === 'number' || form[item.name].tagName.toLowerCase() === 'select') {
                 obj[item.name] = parseInt(item.value, 10);
             }
             else {
@@ -50,7 +51,7 @@ export class aPageCard extends aPage {
         try {
             switch (App.method) {
                 case App.viewNameMethod:
-                    response = await fetch(`/api/${apiName}/${App.data.id}`, {
+                    response = await fetch(`${urlBody}/${App.data.id}`, {
                         method: 'PUT',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -59,7 +60,7 @@ export class aPageCard extends aPage {
                     });
                     break;
                 case App.createNameMethod:
-                    response = await fetch(`/api/${apiName}/`, {
+                    response = await fetch(`${urlBody}/`, {
                         method: 'POST',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -68,7 +69,8 @@ export class aPageCard extends aPage {
                     });
                     break;
                 case App.deleteNameMethod:
-                    response = await fetch(`/api/${apiName}/${App.data.id}`, {
+                    const data = App.data;
+                    response = await fetch(`${urlBody}/${data.id}`, {
                         method: 'DELETE',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -91,14 +93,12 @@ export class aPageCard extends aPage {
             var domElement;
             if (response.ok) {
                 if (result.success === false) {
-                    domElement = jQuery(`<div class="mt-2 alert alert-${result.status}" role="alert">${result.info}</div>`);
-                    jQuery(aPageCard.form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(15000); }));
+                    this.clientAlert(result.info, result.status, 1000, 15000);
                     return;
                 }
 
                 if (App.method === App.viewNameMethod) {
-                    domElement = jQuery('<div class="alert alert-success" role="alert">Команда успешно выполнена: <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                    jQuery(aPageCard.form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(1000); }));
+                    this.clientAlert('Команда записи успешно выполнена', 'success');
                 }
                 else if (App.method === App.createNameMethod) {
                     this.props.history.push(`/${apiName}/${App.viewNameMethod}/${result.id}/`);
@@ -111,13 +111,11 @@ export class aPageCard extends aPage {
             else {
                 var errorsString = App.mapObjectToArr(result.errors).join('<br/>');
                 domElement = jQuery(`<div class="mt-2 alert alert-danger" role="alert"><h4 class="alert-heading">${result.title}</h4><p>${errorsString}</p><hr/><p>traceId: ${result.traceId}</p></div>`);
-                jQuery(aPageCard.form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(15000); }));
+                jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(15000); }));
                 const msg = `Ошибка обработки HTTP запроса. Status: ${response.status}`;
                 console.error(msg);
                 return;
             }
-
-            aPageCard.form = undefined;
 
             if (nameButton === this.okButtonName) {
                 this.props.history.push(`/${apiName}/${App.listNameMethod}/`);
@@ -131,11 +129,12 @@ export class aPageCard extends aPage {
 
     /** Вкл/Выкл объект */
     async handleClickButtonDisable() {
-        const response = await fetch(`/api/${this.apiName}/${App.id}`, { method: 'PATCH' });
+        const response = await fetch(`${this.apiPrefix}/${this.apiName}${this.apiPostfix}/${App.id}`, { method: 'PATCH' });
         if (response.ok) {
             var result = await response.json();
             App.data.isDisabled = result.tag;
             this.setState({ loading: false });
+            this.clientAlert(`Объект ${App.data.isDisabled === true ? 'Выкл.' : 'Вкл.'}`, 'success');
         }
     }
 

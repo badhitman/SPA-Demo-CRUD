@@ -85,8 +85,8 @@ namespace SPADemoCRUD
                 options.Cookie.IsEssential = true;
             });
             services.AddMemoryCache();
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => 
-            { 
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+            {
                 options.LoginPath = new PathString("/signin/");
                 options.AccessDeniedPath = new PathString("/accessdenied/");
                 options.SlidingExpiration = true;

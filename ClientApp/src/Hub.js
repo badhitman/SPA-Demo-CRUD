@@ -4,27 +4,27 @@
 
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router';
-import { HomePage } from './pages/HomePage';
-import { NotFound } from './NotFound';
+import { HomePage } from './components/pages/HomePage';
+import { NotFound } from './components/NotFound';
 
-import { listUsers } from './pages/users/listUsers';
-import { viewUser } from './pages/users/viewUser';
-import { createUser } from './pages/users/createUser';
-import { deleteUser } from './pages/users/deleteUser';
+import { listUsers } from './components/pages/users/listUsers';
+import { viewUser } from './components/pages/users/viewUser';
+import { createUser } from './components/pages/users/createUser';
+import { deleteUser } from './components/pages/users/deleteUser';
 
-import { listDepartments } from './pages/departments/listDepartments';
-import { viewDepartment } from './pages/departments/viewDepartment';
-import { createDepartment } from './pages/departments/createDepartment';
-import { deleteDepartment } from './pages/departments/deleteDepartment';
+import { listDepartments } from './components/pages/departments/listDepartments';
+import { viewDepartment } from './components/pages/departments/viewDepartment';
+import { createDepartment } from './components/pages/departments/createDepartment';
+import { deleteDepartment } from './components/pages/departments/deleteDepartment';
 
-import { listFiles } from './pages/files/listFiles';
-import { viewFile } from './pages/files/viewFile';
-import { deleteFile } from './pages/files/deleteFile';
+import { listFiles } from './components/pages/files/listFiles';
+import { viewFile } from './components/pages/files/viewFile';
+import { deleteFile } from './components/pages/files/deleteFile';
 
-import { SignIn } from './pages/SignIn';
-import { NavMenu } from './NavMenu';
-import App from '../App';
-import { AccessDenied } from './AccessDenied';
+import { SignIn } from './components/pages/SignIn';
+import { NavMenu } from './components/NavMenu';
+import App from './App';
+import { AccessDenied } from './components/AccessDenied';
 
 export class Hub extends Component {
     static displayName = Hub.name;
@@ -38,9 +38,6 @@ export class Hub extends Component {
             console.error('Недопустимое имя метода: ' + App.method);
             return <NotFound>Ошибка имени метода: {App.method}<br />Доступные имена метдов: {App.allowsMethods.join()}</NotFound>;
         }
-
-        if (App.id && App.id > 0) { /*console.trace('id объекта: [' + App.id + ']');*/ }
-        else { App.id = -1 }
 
         return (
             <>

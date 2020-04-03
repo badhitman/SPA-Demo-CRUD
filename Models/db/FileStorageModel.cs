@@ -11,6 +11,6 @@ namespace SPADemoCRUD.Models
     /// </summary>
     public class FileStorageModel : LiteEntityModel
     {
-        public string Length { get; set; }
+        public long Length { get; set; }
     }
 }

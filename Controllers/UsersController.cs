@@ -2,6 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -50,6 +51,7 @@ namespace SPADemoCRUD.Controllers
 
             if (userModel == null)
             {
+                _logger.LogError("Запрашиваемый пользователь не найден по ключу: {0}", id);
                 return NotFound();
             }
             List<DepartmentModel> departments = await _context.Departments.ToListAsync();
@@ -69,6 +71,7 @@ namespace SPADemoCRUD.Controllers
 
             if (id != userModel.Id)
             {
+                _logger.LogError("Ошибка контроля связи модели с параметрами запроса: id:{0} != userModel.Id:{1}", id, userModel.Id);
                 return BadRequest();
             }
 
@@ -78,14 +81,17 @@ namespace SPADemoCRUD.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Ошибка выполнения запроса EF");
                 if (!UserModelExists(id))
                 {
+                    _logger.LogWarning("Такого пользователя нет id:{0}", id);
                     return NotFound();
                 }
                 else
                 {
+                    _logger.LogWarning("Невнятная ошибка с пользователем id:{0}", id);
                     throw;
                 }
             }

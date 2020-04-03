@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import { Route, Switch } from 'react-router';
 import { Layout } from './components/Layout';
 import { NotFound } from './components/NotFound';
-import { Hub } from './components/Hub';
+import { Hub } from './Hub';
 
 import jquery from 'jquery';
 import './jquery.cookie.js';
@@ -43,13 +43,13 @@ export default class App extends Component {
     /** Список доступных CRUD методов */
     static allowsMethods = [App.listNameMethod, App.viewNameMethod, App.createNameMethod, App.deleteNameMethod];
 
-    /** Имя запрашиваемого метода */
+    /** Имя запрашиваемого метода (из react props) */
     static method;
-    /** ID запрашиваемого объекта */
+    /** ID запрашиваемого объекта (из react props) */
     static id;
 
-    /** context data */
-    static data = { id: '', name: '' };
+    /** полученные с сервера (ajax) контекстные данные */
+    static data = {};
 
     /** context session */
     static session =
@@ -123,9 +123,57 @@ export default class App extends Component {
         }
     }
 
+    /**
+     * Конвертация объекта в массив
+     * @param {any} obj
+     */
     static mapObjectToArr(obj) {
         var errArr = Object.keys(obj).map((keyName, i) => { return `${keyName}: ${obj[keyName]}`; })
         return errArr;
+    }
+
+    /**
+     * Получить расширение файла по имени (вместе с ведущей точкой)
+     * @param {string} filename - имя файла
+     */
+    static getFileExtension(filename) {
+        if (!filename) {
+            return '';
+        }
+        if (filename.indexOf('.') < 0) {
+            return '';
+        }
+
+        return '.' + filename.split('.').pop();
+    }
+
+    /**
+     * Явялется ли файл (по имени файла) изображением
+     * @param {any} filename
+     */
+    static fileNameIsImage(filename) {
+        if (!filename) {
+            return false;
+        }
+
+        const currentFileExtension = this.getFileExtension(filename).toLowerCase();
+        return ['.svg', '.jpg', '.jpeg', '.png', '.gif', '.bmp'].includes(currentFileExtension);
+    }
+
+    /**
+     * Получить размер файла в виде удобно читаемой строки
+     * @param {number} SizeFile - размер в байтах
+     */
+    static SizeDataAsString(SizeFile) {
+        if (isNaN(SizeFile)) {
+            return '<NaN> - is Not a Number';
+        }
+        if (SizeFile < 1024)
+            return `${SizeFile} bytes`;
+        else if (SizeFile < 1024 * 1024)
+            return `${(SizeFile / 1024).toFixed(2)} KB`;
+        else
+            return `${(SizeFile / 1024 / 1024).toFixed(2)} MB`;
     }
 
     render() {

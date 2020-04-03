@@ -18,18 +18,14 @@ export class aPageList extends aPage {
     static displayName = aPageList.name;
     static lastSearchQuery = '';
 
-    apiName = '';
     /** Заголовок карточки (списка) */
     listCardHeader = '';
-
-    apiPrefix = '/api';
-    apiPostfix = '';
 
     constructor(props) {
         super(props);
 
-        this.toggle = this.toggle.bind(this);
-        this.state.dropdownOpen = false;
+        this.togglePaginator = this.togglePaginator.bind(this);
+        this.state.dropdownOpenPaginator = false;
 
         /** Количество строк в списке всего */
         this.rowsCount = 0;
@@ -41,9 +37,9 @@ export class aPageList extends aPage {
         this.pageNum = 1;
     }
 
-    toggle() {
+    togglePaginator() {
         this.setState(prevState => ({
-            dropdownOpen: !prevState.dropdownOpen
+            dropdownOpenPaginator: !prevState.dropdownOpenPaginator
         }));
     }
 
@@ -180,8 +176,8 @@ export class aPageList extends aPage {
         pagunationItems.push(new PaginationNavElement(PaginationTypesButton.Next, false, undefined, (PageNum >= CountPages ? undefined : urlTmpl + (PageNum + 1).toString())));
 
         return (
-            <div className="d-flex justify-content-end">
-                <Dropdown className='mr-2' size="sm" isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+            <div className="d-flex justify-content-end mt-2">
+                <Dropdown className='mr-2' size="sm" isOpen={this.state.dropdownOpenPaginator} toggle={this.togglePaginator}>
                     <DropdownToggle title='Размерность пагинатора' caret>{this.pageSize}</DropdownToggle>
                     <DropdownMenu>
                         <DropdownItem><NavLink tag={Link} to={`/${this.apiName}/${App.listNameMethod}/?pageSize=10&pageNum=1`} title=''>10</NavLink></DropdownItem>
