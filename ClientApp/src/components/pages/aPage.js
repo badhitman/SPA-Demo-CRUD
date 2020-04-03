@@ -4,6 +4,7 @@
 
 import React, { Component } from 'react';
 import jQuery from 'jquery';
+import App from '../../App';
 
 /** Базовый (типа абстрактный) компонент */
 export class aPage extends Component {
@@ -61,6 +62,10 @@ export class aPage extends Component {
     }
 
     render() {
+        if (App.data === null) {
+            this.load();
+            return <>reload ...</>;
+        }
         return (
             <>
                 <div className="card">

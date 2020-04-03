@@ -32,7 +32,7 @@ export class Hub extends Component {
     render() {
         App.method = this.props.match.params.method;
         App.id = this.props.match.params.id;
-        App.data = { id: '', name: '' };
+        App.data = null;
 
         if (App.method !== undefined && App.allowsMethods.includes(App.method) !== true) {
             console.error('Недопустимое имя метода: ' + App.method);

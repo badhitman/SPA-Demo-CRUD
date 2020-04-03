@@ -49,7 +49,7 @@ export default class App extends Component {
     static id;
 
     /** полученные с сервера (ajax) контекстные данные */
-    static data = {};
+    static data = null;
 
     /** context session */
     static session =
