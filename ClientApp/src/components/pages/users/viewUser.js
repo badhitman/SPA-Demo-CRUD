@@ -25,9 +25,19 @@ export class viewUser extends aPageCard {
         return (
             <form className='mb-2' key='view-form'>
                 <input name='id' defaultValue={user.id} type='hidden' />
-                <div className="form-group">
-                    <label htmlFor="user-input">Публичное имя</label>
-                    <input name='name' defaultValue={user.name} type="text" className="form-control" id="user-input" placeholder="Новое имя" />
+                <div className='form-row'>
+                    <div className='col'>
+                        <div className="form-group">
+                            <label htmlFor="user-input">Публичное имя</label>
+                            <input name='name' defaultValue={user.name} type="text" className="form-control" id="user-input" placeholder="Новое имя" />
+                        </div>
+                    </div>
+                    <div className='col'>
+                        <div className="form-group">
+                            <label htmlFor="user-email">Email/Login для входа</label>
+                            <input name='email' defaultValue={user.email} type="email" className="form-control" id="user-email" />
+                        </div>
+                    </div>
                 </div>
                 <div className='form-row'>
                     <div className='col'>
@@ -48,11 +58,6 @@ export class viewUser extends aPageCard {
                             })}
                         </select>
                     </div>
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="user-email">Email/Login для входа</label>
-                    <input name='email' defaultValue={user.email} type="email" className="form-control" id="user-email" />
                 </div>
                 <div className="form-group">
                     <label htmlFor="user-telegram-id">Telegram идентификатор</label>

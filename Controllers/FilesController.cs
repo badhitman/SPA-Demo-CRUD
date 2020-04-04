@@ -376,7 +376,7 @@ namespace SPADemoCRUD.Controllers
                 {
                     Success = false,
                     Info = "Ошибка перемещения файла: " + ex.Message,
-                    Status = StylesMessageEnum.success.ToString()
+                    Status = StylesMessageEnum.warning.ToString()
                 });
             }
 
@@ -436,7 +436,7 @@ namespace SPADemoCRUD.Controllers
         [HttpPost]
         public ActionResult UploadFileToFtp(IFormFile file)
         {
-            if (file != null)
+            if (file != null && file.Length > 0)
             {
                 string file_name = PickFileName(file.FileName, UploadsPath);
 

@@ -56,7 +56,7 @@ export class listFiles extends aPageList {
     */
     async handleClickSendFile(e) {
         const form = e.target.form;
-        var formData = new FormData(form);
+        var formData;
         for (var x = 0; x < this.state.selectedFiles.length; x++) {
             formData = new FormData();
             formData.append('file', this.state.selectedFiles[x]);
@@ -72,7 +72,7 @@ export class listFiles extends aPageList {
                 console.error('Ошибка:', error);
             }
         }
-
+        
         const fileInput = form['inputGroupFile'];
         fileInput.value = '';
         await this.ajax();
@@ -109,7 +109,7 @@ export class listFiles extends aPageList {
         }
         const result = await response.json();
         if (result.success === false) {
-            this.clientAlert(result.tnfo, result.status);
+            this.clientAlert(result.info, result.status, 1500, 15000);
         }
 
         await this.ajax();
@@ -215,8 +215,7 @@ export class listFiles extends aPageList {
         const spanStyle = {
             float: 'left',
             margin: '5px',
-            padding: '5px',
-            width: '160px'
+            padding: '5px'
         };
         const apiPostfix = this.apiPostfix;
         const isFtpFileContext = this.isFtpFileContext === true;
@@ -231,7 +230,7 @@ export class listFiles extends aPageList {
 
                         const domObject = isImageFile === true
                             ? <>
-                                <p><img src={`/files/src${apiPostfix}?thumb=true&id=${isFtpFileContext === true ? file.name : file.id + App.getFileExtension(file.name)}`} alt={aboutFile} className="in-turns-loading-images" /></p>
+                                <img src={`/files/src${apiPostfix}?thumb=true&id=${isFtpFileContext === true ? file.name : file.id + App.getFileExtension(file.name)}`} alt={aboutFile} className="in-turns-loading-images" />
                                 {getBaseButtons(file.id, file.name)}
                             </>
                             : <span className="badge badge-info">{fileExtension}</span>
@@ -292,8 +291,10 @@ export class listFiles extends aPageList {
         const apiName = this.apiName;
         const fileExtension = App.getFileExtension(name);
 
-        return <><NavLink className='badge badge-light mr-2' role='button' to={`/${apiName}/${App.viewNameMethod}/${isFtpFileContext === true ? name : id + fileExtension}`} title='просмотр файла'>{name}</NavLink>
-            <NavLink className='badge badge-dark mr-2' role='button' to={`/${apiName}/${App.deleteNameMethod}/${isFtpFileContext === true ? name : id + fileExtension}`} title='удаление файла'>del</NavLink>
-            <button id={`file-id-${isFtpFileContext === true ? name : id + fileExtension}`} onClick={this.handleClickTransferFile} title={isFtpFileContext === true ? 'сохранить файл в хранилище' : 'выгрузить файл из хранилища'} className={`badge badge-${isFtpFileContext === true ? 'info' : 'primary'}`}>{isFtpFileContext === true ? 'save' : 'unload'}</button></>;
+        return <>
+            <p className='mb-0'><NavLink className='badge badge-light mr-2' role='button' to={`/${apiName}/${App.viewNameMethod}/${isFtpFileContext === true ? name : id + fileExtension}`} title='просмотр файла'>{name}</NavLink></p>
+            <NavLink className='badge badge-dark mr-1' role='button' to={`/${apiName}/${App.deleteNameMethod}/${isFtpFileContext === true ? name : id + fileExtension}`} title='удаление файла'>del</NavLink>
+            <button id={`file-id-${isFtpFileContext === true ? name : id + fileExtension}`} onClick={this.handleClickTransferFile} title={isFtpFileContext === true ? 'сохранить файл в хранилище' : 'выгрузить файл из хранилища'} className={`badge badge-${isFtpFileContext === true ? 'info' : 'primary'}`}>{isFtpFileContext === true ? 'save' : 'unload'}</button>
+        </>;
     }
 }

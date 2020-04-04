@@ -48,6 +48,8 @@ export class aPageCard extends aPage {
             return obj;
         }, {});
 
+        sendedFormData['isDisabled'] = App.data.isDisabled === true;
+
         try {
             switch (App.method) {
                 case App.viewNameMethod:
