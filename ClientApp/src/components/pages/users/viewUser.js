@@ -12,9 +12,9 @@ export class viewUser extends aPageCard {
     apiName = 'users';
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/${App.id}`);
-        App.data = await response.json();
-        this.setState({ cardTitle: `Пользователь: [#${App.data.id}] ${App.data.name}`, loading: false });
+        await this.ajax();
+        this.cardTitle = `Пользователь: [#${App.data.id}] ${App.data.name}`;
+        this.setState({ loading: false });
     }
 
     cardBody() {

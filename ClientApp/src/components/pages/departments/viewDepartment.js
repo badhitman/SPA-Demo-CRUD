@@ -10,12 +10,11 @@ import { DepatmentUsers } from './DepatmentUsers';
 /** Отображение/редактирование существующего департамента */
 export class viewDepartment extends aPageCard {
     static displayName = viewDepartment.name;
-    apiName = 'departments';
 
     async load() {
-        const response = await fetch(`/api/${this.apiName}/${App.id}`);
-        App.data = await response.json();
-        this.setState({ cardTitle: `Департамент: [#${App.data.id}] ${App.data.name}`, loading: false });
+        await this.ajax();
+        this.cardTitle = `Департамент: [#${App.data.id}] ${App.data.name}`;
+        this.setState({ loading: false });
     }
 
     cardBody() {

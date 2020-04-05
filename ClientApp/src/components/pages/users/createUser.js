@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
+import App from '../../../App';
 import { viewUser } from './viewUser';
 
 /** Создание нового объекта/пользователя */
@@ -13,8 +14,15 @@ export class createUser extends viewUser {
     async load() {
         const response = await fetch('/api/usersmetadata/');
         this.usersmetadata = await response.json();
-        this.setState({ cardTitle: 'Создание нового пользователя', loading: false });
+        this.cardTitle = 'Создание нового пользователя';
+        App.data = {};
+        this.setState({ loading: false });
     }
+
+    cardHeaderPanel() {
+        return <></>;
+    }
+
     cardBody() {
         const departments = this.usersmetadata.departments;
         const roles = this.usersmetadata.roles;

@@ -13,6 +13,9 @@ namespace SPADemoCRUD.Models.view
         secondary,
         success,
         danger,
-        warning
+        warning,
+        info,
+        light,
+        dark
     }
 }

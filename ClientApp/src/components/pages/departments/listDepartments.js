@@ -10,16 +10,11 @@ import App from '../../../App';
 /** Компонент для отображения списка департаментов */
 export class listDepartments extends aPageList {
     static displayName = listDepartments.name;
-    apiName = 'departments';
-    listCardHeader = 'Справочник департаментов';
+    cardTitle = 'Справочник департаментов';
 
     cardBody() {
-        if (this.readPagination() === true) {
-            this.load();
-            return <></>;
-        }
         var departments = App.data;
-        var apiName = this.apiName;
+        var apiName = App.controller;
         return (
             <>
                 <NavLink to={`/${apiName}/${App.createNameMethod}/`} className="btn btn-primary btn-block" role="button">Создать новый департамент</NavLink>

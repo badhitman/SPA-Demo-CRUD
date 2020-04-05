@@ -11,20 +11,22 @@ import App from '../../../App';
 export class listFiles extends aPageList {
     static displayName = listFiles.name;
 
-    apiName = 'files';
-    listCardHeader = 'Файловое хранилище';
+    cardTitle = 'Файловое хранилище';
 
     apiPrefix = '';
-    apiPostfix = 'ftp';
+    apiPostfix = '/ftp';
 
-
+    async ajax() {
+        this.apiPostfix = this.isFtpFileContext === true ? '/ftp' : '/storage';
+        await super.ajax();
+    }
 
     get isFtpFileContext() { return localStorage.getItem('fileContext') === 'ftp'; }
 
     constructor(props) {
         super(props);
 
-        this.apiPostfix = this.isFtpFileContext === true ? 'ftp' : 'storage';
+
 
         this.getBaseButtons = this.getBaseButtons.bind(this);
 
@@ -62,7 +64,7 @@ export class listFiles extends aPageList {
             formData.append('file', this.state.selectedFiles[x]);
 
             try {
-                const response = await fetch(`/${this.apiName}/UploadFileToFtp`, {
+                const response = await fetch(`/${App.controller}/UploadFileToFtp`, {
                     method: 'POST',
                     body: formData
                 });
@@ -72,7 +74,7 @@ export class listFiles extends aPageList {
                 console.error('Ошибка:', error);
             }
         }
-        
+
         const fileInput = form['inputGroupFile'];
         fileInput.value = '';
         await this.ajax();
@@ -89,7 +91,6 @@ export class listFiles extends aPageList {
         this.setState({ selectedFiles: e.target.files, labelFileInput });
     }
 
-
     /**
  * Обработчик нажатия кнопки трансфера файла ftp<=>storage
  * @param {any} e - context handle button
@@ -102,7 +103,7 @@ export class listFiles extends aPageList {
         }
         idObject = idObject.substring(8);
 
-        const response = await fetch(`/${this.apiName}/MoveFileTo${this.isFtpFileContext === true ? 'Storage' : 'Ftp'}/${idObject}`);
+        const response = await fetch(`/${App.controller}/MoveFileTo${this.isFtpFileContext === true ? 'Storage' : 'Ftp'}/${idObject}`);
         if (response.redirected === true) {
             window.location.href = response.url;
             return;
@@ -127,7 +128,7 @@ export class listFiles extends aPageList {
         else {
             localStorage.setItem('fileContext', 'ftp');
         }
-        this.apiPostfix = this.isFtpFileContext === true ? 'ftp' : 'storage';
+        this.apiPostfix = this.isFtpFileContext === true ? '/ftp' : '/storage';
         this.load();
     }
 
@@ -230,7 +231,7 @@ export class listFiles extends aPageList {
 
                         const domObject = isImageFile === true
                             ? <>
-                                <img src={`/files/src${apiPostfix}?thumb=true&id=${isFtpFileContext === true ? file.name : file.id + App.getFileExtension(file.name)}`} alt={aboutFile} className="in-turns-loading-images" />
+                                <img src={`/${App.controller}/src${apiPostfix.substring(1)}?thumb=true&id=${isFtpFileContext === true ? file.name : file.id + App.getFileExtension(file.name)}`} alt={aboutFile} className="in-turns-loading-images" />
                                 {getBaseButtons(file.id, file.name)}
                             </>
                             : <span className="badge badge-info">{fileExtension}</span>
@@ -288,7 +289,7 @@ export class listFiles extends aPageList {
      */
     getBaseButtons(id, name) {
         const isFtpFileContext = this.isFtpFileContext === true;
-        const apiName = this.apiName;
+        const apiName = App.controller;
         const fileExtension = App.getFileExtension(name);
 
         return <>

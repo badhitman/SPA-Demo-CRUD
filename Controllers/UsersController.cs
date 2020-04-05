@@ -40,7 +40,13 @@ namespace SPADemoCRUD.Controllers
                 users = users.Skip(pagingParameters.Skip);
 
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
-            return await users.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString(), x.isDisabled }).ToListAsync();
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Запрос пользователей обработан",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = await users.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString(), x.isDisabled }).ToListAsync()
+            });
         }
 
         // GET: api/Users/5
@@ -52,10 +58,21 @@ namespace SPADemoCRUD.Controllers
             if (userModel == null)
             {
                 _logger.LogError("Запрашиваемый пользователь не найден по ключу: {0}", id);
-                return NotFound();
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Пользователь не найден: id=" + id,
+                    Status = StylesMessageEnum.warning.ToString()
+                });
             }
             List<DepartmentModel> departments = await _context.Departments.ToListAsync();
-            return new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, userModel.isDisabled, departments, UsersMetadataController.roles };
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Запрос успешно обработан. Пользователь найден. ",
+                Status = StylesMessageEnum.warning.ToString(),
+                Tag = new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, userModel.isDisabled, departments, UsersMetadataController.roles }
+            });
         }
 
         // PUT: api/Users/5
@@ -66,13 +83,25 @@ namespace SPADemoCRUD.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return new ObjectResult(ModelState);
+                _logger.LogError("Изменение пользователя невозможно. Ошибка контроля валидации модели");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Ошибка валидации модели",
+                    Status = StylesMessageEnum.danger.ToString(),
+                    Tag = ModelState
+                });
             }
 
             if (id != userModel.Id)
             {
                 _logger.LogError("Ошибка контроля связи модели с параметрами запроса: id:{0} != userModel.Id:{1}", id, userModel.Id);
-                return BadRequest();
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Ошибка в запросе: id != departmentModel.Id",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
             }
 
             _context.Entry(userModel).State = EntityState.Modified;
@@ -86,8 +115,13 @@ namespace SPADemoCRUD.Controllers
                 _logger.LogError(ex, "Ошибка выполнения запроса EF");
                 if (!UserModelExists(id))
                 {
-                    _logger.LogWarning("Такого пользователя нет id:{0}", id);
-                    return NotFound();
+                    _logger.LogError("Пользователь не найден: id={0}", id);
+                    return new ObjectResult(new ServerActionResult()
+                    {
+                        Success = false,
+                        Info = "Пользователь не найден",
+                        Status = StylesMessageEnum.danger.ToString()
+                    });
                 }
                 else
                 {
@@ -95,13 +129,13 @@ namespace SPADemoCRUD.Controllers
                     throw;
                 }
             }
-
+            List<DepartmentModel> departments = await _context.Departments.ToListAsync();
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
                 Info = "Изменения сохранены",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = userModel
+                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Name, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
             });
         }
 
@@ -113,7 +147,14 @@ namespace SPADemoCRUD.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return new ObjectResult(ModelState);
+                _logger.LogError("Создание пользователя невозможно. Ошибка контроля валидации модели");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Ошибка валидации модели",
+                    Status = StylesMessageEnum.danger.ToString(),
+                    Tag = ModelState
+                });
             }
 
             if (_context.Users.Any(x => x.Name == userModel.Name))
@@ -138,8 +179,15 @@ namespace SPADemoCRUD.Controllers
 
             _context.Users.Add(userModel);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetUserModel), new { id = userModel.Id }, userModel);
+            _logger.LogInformation("Пользователь создан: id={0}", userModel.Id);
+            List<DepartmentModel> departments = await _context.Departments.ToListAsync();
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Пользователь успешно создан: id=" + userModel.Id,
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Name, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
+            });
         }
 
         // PATCH: api/Users/5
@@ -149,7 +197,13 @@ namespace SPADemoCRUD.Controllers
             var userModel = await _context.Users.FindAsync(id);
             if (userModel == null)
             {
-                return NotFound();
+                _logger.LogError("Манипуляция пользователем невозможна. Объект не найден");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Пользователь не найден",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
             }
 
             userModel.isDisabled = !userModel.isDisabled;
@@ -159,8 +213,8 @@ namespace SPADemoCRUD.Controllers
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
-                Info = "Объекту установлено новое состояние",
-                Status = StylesMessageEnum.success.ToString(),
+                Info = "Объект " + (userModel.isDisabled ? "Выключен" : "Включён"),
+                Status = userModel.isDisabled ? StylesMessageEnum.secondary.ToString() : StylesMessageEnum.success.ToString(),
                 Tag = userModel.isDisabled
             });
         }
@@ -172,13 +226,25 @@ namespace SPADemoCRUD.Controllers
             var userModel = await _context.Users.FindAsync(id);
             if (userModel == null)
             {
-                return NotFound();
+                _logger.LogError("Удаление пользователя невозможно. Объект не найден");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Пользователь не найден",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
             }
 
             _context.Users.Remove(userModel);
             await _context.SaveChangesAsync();
 
-            return userModel;
+            _logger.LogInformation("Пользователь удалён: id={0}", id);
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Пользователь удалён",
+                Status = StylesMessageEnum.success.ToString()
+            });
         }
 
         private bool UserModelExists(int id)

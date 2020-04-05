@@ -4,8 +4,13 @@
 
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router';
-import { HomePage } from './components/pages/HomePage';
+import App from './App';
 import { NotFound } from './components/NotFound';
+import { AccessDenied } from './components/AccessDenied';
+
+import { HomePage } from './components/pages/HomePage';
+import { SignIn } from './components/pages/SignIn';
+import { NavMenu } from './components/NavMenu';
 
 import { listUsers } from './components/pages/users/listUsers';
 import { viewUser } from './components/pages/users/viewUser';
@@ -21,18 +26,19 @@ import { listFiles } from './components/pages/files/listFiles';
 import { viewFile } from './components/pages/files/viewFile';
 import { deleteFile } from './components/pages/files/deleteFile';
 
-import { SignIn } from './components/pages/SignIn';
-import { NavMenu } from './components/NavMenu';
-import App from './App';
-import { AccessDenied } from './components/AccessDenied';
-
 export class Hub extends Component {
     static displayName = Hub.name;
 
     render() {
+        App.controller = this.props.match.params.controller;
         App.method = this.props.match.params.method;
         App.id = this.props.match.params.id;
         App.data = null;
+
+        if (App.controller !== undefined && App.allowsControllers.includes(App.controller) !== true) {
+            console.error('Недопустимое имя контроллера: ' + App.controller);
+            return <NotFound>Ошибка имени контроллера: {App.controller}<br />Доступные имена метдов: {App.allowsControllers.join()}</NotFound>;
+        }
 
         if (App.method !== undefined && App.allowsMethods.includes(App.method) !== true) {
             console.error('Недопустимое имя метода: ' + App.method);

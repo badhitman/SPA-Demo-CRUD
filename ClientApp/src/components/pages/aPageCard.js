@@ -26,8 +26,13 @@ export class aPageCard extends aPage {
         this.handleClickButtonDisable = this.handleClickButtonDisable.bind(this);
     }
 
+    async ajax() {
+        this.apiPostfix = `${this.apiPostfix}/${App.id}`;
+        await super.ajax();
+    }
+
     /**
-     * Обработчик нажатия кнопки CRUD
+     * Обработчик нажатия кнопки Ok/Записать
      * @param {any} e - context handle button
      */
     async handleClickButton(e) {
@@ -35,8 +40,8 @@ export class aPageCard extends aPage {
         var form = e.target.form;
 
         var response;
-        const apiName = this.apiName;
-        const urlBody = `${this.apiPrefix}/${apiName}${this.apiPostfix}`;
+        const apiName = App.controller;
+        var urlBody = `${this.apiPrefix}/${apiName}${this.apiPostfix}`;
 
         var sendedFormData = jQuery(form).serializeArray().reduce(function (obj, item) {
             if (item.name.toLowerCase() === 'id' || form[item.name].type.toLowerCase() === 'number' || form[item.name].tagName.toLowerCase() === 'select') {
@@ -53,7 +58,7 @@ export class aPageCard extends aPage {
         try {
             switch (App.method) {
                 case App.viewNameMethod:
-                    response = await fetch(`${urlBody}/${App.data.id}`, {
+                    response = await fetch(urlBody, {
                         method: 'PUT',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -62,7 +67,7 @@ export class aPageCard extends aPage {
                     });
                     break;
                 case App.createNameMethod:
-                    response = await fetch(`${urlBody}/`, {
+                    response = await fetch(urlBody, {
                         method: 'POST',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -71,8 +76,7 @@ export class aPageCard extends aPage {
                     });
                     break;
                 case App.deleteNameMethod:
-                    const data = App.data;
-                    response = await fetch(`${urlBody}/${data.id}`, {
+                    response = await fetch(urlBody, {
                         method: 'DELETE',
                         body: JSON.stringify(sendedFormData),
                         headers: {
@@ -100,10 +104,17 @@ export class aPageCard extends aPage {
                 }
 
                 if (App.method === App.viewNameMethod) {
-                    this.clientAlert('Команда записи успешно выполнена', 'success');
+                    this.clientAlert('Команда успешно выполнена', 'success');
                 }
                 else if (App.method === App.createNameMethod) {
-                    this.props.history.push(`/${apiName}/${App.viewNameMethod}/${result.id}/`);
+
+                    if (nameButton === this.okButtonName) {
+                        this.props.history.push(`/${apiName}/${App.listNameMethod}/`)
+                    }
+                    else {
+                        this.props.history.push(`/${apiName}/${App.viewNameMethod}/${result.tag.id}/`);
+                    }
+
                     return;
                 }
                 else if (App.method === App.deleteNameMethod) {
@@ -131,12 +142,12 @@ export class aPageCard extends aPage {
 
     /** Вкл/Выкл объект */
     async handleClickButtonDisable() {
-        const response = await fetch(`${this.apiPrefix}/${this.apiName}${this.apiPostfix}/${App.id}`, { method: 'PATCH' });
+        const response = await fetch(`${this.apiPrefix}/${App.controller}${this.apiPostfix}`, { method: 'PATCH' });
         if (response.ok) {
             var result = await response.json();
             App.data.isDisabled = result.tag;
-            this.setState({ loading: false });
-            this.clientAlert(`Объект ${App.data.isDisabled === true ? 'Выкл.' : 'Вкл.'}`, 'success');
+            this.forceUpdate();
+            this.clientAlert(result.info, result.status);
         }
     }
 
@@ -175,8 +186,8 @@ export class aPageCard extends aPage {
             <div className="btn-group" role="group" aria-label="First group">
                 <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Сохранить и перейти к списку'>Ok</button>
                 <button name={this.saveButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Записать в базу данных и продолжить редактирование'>Записать</button>
-                <NavLink className='btn btn-outline-primary' to={`/${this.apiName}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Вернуться к списку</NavLink>
-                <NavLink className='btn btn-outline-danger' to={`/${this.apiName}/${App.deleteNameMethod}/${App.data.id}/`} role='button' title='Удалить объект из базы данных'>Удаление</NavLink>
+                <NavLink className='btn btn-outline-primary' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Вернуться к списку</NavLink>
+                <NavLink className='btn btn-outline-danger' to={`/${App.controller}/${App.deleteNameMethod}/${App.data.id}/`} role='button' title='Удалить объект из базы данных'>Удаление</NavLink>
             </div>
         </div>);
     }
@@ -187,7 +198,7 @@ export class aPageCard extends aPage {
             <div className="btn-group" role="group" aria-label="First group">
                 <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Сохранить и перейти к списку'>Ok</button>
                 <button name={this.saveButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Записать в базу данных и продолжить редактирование'>Записать</button>
-                <NavLink className='btn btn-outline-primary' to={`/${this.apiName}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Отмена</NavLink>
+                <NavLink className='btn btn-outline-primary' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Отмена</NavLink>
             </div>
         </div>);
     }
@@ -195,7 +206,7 @@ export class aPageCard extends aPage {
     /** Набор кнопок управления для формы удаления объекта */
     deleteButtons() {
         return (<>
-            <NavLink className='btn btn-primary btn-block' to={`/${this.apiName}/${App.listNameMethod}/`} role='button' title='Вернуться к списку'>Отмена</NavLink>
+            <NavLink className='btn btn-primary btn-block' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку'>Отмена</NavLink>
             <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-danger btn-block" title='Подтвердить удаление объекта'>Подтверждение удаления</button>
         </>);
     }

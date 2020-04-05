@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SPADemoCRUD.Models;
 using SPADemoCRUD.Models.view;
 
@@ -19,10 +20,12 @@ namespace SPADemoCRUD.Controllers
     public class DepartmentsController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
+        private readonly ILogger<DepartmentsController> _logger;
 
-        public DepartmentsController(AppDataBaseContext context)
+        public DepartmentsController(AppDataBaseContext context, ILogger<DepartmentsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Departments
@@ -35,7 +38,13 @@ namespace SPADemoCRUD.Controllers
                 departments = departments.Skip(pagingParameters.Skip);
 
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
-            return await departments.Take(pagingParameters.PageSize).ToListAsync();
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Запрос дапартаментов обработан",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = await departments.Take(pagingParameters.PageSize).ToListAsync()
+            });
         }
 
         // GET: api/Departments/5
@@ -46,12 +55,23 @@ namespace SPADemoCRUD.Controllers
 
             if (departmentModel == null)
             {
-                return NotFound();
+                _logger.LogError("Запрашиваемый департамент не найден: id={0}", id);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Запрашиваемый департамент не найден",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
             }
 
             List<UserModel> usersByDepartment = await _context.Users.Where(x => x.DepartmentId == id).ToListAsync();
-
-            return new { departmentModel.Id, departmentModel.Name, departmentModel.isDisabled, Users = usersByDepartment.Select(x => new { x.Id, x.Name, x.isDisabled }).ToList() };
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Запрос успешно обработан. Департамент найден.",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = new { departmentModel.Id, departmentModel.Name, departmentModel.isDisabled, Users = usersByDepartment.Select(x => new { x.Id, x.Name, x.isDisabled }).ToList() }
+            });
         }
 
         // PUT: api/Departments/5
@@ -62,12 +82,25 @@ namespace SPADemoCRUD.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return new ObjectResult(ModelState);
+                _logger.LogError("Изменение депаратмента невозможно. Ошибка контроля валидации модели");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Ошибка валидации модели",
+                    Status = StylesMessageEnum.danger.ToString(),
+                    Tag = ModelState
+                });
             }
 
             if (id != departmentModel.Id)
             {
-                return BadRequest();
+                _logger.LogError("Изменение депаратмента отклонено. Ошибка в запросе");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Ошибка в запросе: id != departmentModel.Id",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
             }
 
             _context.Entry(departmentModel).State = EntityState.Modified;
@@ -80,10 +113,17 @@ namespace SPADemoCRUD.Controllers
             {
                 if (!DepartmentModelExists(id))
                 {
-                    return NotFound();
+                    _logger.LogError("Департамент не найден: id={0}", id);
+                    return new ObjectResult(new ServerActionResult()
+                    {
+                        Success = false,
+                        Info = "Департамент не найден",
+                        Status = StylesMessageEnum.danger.ToString()
+                    });
                 }
                 else
                 {
+                    _logger.LogWarning("Невнятная ошибка с департаментом id:{0}", id);
                     throw;
                 }
             }
@@ -105,34 +145,53 @@ namespace SPADemoCRUD.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return new ObjectResult(ModelState);
+                _logger.LogError("Создание депаратмента невозможно. Ошибка контроля валидации модели");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Ошибка валидации модели",
+                    Status = StylesMessageEnum.danger.ToString(),
+                    Tag = ModelState
+                });
             }
 
             _context.Departments.Add(departmentModel);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetDepartmentModel), new { id = departmentModel.Id }, departmentModel); ;
+            _logger.LogInformation("Департамент создан: id={0}", departmentModel.Id);
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Департамент успешно создан: id=" + departmentModel.Id,
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = departmentModel
+            });
         }
 
         // PATCH: api/Departments/5
         [HttpPatch("{id}")]
         public async Task<ActionResult> PatchDepartmentModel(int id)
         {
-            var departmentModel = await _context.Departments.FindAsync(id);
-            if (departmentModel == null)
+            DepartmentModel departmentModel = await _context.Departments.FindAsync(id);
+            if (departmentModel is null)
             {
-                return NotFound();
+                _logger.LogError("Манипуляция депаратментом невозможна. Объект не найден");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Департамент не найден",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
             }
 
             departmentModel.isDisabled = !departmentModel.isDisabled;
             _context.Departments.Update(departmentModel);
             await _context.SaveChangesAsync();
-
+            _logger.LogInformation("Департамент {0}: id={1}", (departmentModel.isDisabled ? "Выключен" : "Включён"), id);
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
-                Info = "Объекту установлено новое состояние",
-                Status = StylesMessageEnum.success.ToString(),
+                Info = "Объект " + (departmentModel.isDisabled ? "Выключен" : "Включён"),
+                Status = departmentModel.isDisabled ? StylesMessageEnum.secondary.ToString() : StylesMessageEnum.success.ToString(),
                 Tag = departmentModel.isDisabled
             });
         }
@@ -142,15 +201,26 @@ namespace SPADemoCRUD.Controllers
         public async Task<ActionResult<DepartmentModel>> DeleteDepartmentModel(int id)
         {
             DepartmentModel departmentModel = await _context.Departments.FindAsync(id);
-            if (departmentModel == null)
+            if (departmentModel is null)
             {
-                return NotFound();
+                _logger.LogError("Удаление депаратмента невозможно. Объект не найден");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Департамент не найден",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
             }
 
             _context.Departments.Remove(departmentModel);
             await _context.SaveChangesAsync();
-
-            return departmentModel;
+            _logger.LogInformation("Департамент удалён: id={0}", id);
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Департамент удалён",
+                Status = StylesMessageEnum.success.ToString()
+            });
         }
 
         private bool DepartmentModelExists(int id)

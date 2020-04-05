@@ -10,15 +10,18 @@ import App from '../../../App';
 /** Отображение/редактирование существующего файла */
 export class viewFile extends aPageCard {
     static displayName = viewFile.name;
-    apiName = 'files';
 
     get isFtpFileContext() { return localStorage.getItem('fileContext') === 'ftp'; }
 
-    async load() {
-        const response = await fetch(`/${this.apiName}/info${this.isFtpFileContext === true ? 'ftp' : 'storage'}?id=${App.id}`);
-        App.data = await response.json();
+    async ajax() {
+        this.apiPostfix = `/info${(this.isFtpFileContext === true ? 'ftp' : 'storage')}`;
+        await super.ajax();
+    }
 
-        this.setState({ cardTitle: `Файл: [#${App.data.id}] ${App.data.name}`, loading: false });
+    async load() {
+        await this.ajax();
+        this.cardTitle = `Файл: [#${App.data.id}] ${App.data.name}`;
+        this.setState({ loading: false });
     }
 
     cardHeaderPanel() {
@@ -40,7 +43,7 @@ export class viewFile extends aPageCard {
     cardBody() {
         const file = App.data;
         const altInfo = file.name;
-        const srcImg = `/${this.apiName}/src${this.isFtpFileContext === true ? 'ftp' : 'storage'}?id=${this.isFtpFileContext === true ? file.name : file.id}`;
+        const srcImg = `/${App.controller}/src${this.isFtpFileContext === true ? 'ftp' : 'storage'}?id=${this.isFtpFileContext === true ? file.name : file.id}`;
         const extPropsFile = [];
         if (file.creationTime) {
             extPropsFile.push(this.getExtPropsDom('Дата создания', file.creationTime));
@@ -67,8 +70,8 @@ export class viewFile extends aPageCard {
     viewButtons() {
         return (<div className="btn-toolbar justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
             <div className="btn-group" role="group" aria-label="First group">
-                <NavLink className='btn btn-outline-primary' to={`/${this.apiName}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Вернуться к списку</NavLink>
-                <NavLink className='btn btn-outline-danger' to={`/${this.apiName}/${App.deleteNameMethod}/${App.data.id}/`} role='button' title='Удалить объект из базы данных'>Удаление</NavLink>
+                <NavLink className='btn btn-outline-primary' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Вернуться к списку</NavLink>
+                <NavLink className='btn btn-outline-danger' to={`/${App.controller}/${App.deleteNameMethod}/${App.data.id}/`} role='button' title='Удалить объект из базы данных'>Удаление</NavLink>
             </div>
         </div>);
     }

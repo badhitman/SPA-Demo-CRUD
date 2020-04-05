@@ -19,7 +19,7 @@ export class listUsers extends aPageList {
             return <></>;
         }
         var users = App.data;
-        const apiName = this.apiName;
+        const apiName = App.controller;
         return (
             <>
                 <NavLink to={`/${apiName}/${App.createNameMethod}/`} className="btn btn-primary btn-block" role="button" >Создать нового пользователя</NavLink>

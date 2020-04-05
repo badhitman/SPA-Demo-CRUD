@@ -9,7 +9,6 @@ import { NavLink } from 'react-router-dom'
 /** Пользователи в контексте департаментов */
 export class DepatmentUsers extends Component {
     static displayName = DepatmentUsers.name;
-    apiName = 'usersbydepartments';
 
     render() {
         if (App.data.users.length === 0) {

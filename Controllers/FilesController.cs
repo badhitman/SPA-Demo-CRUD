@@ -293,10 +293,18 @@ namespace SPADemoCRUD.Controllers
             List<FileInfo> Files = new DirectoryInfo(conf.UploadsPath).GetFiles().Where(x => x.Name.Substring(0, 1) != ".").OrderBy(c => c.Name).ToList();
             pagingParameters.Init(ref Files);
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
-            return Files.Select(x => new { x.Name, Size = glob_tools.SizeDataAsString(x.Length) }).ToArray();
+
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Доступ к начальной папке успешно обработан",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = Files.Select(x => new { x.Name, Size = glob_tools.SizeDataAsString(x.Length) }).ToArray()
+            });
         }
 
         [HttpGet]
+        [Route("/api/files/infoftp/{id}")]
         public ActionResult InfoFtp(string id)
         {
             myFileMetadata md = FileVerification(id, UploadsPath);
@@ -312,7 +320,13 @@ namespace SPADemoCRUD.Controllers
             }
 
             string CreationTime = md.FileInfo.CreationTime.ToString(glob_tools.DateTimeFormat);
-            return new ObjectResult(new { id = md.FileInfo.Name, md.FileInfo.Name, Size = glob_tools.SizeDataAsString(md.FileInfo.Length), CreationTime });
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Доступ к начальной папке успешно обработан",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = new { id = md.FileInfo.Name, md.FileInfo.Name, Size = glob_tools.SizeDataAsString(md.FileInfo.Length), CreationTime }
+            });
         }
 
         [HttpGet]
@@ -390,10 +404,10 @@ namespace SPADemoCRUD.Controllers
         }
 
         [HttpDelete]
-        [Route("/api/filesftp/{id}")]
-        public ActionResult DeleteFtp()
+        [Route("/api/files/deleteftp/{id}")]
+        public ActionResult DeleteFtp(string id)
         {
-            string id = ControllerContext.RouteData.Values["id"].ToString();
+            //string id = ControllerContext.RouteData.Values["id"].ToString();
             myFileMetadata md = FileVerification(id, UploadsPath);
             if (md is null)
             {
@@ -449,7 +463,8 @@ namespace SPADemoCRUD.Controllers
                 {
                     Success = true,
                     Info = "Файл загружен: " + file_name,
-                    Status = StylesMessageEnum.success.ToString()
+                    Status = StylesMessageEnum.success.ToString(),
+                    Tag = file_name
                 });
             }
             return new ObjectResult(new ServerActionResult()
@@ -472,10 +487,18 @@ namespace SPADemoCRUD.Controllers
                 files = files.Skip(pagingParameters.Skip);
 
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
-            return files.Take(pagingParameters.PageSize).ToList().Select(x => new { x.Id, x.Name, Size = glob_tools.SizeDataAsString(x.Length), x.isDisabled, x.Readonly }).ToArray();
+
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Доступ к хранимой папке успешно обработан",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = files.Take(pagingParameters.PageSize).ToList().Select(x => new { x.Id, x.Name, Size = glob_tools.SizeDataAsString(x.Length), x.isDisabled, x.Readonly }).ToArray()
+            });
         }
 
         [HttpGet]
+        [Route("/api/files/infostorage/{id}")]
         public ActionResult InfoStorage(string id)
         {
             myFileMetadata md = FileVerification(id, StoragePath, true);
@@ -494,8 +517,13 @@ namespace SPADemoCRUD.Controllers
             int idObject = int.Parse(id);
 
             FileStorageModel fileStorage = DbContext.FilesStorage.Find(idObject);
-
-            return new ObjectResult(new { Id = fileStorage.Id.ToString() + md.FileInfo.Extension, fileStorage.Name, Size = glob_tools.SizeDataAsString(fileStorage.Length), fileStorage.isDisabled, fileStorage.Readonly });
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Доступ к начальной папке успешно обработан",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = new { Id = fileStorage.Id.ToString() + md.FileInfo.Extension, fileStorage.Name, Size = glob_tools.SizeDataAsString(fileStorage.Length), fileStorage.isDisabled, fileStorage.Readonly }
+            });
         }
 
         [HttpGet]
@@ -551,15 +579,16 @@ namespace SPADemoCRUD.Controllers
             {
                 Success = true,
                 Info = "Файл выгружен в общую папку: " + file_name,
-                Status = StylesMessageEnum.success.ToString()
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = file_name
             });
         }
 
         [HttpDelete]
-        [Route("/api/filesstorage/{id}")]
-        public ActionResult DeleteStorage()
+        [Route("/api/files/deletestorage/{id}")]
+        public ActionResult DeleteStorage(string id)
         {
-            string id = ControllerContext.RouteData.Values["id"].ToString();
+            //string id = ControllerContext.RouteData.Values["id"].ToString();
             myFileMetadata md = FileVerification(id, StoragePath, true);
             if (md is null)
             {
@@ -598,7 +627,8 @@ namespace SPADemoCRUD.Controllers
             {
                 Success = true,
                 Info = "Файл удалён",
-                Status = StylesMessageEnum.success.ToString()
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = md.FileInfo.Name
             });
         }
         #endregion

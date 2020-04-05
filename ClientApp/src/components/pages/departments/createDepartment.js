@@ -4,14 +4,22 @@
 
 import React from 'react';
 import { viewDepartment } from './viewDepartment';
+import App from '../../../App';
 
 /** Создание нового департамента */
 export class createDepartment extends viewDepartment {
     static displayName = createDepartment.name;
 
     async load() {
-        this.setState({ cardTitle: 'Создание нового департамента', loading: false });
+        this.cardTitle = 'Создание нового департамента';
+        App.data = {};
+        this.setState({ loading: false });
     }
+
+    cardHeaderPanel() {
+        return <></>;
+    }
+
     cardBody() {
         return (
             <>

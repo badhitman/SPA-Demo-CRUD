@@ -43,6 +43,8 @@ export default class App extends Component {
     /** Список доступных CRUD методов */
     static allowsMethods = [App.listNameMethod, App.viewNameMethod, App.createNameMethod, App.deleteNameMethod];
 
+    /** Запрашиваемый контроллер (из react props) */
+    static controller;
     /** Имя запрашиваемого метода (из react props) */
     static method;
     /** ID запрашиваемого объекта (из react props) */
@@ -125,7 +127,7 @@ export default class App extends Component {
 
     /**
      * Конвертация объекта в массив
-     * @param {any} obj
+     * @param {object} obj
      */
     static mapObjectToArr(obj) {
         var errArr = Object.keys(obj).map((keyName, i) => { return `${keyName}: ${obj[keyName]}`; })
@@ -149,7 +151,7 @@ export default class App extends Component {
 
     /**
      * Явялется ли файл (по имени файла) изображением
-     * @param {any} filename
+     * @param {string} filename
      */
     static fileNameIsImage(filename) {
         if (!filename) {

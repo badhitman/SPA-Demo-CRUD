@@ -3,12 +3,14 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Pagination, PaginationItem, PaginationLink, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, NavLink } from 'reactstrap';
+
 import App from '../../App';
 import { aPage } from './aPage';
+
 import { PaginationNavElement } from '../PaginationNavElement';
 import { PaginationTypesButton } from '../PaginationTypesButton';
-import { Link } from 'react-router-dom';
 
 import jquery from 'jquery';
 import '../../jquery.cookie.js';
@@ -16,10 +18,6 @@ import '../../jquery.cookie.js';
 /** Списки/Справочники. Базовый (типа абстрактный) компонент */
 export class aPageList extends aPage {
     static displayName = aPageList.name;
-    static lastSearchQuery = '';
-
-    /** Заголовок карточки (списка) */
-    listCardHeader = '';
 
     constructor(props) {
         super(props);
@@ -84,46 +82,37 @@ export class aPageList extends aPage {
             pagesCount = Math.ceil(rowsCount / pageSize);
         }
 
-        const isModifiedState = rowsCount !== this.rowsCount || pagesCount !== this.pagesCount || pageSize !== this.pageSize || pageNum !== this.pageNum || aPageList.lastSearchQuery !== search;
+        const isModifiedState = rowsCount !== this.rowsCount || pagesCount !== this.pagesCount || pageSize !== this.pageSize || pageNum !== this.pageNum;
 
         this.rowsCount = rowsCount;
         this.pagesCount = pagesCount;
         this.pageSize = pageSize;
         this.pageNum = pageNum;
-        aPageList.lastSearchQuery = search;
-
+        
+        this.apiQuery = `pageNum=${pageNum}&pageSize=${pageSize}`;
         return isModifiedState;
     }
 
     async ajax() {
-        const response = await fetch(`${this.apiPrefix}/${this.apiName}/${this.apiPostfix}?pageNum=${this.pageNum}&pageSize=${this.pageSize}`);
-        if (response.redirected === true) {
-            window.location.href = response.url;
-            return;
-        }
-
-        try {
-            App.data = await response.json();
-        }
-        catch (err) {
-            console.error(err);
-            alert(err);
-        }
+        this.readPagination();
+        await super.ajax();
+        this.readPagination();
+        this.setState({ loading: false });
     }
 
-    async load() {
-        this.readPagination();
-        await this.ajax();
-        this.readPagination();
-        this.setState({ cardTitle: this.listCardHeader, loading: false });
-    }
+    //async load() {
+    //    this.readPagination();
+    //    await this.ajax();
+    //    this.readPagination();
+    //    this.setState({ loading: false });
+    //}
 
     cardHeaderPanel() {
         return <span title='реализация фильтров запланирована в ближайшем будущем'>фильтры</span>;
     }
 
     cardPaginator() {
-        var urlTmpl = `/${this.apiName}/${App.listNameMethod}/`;
+        var urlTmpl = `/${App.controller}/${App.listNameMethod}/`;
         const PageNum = this.pageNum;
         this.paginationQueryTmpl = `?pageSize=${this.pageSize}&pageNum=`;
 
@@ -180,11 +169,11 @@ export class aPageList extends aPage {
                 <Dropdown className='mr-2' size="sm" isOpen={this.state.dropdownOpenPaginator} toggle={this.togglePaginator}>
                     <DropdownToggle title='Размерность пагинатора' caret>{this.pageSize}</DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem><NavLink tag={Link} to={`/${this.apiName}/${App.listNameMethod}/?pageSize=10&pageNum=1`} title=''>10</NavLink></DropdownItem>
-                        <DropdownItem><NavLink tag={Link} to={`/${this.apiName}/${App.listNameMethod}/?pageSize=20&pageNum=1`} title=''>20</NavLink></DropdownItem>
-                        <DropdownItem><NavLink tag={Link} to={`/${this.apiName}/${App.listNameMethod}/?pageSize=50&pageNum=1`} title=''>50</NavLink></DropdownItem>
-                        <DropdownItem><NavLink tag={Link} to={`/${this.apiName}/${App.listNameMethod}/?pageSize=100&pageNum=1`} title=''>100</NavLink></DropdownItem>
-                        <DropdownItem><NavLink tag={Link} to={`/${this.apiName}/${App.listNameMethod}/?pageSize=200&pageNum=1`} title=''>200</NavLink></DropdownItem>
+                        <DropdownItem><NavLink tag={Link} to={`/${App.controller}/${App.listNameMethod}/?pageSize=10&pageNum=1`} title=''>10</NavLink></DropdownItem>
+                        <DropdownItem><NavLink tag={Link} to={`/${App.controller}/${App.listNameMethod}/?pageSize=20&pageNum=1`} title=''>20</NavLink></DropdownItem>
+                        <DropdownItem><NavLink tag={Link} to={`/${App.controller}/${App.listNameMethod}/?pageSize=50&pageNum=1`} title=''>50</NavLink></DropdownItem>
+                        <DropdownItem><NavLink tag={Link} to={`/${App.controller}/${App.listNameMethod}/?pageSize=100&pageNum=1`} title=''>100</NavLink></DropdownItem>
+                        <DropdownItem><NavLink tag={Link} to={`/${App.controller}/${App.listNameMethod}/?pageSize=200&pageNum=1`} title=''>200</NavLink></DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
                 <Pagination key={this.props.location.search} size="sm" aria-label="Page navigation example">
