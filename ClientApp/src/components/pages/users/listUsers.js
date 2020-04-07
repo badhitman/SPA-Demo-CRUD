@@ -10,14 +10,9 @@ import App from '../../../App';
 /** Компонент для отображения списка пользователей */
 export class listUsers extends aPageList {
     static displayName = listUsers.name;
-    apiName = 'users';
-    listCardHeader = 'Справочник пользователей';
+    cardTitle = 'Справочник пользователей';
 
     cardBody() {
-        if (this.readPagination() === true) {
-            this.load();
-            return <></>;
-        }
         var users = App.data;
         const apiName = App.controller;
         return (

@@ -26,8 +26,6 @@ export class listFiles extends aPageList {
     constructor(props) {
         super(props);
 
-
-
         this.getBaseButtons = this.getBaseButtons.bind(this);
 
         this.state.selectedFiles = [];
@@ -182,7 +180,7 @@ export class listFiles extends aPageList {
             ? <form>
                 <div className="input-group mb-2">
                     <div className="custom-file">
-                        <input multiple type="file" className="custom-file-input" id="inputGroupFile" aria-describedby="inputGroupFileAddon" onChange={this.onChangeHandlerInputFiles} />
+                        <input disabled multiple type="file" className="custom-file-input" id="inputGroupFile" aria-describedby="inputGroupFileAddon" onChange={this.onChangeHandlerInputFiles} title='Функционал кнопки станет доступен после того как найдётся причина блокировки загруженных файлов, в связи с чем загруженые файлы остаются "заблокированными" до перезапуская приложения. Без перезагрузки файлы недоступны для манипуляций: The process cannot access the file because it is being used by another process. На этот период файлы можно загружать через FTP. Загружать нужно непосредственно в папку "Uploads" (этот параметр есть в конфигурационном файле). Это и есть начальная папка появления файлов в системе извне. Дальнейшая манипуляция файлами производится через Web интерфейс (просмотр, удаление, перенос и т.д.)' />
                         <label className="custom-file-label" htmlFor="inputGroupFile">{this.state.labelFileInput}</label>
                     </div>
                     <div className="input-group-append">
@@ -234,7 +232,7 @@ export class listFiles extends aPageList {
                                 <img src={`/${App.controller}/src${apiPostfix.substring(1)}?thumb=true&id=${isFtpFileContext === true ? file.name : file.id + App.getFileExtension(file.name)}`} alt={aboutFile} className="in-turns-loading-images" />
                                 {getBaseButtons(file.id, file.name)}
                             </>
-                            : <span className="badge badge-info">{fileExtension}</span>
+                            : <><span className="badge badge-info">{fileExtension}</span> {getBaseButtons(file.id, file.name)}</>
 
                         return <span className='border' style={spanStyle} title={aboutFile} key={index}>
                             {domObject}
@@ -255,7 +253,7 @@ export class listFiles extends aPageList {
         const getBaseButtons = this.getBaseButtons;
         return (
             <>
-                <table className='table table-striped mt-4' aria-labelledby="tabelLabel">
+                <table className='table table-striped table-sm mt-4'>
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -264,12 +262,8 @@ export class listFiles extends aPageList {
                     </thead>
                     <tbody>
                         {files.map(function (file, index) {
-                            const buttons = <>
-                                {getBaseButtons(file.id, file.name)}
-                            </>;
-
                             return <tr key={index}>
-                                <td>{buttons} {file.name}</td>
+                                <td>{getBaseButtons(file.id, file.name, true)}</td>
                                 <td>{file.size}</td>
                             </tr>
                         })}
@@ -282,20 +276,31 @@ export class listFiles extends aPageList {
 
     /**
      * Рендеринг индивидульного набора кнопок управления для управления файлом: выгрузка/загрузка, просмотр карточки файла и форма запроса удаления для файла
-     * @param {any} id - идентификатор файла на сервере. Значение имеет смысл только для файлов из "хранилища/storage" - "идентификатор/ключ" для доступа к записи в БД.
+     * @param {string} id - идентификатор файла на сервере. Значение имеет смысл только для файлов из "хранилища/storage" - "идентификатор/ключ" для доступа к записи в БД.
      * Для получения "связанного/реального" имни файла в папке "защищённого хранилища storage", к идентификатору нужно добавить расширение файла из имени.
      * Для файлов "начальной/uploads" папки этот параметр undefended
-     * @param {any} name - имя файла. В случае с доступом к "начальной/uploads" папке имя файла совпадает с реальным именем в папке на диске.
+     * @param {string} name - имя файла. В случае с доступом к "начальной/uploads" папке имя файла совпадает с реальным именем в папке на диске.
+     * @param {boolean} inLine - признак использования компановки "InLine"
      */
-    getBaseButtons(id, name) {
+    getBaseButtons(id, name, inLine = false) {
         const isFtpFileContext = this.isFtpFileContext === true;
         const apiName = App.controller;
         const fileExtension = App.getFileExtension(name);
-
-        return <>
-            <p className='mb-0'><NavLink className='badge badge-light mr-2' role='button' to={`/${apiName}/${App.viewNameMethod}/${isFtpFileContext === true ? name : id + fileExtension}`} title='просмотр файла'>{name}</NavLink></p>
-            <NavLink className='badge badge-dark mr-1' role='button' to={`/${apiName}/${App.deleteNameMethod}/${isFtpFileContext === true ? name : id + fileExtension}`} title='удаление файла'>del</NavLink>
-            <button id={`file-id-${isFtpFileContext === true ? name : id + fileExtension}`} onClick={this.handleClickTransferFile} title={isFtpFileContext === true ? 'сохранить файл в хранилище' : 'выгрузить файл из хранилища'} className={`badge badge-${isFtpFileContext === true ? 'info' : 'primary'}`}>{isFtpFileContext === true ? 'save' : 'unload'}</button>
-        </>;
+        const trueFileName = isFtpFileContext === true ? '' : name;
+        if (inLine === true) {
+            return <p className='mb-0'><NavLink className='badge badge-light mr-2' role='button' to={`/${apiName}/${App.viewNameMethod}/${isFtpFileContext === true ? name : id + fileExtension}`} title='просмотр файла'>{name}</NavLink>
+                    <NavLink className='badge badge-dark mr-1' role='button' to={`/${apiName}/${App.deleteNameMethod}/${isFtpFileContext === true ? name : id + fileExtension}`} title='удаление файла'>del</NavLink>
+                <button id={`file-id-${isFtpFileContext === true ? name : id + fileExtension}`} onClick={this.handleClickTransferFile} title={isFtpFileContext === true ? 'сохранить файл в хранилище' : 'выгрузить файл из хранилища'} className={`badge badge-${isFtpFileContext === true ? 'info' : 'primary'}`}>{isFtpFileContext === true ? 'save' : 'unload'}</button>
+                {trueFileName}
+                </p>;
+        }
+        else {
+            return <>
+                <p className='mb-0'><NavLink className='badge badge-light mr-2' role='button' to={`/${apiName}/${App.viewNameMethod}/${isFtpFileContext === true ? name : id + fileExtension}`} title='просмотр файла'>{name}</NavLink></p>
+                <NavLink className='badge badge-dark mr-1' role='button' to={`/${apiName}/${App.deleteNameMethod}/${isFtpFileContext === true ? name : id + fileExtension}`} title='удаление файла'>del</NavLink>
+                <button id={`file-id-${isFtpFileContext === true ? name : id + fileExtension}`} onClick={this.handleClickTransferFile} title={isFtpFileContext === true ? 'сохранить файл в хранилище' : 'выгрузить файл из хранилища'} className={`badge badge-${isFtpFileContext === true ? 'info' : 'primary'}`}>{isFtpFileContext === true ? 'save' : 'unload'}</button>
+                {trueFileName}
+            </>;
+        }
     }
 }

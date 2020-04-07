@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using MultiTool;
 using reCaptcha.Models.VerifyingUsersResponse;
 using reCaptcha.stat;
 using SPADemoCRUD.Models;
@@ -83,7 +84,7 @@ namespace SPADemoCRUD.Controllers
                 }
             }
 
-            UserModel user = DbContext.Users.Include(x => x.Department).FirstOrDefault(u => u.Email == loginUser.EmailLogin && u.Password == loginUser.PasswordLogin);
+            UserModel user = DbContext.Users.Include(x => x.Department).FirstOrDefault(u => u.Email == loginUser.EmailLogin && u.Password == glob_tools.GetHashString(loginUser.PasswordLogin));//glob_tools.GetHashString
             if (user != null)
             {
                 if (user.isDisabled)
@@ -189,7 +190,7 @@ namespace SPADemoCRUD.Controllers
                 DbContext.SaveChanges();
             }
 
-            user = new UserModel { Email = regUser.EmailRegister, Name = regUser.PublicNameRegister, Password = regUser.PasswordRegister, Role = AccessLevelUserRolesEnum.Auth, DepartmentId = userDepartment.Id };
+            user = new UserModel { Email = regUser.EmailRegister, Name = regUser.PublicNameRegister, Password = glob_tools.GetHashString(regUser.PasswordRegister), Role = AccessLevelUserRolesEnum.Auth, DepartmentId = userDepartment.Id };
             DbContext.Users.Add(user);
             DbContext.SaveChanges();
 
@@ -216,6 +217,7 @@ namespace SPADemoCRUD.Controllers
         {
             var claims = new List<Claim>
             {
+                new Claim("id", user.Id.ToString()),
                 new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name),
                 new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role.ToString())
             };

@@ -103,6 +103,18 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
+            DepartmentModel departmentRow = _context.Departments.FirstOrDefault(x => x.Id == id);
+            if (departmentRow.Readonly)
+            {
+                _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Ошибка доступа к системному объекту (read only). Подобные объекты редактируются на уровне sqlcmd",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
             _context.Entry(departmentModel).State = EntityState.Modified;
 
             try

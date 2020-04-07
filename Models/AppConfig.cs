@@ -83,5 +83,10 @@ namespace SPADemoCRUD.Models
         /// Ширина thumb картинки
         /// </summary>
         public int ThumbMaxWidth { get; set; } = 150;
+
+        /// <summary>
+        /// Системная учётная запись. От её имени совершаются системные события.
+        /// </summary>
+        public int SystemUser { get; set; } = 1;
     }
 }

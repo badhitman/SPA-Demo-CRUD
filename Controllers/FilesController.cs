@@ -162,64 +162,73 @@ namespace SPADemoCRUD.Controllers
             {
                 return null;
             }
+            string fileExtension = string.Empty;
             myFileMetadata fileMetadata = new myFileMetadata();
             try
             {
                 fileMetadata.FileInfo = new FileInfo(Path.Combine(path, id));
+                fileExtension = fileMetadata.FileInfo.Extension;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка доступа к файлу: {0}", Path.Combine(path, id));
-                return null;
+                return fileMetadata;
             }
-            if (!fileMetadata.FileInfo.Exists || id.Length <= fileMetadata.FileInfo.Extension.Length)
+            if (!fileMetadata.FileInfo.Exists || id.Length <= fileExtension.Length)
             {
-                return null;
+                fileMetadata.FileInfo = null;
             }
-
-            if (glob_tools.IsImageFile(id) && path != UploadsThumbsPath && path != StorageThumbsPath)
+            else
             {
-                try
+                if (glob_tools.IsImageFile(id) && path != UploadsThumbsPath && path != StorageThumbsPath)
                 {
-                    fileMetadata.ThumbFileInfo = new FileInfo(Path.Combine(path, thumbSubFolderName, id));
-                    if (!fileMetadata.ThumbFileInfo.Exists)
+                    try
                     {
-                        using (Stream myImageStream = UpdateImage(Image.FromFile(fileMetadata.FileInfo.FullName)))
+                        fileMetadata.ThumbFileInfo = new FileInfo(Path.Combine(path, thumbSubFolderName, id));
+                        if (!fileMetadata.ThumbFileInfo.Exists)
                         {
-                            using (FileStream fileStream = System.IO.File.Create(fileMetadata.ThumbFileInfo.FullName))
+                            using (Stream myImageStream = UpdateImage(Image.FromFile(fileMetadata.FileInfo.FullName)))
                             {
-                                myImageStream.Seek(0, SeekOrigin.Begin);
-                                myImageStream.CopyTo(fileStream);
+                                using (FileStream fileStream = System.IO.File.Create(fileMetadata.ThumbFileInfo.FullName))
+                                {
+                                    myImageStream.Seek(0, SeekOrigin.Begin);
+                                    myImageStream.CopyTo(fileStream);
+                                    fileStream.Flush();
+                                    fileStream.Close();
+                                    fileStream.Dispose();
+                                }
+                                myImageStream.Flush();
+                                myImageStream.Close();
+                                myImageStream.Dispose();
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Ошибка формирования превьюшки");
-                    return null;
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Ошибка формирования превьюшки");
+                        return fileMetadata;
+                    }
                 }
             }
 
             if (reconciliationDatabase)
             {
-                id = id.Substring(0, id.Length - fileMetadata.FileInfo.Extension.Length);
+                id = id.Substring(0, id.Length - fileExtension.Length);
                 if (!Regex.IsMatch(id, @"^\d+$"))
                 {
                     _logger.LogError("в запросе указан не корректный ключ файла: {0}", id);
-                    return null;
+                    return fileMetadata;
                 }
                 int objId = int.Parse(id);
                 if (objId < 1)
                 {
                     _logger.LogError("в запросе указан не корректный ключ файла: {0}", objId);
-                    return null;
+                    return fileMetadata;
                 }
                 fileMetadata.Object = DbContext.FilesStorage.Find(objId);
                 if (fileMetadata.Object is null)
                 {
                     _logger.LogError("файл не найден по ключу в базе данных: {0}", objId);
-                    return null;
                 }
             }
             return fileMetadata;
@@ -250,11 +259,12 @@ namespace SPADemoCRUD.Controllers
                 Image thumb_image = ResizeImage(myImage, w_thumb, h_thumb);
 
                 thumb_image.Save(stream, ImageFormat.Jpeg);
-
+                thumb_image.Dispose();
             }
             else
             {
                 myImage.Save(stream, ImageFormat.Jpeg);
+                myImage.Dispose();
             }
             return stream;
         }
@@ -308,7 +318,7 @@ namespace SPADemoCRUD.Controllers
         public ActionResult InfoFtp(string id)
         {
             myFileMetadata md = FileVerification(id, UploadsPath);
-            if (md is null)
+            if (md.FileInfo is null)
             {
                 _logger.LogError("Не удалось получить информацию по файлу: {0}", Path.Combine(UploadsPath, id));
                 return new ObjectResult(new ServerActionResult()
@@ -333,7 +343,7 @@ namespace SPADemoCRUD.Controllers
         public ActionResult SrcFtp(bool thumb, string id)
         {
             myFileMetadata md = FileVerification(id, UploadsPath);
-            if (md is null)
+            if (md.FileInfo is null)
             {
                 _logger.LogError("Ошибка во время получения потока файла FTP папки: {0}", Path.Combine(id, UploadsPath));
                 return new ObjectResult(new ServerActionResult()
@@ -358,7 +368,7 @@ namespace SPADemoCRUD.Controllers
         public ActionResult MoveFileToStorage(string id)
         {
             myFileMetadata md = FileVerification(id, UploadsPath);
-            if (md is null)
+            if (md.FileInfo is null)
             {
                 _logger.LogError("Не удалось получить информацию по файлу: {0}", Path.Combine(UploadsPath, id));
                 return new ObjectResult(new ServerActionResult()
@@ -380,7 +390,7 @@ namespace SPADemoCRUD.Controllers
                     md.ThumbFileInfo.MoveTo(Path.Combine(StorageThumbsPath, newStorageFile.Id.ToString() + md.FileInfo.Extension));
                 }
             }
-            catch (Exception ex)
+            catch (IOException ex)
             {
                 _logger.LogError("Ошибка доступа к диску: {0}", ex.Message);
                 DbContext.FilesStorage.Remove(newStorageFile);
@@ -409,7 +419,7 @@ namespace SPADemoCRUD.Controllers
         {
             //string id = ControllerContext.RouteData.Values["id"].ToString();
             myFileMetadata md = FileVerification(id, UploadsPath);
-            if (md is null)
+            if (md.FileInfo is null)
             {
                 _logger.LogError("Не удалось прочитать файл: {0}", Path.Combine(UploadsPath, id));
                 return new ObjectResult(new ServerActionResult()
@@ -457,7 +467,11 @@ namespace SPADemoCRUD.Controllers
                 using (FileStream fileStream = new FileStream(Path.Combine(UploadsPath, file_name), FileMode.Create))
                 {
                     file.CopyTo(fileStream);
+                    fileStream.Flush();
+                    fileStream.Close();
+                    fileStream.Dispose();
                 }
+
                 _ = FileVerification(file_name, UploadsPath);
                 return new ObjectResult(new ServerActionResult()
                 {
@@ -487,13 +501,13 @@ namespace SPADemoCRUD.Controllers
                 files = files.Skip(pagingParameters.Skip);
 
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
-
+            //List<FileStorageModel> filesList = files.Take(pagingParameters.PageSize).ToList();
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
                 Info = "Доступ к хранимой папке успешно обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = files.Take(pagingParameters.PageSize).ToList().Select(x => new { x.Id, x.Name, Size = glob_tools.SizeDataAsString(x.Length), x.isDisabled, x.Readonly }).ToArray()
+                Tag = files.Take(pagingParameters.PageSize).ToList().Where(x => System.IO.File.Exists(Path.Combine(StoragePath, x.Id.ToString() + Path.GetExtension(x.Name)))).Select(x => new { x.Id, x.Name, Size = glob_tools.SizeDataAsString(x.Length), x.isDisabled, x.Readonly }).ToArray()
             });
         }
 
@@ -502,7 +516,7 @@ namespace SPADemoCRUD.Controllers
         public ActionResult InfoStorage(string id)
         {
             myFileMetadata md = FileVerification(id, StoragePath, true);
-            if (md is null)
+            if (md.FileInfo is null)
             {
                 _logger.LogError("Не удалось получить информацию по файлу: {0}", Path.Combine(UploadsPath, id));
                 return new ObjectResult(new ServerActionResult()
@@ -530,7 +544,7 @@ namespace SPADemoCRUD.Controllers
         public ActionResult SrcStorage(bool thumb, string id)
         {
             myFileMetadata md = FileVerification(id, StoragePath);
-            if (md is null)
+            if (md.FileInfo is null)
             {
                 _logger.LogError("Ошибка во время получения потока файла FTP папки: {0}", Path.Combine(id, UploadsPath));
                 return new ObjectResult(new ServerActionResult()
@@ -556,7 +570,7 @@ namespace SPADemoCRUD.Controllers
         public ActionResult MoveFileToFtp(string id)
         {
             myFileMetadata md = FileVerification(id, StoragePath, true);
-            if (md is null)
+            if (md.FileInfo is null)
             {
                 _logger.LogError("Не удалось получить информацию по файлу: {0}", Path.Combine(UploadsPath, id));
                 return new ObjectResult(new ServerActionResult()
@@ -573,7 +587,10 @@ namespace SPADemoCRUD.Controllers
             string file_name = PickFileName(md.Object.Name, UploadsPath);
 
             md.FileInfo.MoveTo(Path.Combine(UploadsPath, file_name));
-            md.ThumbFileInfo.MoveTo(Path.Combine(UploadsThumbsPath, file_name));
+            if(!(md.ThumbFileInfo is null))
+            {
+                md.ThumbFileInfo.MoveTo(Path.Combine(UploadsThumbsPath, file_name));
+            }
 
             return new ObjectResult(new ServerActionResult()
             {
@@ -590,8 +607,13 @@ namespace SPADemoCRUD.Controllers
         {
             //string id = ControllerContext.RouteData.Values["id"].ToString();
             myFileMetadata md = FileVerification(id, StoragePath, true);
-            if (md is null)
+            if (md.FileInfo is null)
             {
+                if (!(md.Object is null))
+                {
+                    DbContext.FilesStorage.Remove(md.Object);
+                    DbContext.SaveChangesAsync();
+                }
                 _logger.LogError("Не удалось прочитать файл: {0}", Path.Combine(StoragePath, id));
                 return new ObjectResult(new ServerActionResult()
                 {

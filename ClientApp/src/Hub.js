@@ -26,6 +26,10 @@ import { listFiles } from './components/pages/files/listFiles';
 import { viewFile } from './components/pages/files/viewFile';
 import { deleteFile } from './components/pages/files/deleteFile';
 
+import { listNotifications } from './components/pages/notifications/listNotifications';
+import { viewNotification } from './components/pages/notifications/viewNotification';
+import { deleteNotification } from './components/pages/notifications/deleteNotification';
+
 export class Hub extends Component {
     static displayName = Hub.name;
 
@@ -62,6 +66,10 @@ export class Hub extends Component {
                         <Route path={`/departments/${App.viewNameMethod}`} component={viewDepartment} />
                         <Route path={`/departments/${App.createNameMethod}`} component={createDepartment} />
                         <Route path={`/departments/${App.deleteNameMethod}`} component={deleteDepartment} />
+
+                        <Route path={`/notifications/${App.listNameMethod}/`} component={listNotifications} />
+                        <Route path={`/notifications/${App.viewNameMethod}`} component={viewNotification} />
+                        <Route path={`/notifications/${App.deleteNameMethod}`} component={deleteNotification} />
 
                         <Route path={`/files/${App.listNameMethod}/`} component={listFiles} />
                         <Route path={`/files/${App.viewNameMethod}`} component={viewFile} />

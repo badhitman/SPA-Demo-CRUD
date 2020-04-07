@@ -42,6 +42,7 @@ export class viewFile extends aPageCard {
 
     cardBody() {
         const file = App.data;
+        const isImage = App.fileNameIsImage(file.name);
         const altInfo = file.name;
         const srcImg = `/${App.controller}/src${this.isFtpFileContext === true ? 'ftp' : 'storage'}?id=${this.isFtpFileContext === true ? file.name : file.id}`;
         const extPropsFile = [];
@@ -54,12 +55,13 @@ export class viewFile extends aPageCard {
         if (file.readonly === true) {
             extPropsFile.push(this.getExtPropsDom('Readonly', 'Объект имеет маркировку: "только для чтения"'));
         }
+        const prewiew = isImage === true ? <img src={srcImg} alt={altInfo} className="img-thumbnail" /> : <p>Изображения нет</p>;
         return (
             <form className='mb-2' key='view-form'>
                 {extPropsFile.map(function (element) { return element; })}
                 <input name='id' defaultValue={file.id} type='hidden' />
                 <div className="form-group">
-                    <img src={srcImg} alt={altInfo} className="img-thumbnail" />
+                    {prewiew}
                 </div>
                 {this.viewButtons()}
             </form>

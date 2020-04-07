@@ -1,32 +1,59 @@
-////////////////////////////////////////////////
-// © https://github.com/badhitman - @fakegov 
-////////////////////////////////////////////////
-
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace SPADemoCRUD.Models
+namespace SPADemoCRUD.Models.db
 {
     public class LiteEntityModel
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        /// <summary>
-        /// Чтение/Запись коментария для объекта [info]
-        /// </summary>
-        [Display(Name = "Наименование (публичное)", Description = "Публичное наименование объекта")]
-        [Required(ErrorMessage = "Не указано публичное имя")]
         public string Name { get; set; } = "";
 
         /// <summary>
-        /// Признак "только для чтения". Переименовывать или удалять такой объект может только ROOT
+        /// Дата создания объекта
         /// </summary>
-        public bool Readonly { get; set; } = false;
+        [Display(Name = "Дата создания", Description = "Дата/Время создания объекта")]
+        public virtual DateTime DateCreate { get; set; }
 
-        /// <summary>
-        /// Объект помечен как "неактивный"
-        /// </summary>
-        public bool isDisabled { get; set; } = false;
+        public override bool Equals(object other)
+        {
+            if (Id == 0 || other is null || other.GetType() != this.GetType())
+                return false;
+            ObjEntityModel norm_other = (ObjEntityModel)other;
+            if (norm_other.Id == 0)
+                return false;
+
+            return this.Id.Equals(norm_other.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            if (Id == 0)
+                return 0;
+            return (this.GetType().Name + this.Id.ToString()).GetHashCode();
+        }
+
+        public static bool operator ==(LiteEntityModel a1, LiteEntityModel a2)
+        {
+            if (a1 is null && a2 is null)
+                return true;
+            else if (a1 is null || a2 is null)
+                return false;
+            return a1.Equals(a2);
+        }
+
+        public static bool operator !=(LiteEntityModel a1, LiteEntityModel a2)
+        {
+            if (a1 is null && a2 is null)
+                return true;
+            else if (a1 is null && !(a2 is null) || a2 is null && !(a1 is null))
+                return true;
+            return !a1.Equals(a2);
+        }
     }
 }

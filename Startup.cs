@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using SPADemoCRUD.Controllers;
 using SPADemoCRUD.Models;
 using SPADemoCRUD.Models.AuthorizePolicies;
+using SPADemoCRUD.Services;
 using System;
 
 namespace SPADemoCRUD
@@ -38,7 +39,7 @@ namespace SPADemoCRUD
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDataBaseContext>(options => options.UseSqlServer(connection));
-
+            services.AddScoped<SessionUser>();
             #region AccessMinLevelHandler
             services.AddScoped<IAuthorizationHandler, AccessMinLevelHandler>();
 
@@ -117,11 +118,7 @@ namespace SPADemoCRUD
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.Use(async (context, next) =>
-            {
-                AuthorizationController.UpdateSessionCookies(context, AppOptions);
-                await next.Invoke();
-            });
+            app.UseMiddleware<PassageMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

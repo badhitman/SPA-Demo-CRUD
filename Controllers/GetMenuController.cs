@@ -22,7 +22,7 @@ namespace SPADemoCRUD.Controllers
             Tooltip = "Личное пространство",
             Childs = new MenuItem[]
             {
-                new MenuItem() { Title = "Сообщения", Href = "/notifications/", Tooltip = "Мои уведомления" },
+                new MenuItem() { Title = "Сообщения", Href = "/notifications/list", Tooltip = "Мои уведомления" },
                 new MenuItem() { Title = "Профиль", Href = "/profile/", Tooltip = "Мои настройки" },
                 null,
                 new MenuItem() { Title = "Выход", Href = "/signin/", Tooltip = "Выйти из приложения" }

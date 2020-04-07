@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using SPADemoCRUD.Models;
+using SPADemoCRUD.Models.AuthorizePolicies;
 using SPADemoCRUD.Models.view;
 
 namespace SPADemoCRUD.Controllers
@@ -23,11 +24,13 @@ namespace SPADemoCRUD.Controllers
     {
         private readonly AppDataBaseContext _context;
         private readonly ILogger<UsersController> _logger;
+        private readonly SessionUser _sessionUser;
 
-        public UsersController(AppDataBaseContext context, ILogger<UsersController> logger)
+        public UsersController(AppDataBaseContext context, ILogger<UsersController> logger, SessionUser sessionUser)
         {
             _context = context;
             _logger = logger;
+            _sessionUser = sessionUser;
         }
 
         // GET: api/Users
@@ -93,13 +96,25 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            if (id != userModel.Id)
+            if (id != userModel.Id || id <= 0)
             {
-                _logger.LogError("Ошибка контроля связи модели с параметрами запроса: id:{0} != userModel.Id:{1}", id, userModel.Id);
+                _logger.LogError("Ошибка контроля связи модели с параметрами запроса: id:{0} != userModel.Id:{1}  || id <= 0", id, userModel.Id);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
                     Info = "Ошибка в запросе: id != departmentModel.Id",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
+            UserModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
+            if (userRow.Readonly)
+            {
+                _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Ошибка доступа к системному объекту (read only). Подобные объекты редактируются на уровне sqlcmd",
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }

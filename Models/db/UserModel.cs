@@ -2,6 +2,9 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using SPADemoCRUD.Models.db;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace SPADemoCRUD.Models
@@ -9,7 +12,7 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Пользователь/сотрудник
     /// </summary>
-    public class UserModel : LiteEntityModel
+    public class UserModel : ObjEntityModel
     {
         public int DepartmentId { get; set; }
         public DepartmentModel Department { get; set; }
@@ -23,5 +26,11 @@ namespace SPADemoCRUD.Models
 
         [DataType(DataType.Password)]
         public string Password { get; set; }
+
+        public DateTime LastWebVisit { get; set; }
+
+        public DateTime LastTelegramVisit { get; set; }
+
+        public List<NotificationModel> Notifications { get; set; }
     }
 }

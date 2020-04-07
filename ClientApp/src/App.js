@@ -29,7 +29,12 @@ export default class App extends Component {
             /** Сессия (logIn/logOut) */
             'signin',
             /** Файловое хранилище */
-            'files'
+            'files',
+            /** Пользовательские уведомления */
+            'notifications',
+            'profile',
+            'goods',
+            'addresses'
         ];
 
     /** Имя метода для отображения списка объектов */
