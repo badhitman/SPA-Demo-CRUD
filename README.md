@@ -57,9 +57,9 @@ demo app (crud): react // c# .net core && web-api // authorization + registratio
 ![карточка пользователя 2](./screenshots/user-delete.jpg)
 
 Web интерфейс управления файлами в папке Uploads/Storage
-![web интерфейс Files(Uploads/Storage) 1](./screenshots/file-tiles.jpg)
+![web интерфейс Files(Uploads/Storage) 1](./screenshots/files-tiles.jpg)
 
-![web интерфейс Files(Uploads/Storage) 2](./screenshots/file-table.jpg)
+![web интерфейс Files(Uploads/Storage) 2](./screenshots/files-table.jpg)
 
 Пример содержания конфигурационного файла
 ![конфигурационный файл приложения](./screenshots/appsettings.json.jpg)
