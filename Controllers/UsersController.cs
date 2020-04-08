@@ -48,7 +48,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос пользователей обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = await users.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString(), x.isDisabled }).ToListAsync()
+                Tag = await users.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Information, Department = x.Department.Information, Role = x.Role.ToString(), x.isDisabled }).ToListAsync()
             });
         }
 
@@ -73,8 +73,8 @@ namespace SPADemoCRUD.Controllers
             {
                 Success = true,
                 Info = "Запрос успешно обработан. Пользователь найден. ",
-                Status = StylesMessageEnum.warning.ToString(),
-                Tag = new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, userModel.isDisabled, departments, UsersMetadataController.roles }
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = new { userModel.Id, userModel.Information, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, userModel.isDisabled, departments, UsersMetadataController.roles }
             });
         }
 
@@ -108,7 +108,7 @@ namespace SPADemoCRUD.Controllers
             }
 
             UserModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
-            if (userRow.Readonly)
+            if (userRow?.Readonly == true)
             {
                 _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
                 return new ObjectResult(new ServerActionResult()
@@ -150,7 +150,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Изменения сохранены",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Name, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
+                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Information, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
             });
         }
 
@@ -172,7 +172,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            if (_context.Users.Any(x => x.Name == userModel.Name))
+            if (_context.Users.Any(x => x.Information == userModel.Information))
             {
                 return new ObjectResult(new ServerActionResult()
                 {
@@ -201,7 +201,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Пользователь успешно создан: id=" + userModel.Id,
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Name, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
+                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Information, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
             });
         }
 
@@ -217,6 +217,18 @@ namespace SPADemoCRUD.Controllers
                 {
                     Success = false,
                     Info = "Пользователь не найден",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
+            UserModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
+            if (userRow?.Readonly == true)
+            {
+                _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Ошибка доступа к системному объекту (read only). Подобные объекты редактируются на уровне sqlcmd",
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
@@ -246,6 +258,18 @@ namespace SPADemoCRUD.Controllers
                 {
                     Success = false,
                     Info = "Пользователь не найден",
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
+            UserModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
+            if (userRow?.Readonly == true)
+            {
+                _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = "Ошибка доступа к системному объекту (read only). Подобные объекты редактируются на уровне sqlcmd",
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }

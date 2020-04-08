@@ -9,7 +9,6 @@ import App from '../../../App';
 /** Отображение/редактирование существующего объекта/пользователя */
 export class viewUser extends aPageCard {
     static displayName = viewUser.name;
-    apiName = 'users';
 
     async load() {
         await this.ajax();

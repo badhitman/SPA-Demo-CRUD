@@ -27,7 +27,7 @@ namespace SPADemoCRUD.Models
         [Display(Name = "Избранный (для всех глобально)", Description = "Объект глобально [Избранный]")]
         public bool IsGlobalFavorite { get; set; } = false;
 
-        [Display(Name = "Примечание", Description = "Пользовательское описание/примечание")]
-        public string Information { get; set; }
+        [Display(Name = "Наименование", Description = "Короткое название объекта")]
+        public string Name { get; set; }
     }
 }

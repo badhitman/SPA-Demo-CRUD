@@ -12,7 +12,8 @@ namespace SPADemoCRUD.Models.db
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public string Name { get; set; } = "";
+        [Display(Name = "Информация", Description = "Пользовательское описание")]
+        public string Information { get; set; } = "";
 
         /// <summary>
         /// Дата создания объекта

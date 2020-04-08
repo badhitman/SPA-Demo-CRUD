@@ -18,7 +18,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.2" />
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.0.96" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
@@ -26,20 +26,37 @@
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
+    <Compile Remove="Electrum-JSONRPC\**" />
+    <Compile Remove="HmacHttp\**" />
     <Compile Remove="MultiTool\**" />
     <Compile Remove="reCaptcha\**" />
+    <Compile Remove="SimpleWebClient\**" />
+    <Compile Remove="TelegramBot-API\**" />
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="Electrum-JSONRPC\**" />
+    <Content Remove="HmacHttp\**" />
     <Content Remove="MultiTool\**" />
     <Content Remove="reCaptcha\**" />
+    <Content Remove="SimpleWebClient\**" />
+    <Content Remove="TelegramBot-API\**" />
+    <EmbeddedResource Remove="Electrum-JSONRPC\**" />
+    <EmbeddedResource Remove="HmacHttp\**" />
     <EmbeddedResource Remove="MultiTool\**" />
     <EmbeddedResource Remove="reCaptcha\**" />
+    <EmbeddedResource Remove="SimpleWebClient\**" />
+    <EmbeddedResource Remove="TelegramBot-API\**" />
     <None Remove="$(SpaRoot)**" />
+    <None Remove="Electrum-JSONRPC\**" />
+    <None Remove="HmacHttp\**" />
     <None Remove="MultiTool\**" />
     <None Remove="reCaptcha\**" />
+    <None Remove="SimpleWebClient\**" />
+    <None Remove="TelegramBot-API\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="Electrum-JSONRPC\Electrum-JSONRPC.csproj" />
     <ProjectReference Include="MultiTool\MultiTool.csproj" />
     <ProjectReference Include="reCaptcha\reCaptcha.csproj" />
   </ItemGroup>

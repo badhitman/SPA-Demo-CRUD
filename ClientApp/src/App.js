@@ -32,9 +32,18 @@ export default class App extends Component {
             'files',
             /** Пользовательские уведомления */
             'notifications',
+            /** работа с собственным профилем */
             'profile',
+            /** номенклатура */
             'goods',
-            'addresses'
+            /** адресный классификатор */
+            'addresses',
+            /** Telegram bot */
+            'telegram',
+            /** Electrum wallet */
+            'electrum',
+            /** Настройки/состояние сервера */
+            'server'
         ];
 
     /** Имя метода для отображения списка объектов */

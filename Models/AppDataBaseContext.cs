@@ -16,6 +16,9 @@ namespace SPADemoCRUD.Models
         public DbSet<СonversationModel> Сonversations { get; set; }
         public DbSet<NotificationModel> Notifications { get; set; }
         public DbSet<MessageModel> Messages { get; set; }
+        public DbSet<TelegramBotUpdateModel> TelegramBotUpdates { get; set; }
+        public DbSet<BtcTransactionModel> BtcTransactions { get; set; }
+        public DbSet<BtcTransactionOutModel> BtcTransactionOuts { get; set; }
 
         public AppDataBaseContext(DbContextOptions<AppDataBaseContext> options)
             : base(options)
@@ -56,6 +59,24 @@ namespace SPADemoCRUD.Models
 
             modelBuilder.Entity<NotificationModel>().Property(u => u.DateCreate).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<NotificationModel>(builder =>
+            {
+                builder.Property(e => e.DateCreate).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            });
+
+            modelBuilder.Entity<TelegramBotUpdateModel>().Property(u => u.DateCreate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<TelegramBotUpdateModel>(builder =>
+            {
+                builder.Property(e => e.DateCreate).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            });
+
+            modelBuilder.Entity<BtcTransactionModel>().Property(u => u.DateCreate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<BtcTransactionModel>(builder =>
+            {
+                builder.Property(e => e.DateCreate).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            });
+
+            modelBuilder.Entity<BtcTransactionOutModel>().Property(u => u.DateCreate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<BtcTransactionOutModel>(builder =>
             {
                 builder.Property(e => e.DateCreate).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             });

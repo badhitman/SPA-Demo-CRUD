@@ -379,7 +379,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            FileStorageModel newStorageFile = new FileStorageModel() { Name = md.FileInfo.Name, Length = md.FileInfo.Length };
+            FileStorageModel newStorageFile = new FileStorageModel() { Information = md.FileInfo.Name, Length = md.FileInfo.Length };
             DbContext.FilesStorage.Add(newStorageFile);
             DbContext.SaveChanges();
             try
@@ -409,7 +409,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Файл сохранён",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { newStorageFile.Id, newStorageFile.Name, Size = glob_tools.SizeDataAsString(newStorageFile.Length) }
+                Tag = new { newStorageFile.Id, newStorageFile.Information, Size = glob_tools.SizeDataAsString(newStorageFile.Length) }
             });
         }
 
@@ -507,7 +507,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Доступ к хранимой папке успешно обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = files.Take(pagingParameters.PageSize).ToList().Where(x => System.IO.File.Exists(Path.Combine(StoragePath, x.Id.ToString() + Path.GetExtension(x.Name)))).Select(x => new { x.Id, x.Name, Size = glob_tools.SizeDataAsString(x.Length), x.isDisabled, x.Readonly }).ToArray()
+                Tag = files.Take(pagingParameters.PageSize).ToList().Where(x => System.IO.File.Exists(Path.Combine(StoragePath, x.Id.ToString() + Path.GetExtension(x.Information)))).Select(x => new { x.Id, x.Information, Size = glob_tools.SizeDataAsString(x.Length), x.isDisabled, x.Readonly }).ToArray()
             });
         }
 
@@ -536,7 +536,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Доступ к начальной папке успешно обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { Id = fileStorage.Id.ToString() + md.FileInfo.Extension, fileStorage.Name, Size = glob_tools.SizeDataAsString(fileStorage.Length), fileStorage.isDisabled, fileStorage.Readonly }
+                Tag = new { Id = fileStorage.Id.ToString() + md.FileInfo.Extension, fileStorage.Information, Size = glob_tools.SizeDataAsString(fileStorage.Length), fileStorage.isDisabled, fileStorage.Readonly }
             });
         }
 
@@ -584,7 +584,7 @@ namespace SPADemoCRUD.Controllers
             DbContext.FilesStorage.Remove(md.Object);
             DbContext.SaveChanges();
 
-            string file_name = PickFileName(md.Object.Name, UploadsPath);
+            string file_name = PickFileName(md.Object.Information, UploadsPath);
 
             md.FileInfo.MoveTo(Path.Combine(UploadsPath, file_name));
             if(!(md.ThumbFileInfo is null))

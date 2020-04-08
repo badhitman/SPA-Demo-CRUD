@@ -30,6 +30,15 @@ import { listNotifications } from './components/pages/notifications/listNotifica
 import { viewNotification } from './components/pages/notifications/viewNotification';
 import { deleteNotification } from './components/pages/notifications/deleteNotification';
 
+import { listTelegramBotUpdates } from './components/pages/telegram/listTelegramBotUpdates';
+import { viewTelegramBotUpdate } from './components/pages/telegram/viewTelegramBotUpdate';
+import { deleteTelegramBotUpdate } from './components/pages/telegram/deleteTelegramBotUpdate';
+
+import { listElectrum } from './components/pages/electrum/listElectrum';
+import { viewElectrum } from './components/pages/electrum/viewElectrum';
+
+import { viewProfile } from './components/pages/profile/viewProfile';
+
 export class Hub extends Component {
     static displayName = Hub.name;
 
@@ -74,6 +83,15 @@ export class Hub extends Component {
                         <Route path={`/files/${App.listNameMethod}/`} component={listFiles} />
                         <Route path={`/files/${App.viewNameMethod}`} component={viewFile} />
                         <Route path={`/files/${App.deleteNameMethod}`} component={deleteFile} />
+
+                        <Route path={`/telegram/${App.listNameMethod}/`} component={listTelegramBotUpdates} />
+                        <Route path={`/telegram/${App.viewNameMethod}`} component={viewTelegramBotUpdate} />
+                        <Route path={`/telegram/${App.deleteNameMethod}`} component={deleteTelegramBotUpdate} />
+
+                        <Route path={`/electrum/${App.listNameMethod}/`} component={listElectrum} />
+                        <Route path={`/electrum/${App.viewNameMethod}`} component={viewElectrum} />
+
+                        <Route path={`/profile/${App.viewNameMethod}`} component={viewProfile} />
 
                         <Route path={'/accessdenied/'} component={AccessDenied} />
                         <Route component={NotFound} />

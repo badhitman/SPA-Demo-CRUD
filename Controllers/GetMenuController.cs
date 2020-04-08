@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using SPADemoCRUD.Models;
+using SPADemoCRUD.Models.AuthorizePolicies;
 using SPADemoCRUD.Models.view.menu;
 
 namespace SPADemoCRUD.Controllers
@@ -15,7 +16,7 @@ namespace SPADemoCRUD.Controllers
     [ApiController]
     public class GetMenu : ControllerBase
     {
-        private static readonly NestedMenu my = new NestedMenu()
+        private readonly NestedMenu my = new NestedMenu()
         {
             Title = "me",
             Href = "#",
@@ -23,12 +24,12 @@ namespace SPADemoCRUD.Controllers
             Childs = new MenuItem[]
             {
                 new MenuItem() { Title = "Сообщения", Href = "/notifications/list", Tooltip = "Мои уведомления" },
-                new MenuItem() { Title = "Профиль", Href = "/profile/", Tooltip = "Мои настройки" },
+                new MenuItem() { Title = "Профиль", Href = "/profile/view/", Tooltip = "Мои настройки" },
                 null,
                 new MenuItem() { Title = "Выход", Href = "/signin/", Tooltip = "Выйти из приложения" }
             }
         };
-        private static readonly NestedMenu users = new NestedMenu()
+        private readonly NestedMenu users = new NestedMenu()
         {
             Title = "Пользователи",
             Href = "#",
@@ -39,7 +40,7 @@ namespace SPADemoCRUD.Controllers
                 new MenuItem() { Title = "Группы", Href = "/departments/list", Tooltip = "Отделы и депаратменты" }
             }
         };
-        private static readonly NestedMenu catalogues = new NestedMenu()
+        private readonly NestedMenu catalogues = new NestedMenu()
         {
             Title = "Каталоги",
             Href = "#",
@@ -51,14 +52,15 @@ namespace SPADemoCRUD.Controllers
                 new MenuItem() { Title = "Файлы", Href = "/files/list", Tooltip = "Файловое хранилище" }
             }
         };
-        private static readonly NestedMenu server = new NestedMenu()
+        private readonly NestedMenu server = new NestedMenu()
         {
             Title = "Сервер",
             Href = "#",
             Tooltip = "Управление сервером",
             Childs = new MenuItem[]
             {
-                new MenuItem() { Title = "Состояние", Href = "/server/list", Tooltip = "Состояние сервера/системы" },
+                new MenuItem() { Title = "Telegram", Href = "/telegram/list", Tooltip = "Telegram Bot" },
+                new MenuItem() { Title = "Electrum", Href = "/electrum/list", Tooltip = "Electrum wallet" },
                 new MenuItem() { Title = "Настройки", Href = "/server/view", Tooltip = "Настройки сервера" }
             }
         };

@@ -27,7 +27,10 @@ export class aPageCard extends aPage {
     }
 
     async ajax() {
-        this.apiPostfix = `${this.apiPostfix}/${App.id}`;
+        if (App.id) {
+            this.apiPostfix = `${this.apiPostfix}/${App.id}`;
+        }
+        
         await super.ajax();
     }
 
