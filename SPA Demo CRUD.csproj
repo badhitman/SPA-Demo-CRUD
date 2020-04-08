@@ -33,6 +33,7 @@
     <Compile Remove="reCaptcha\**" />
     <Compile Remove="SimpleWebClient\**" />
     <Compile Remove="TelegramBot-API\**" />
+    <Compile Remove="uploads\**" />
     <Content Remove="$(SpaRoot)**" />
     <Content Remove="Electrum-JSONRPC\**" />
     <Content Remove="HmacHttp\**" />
@@ -40,12 +41,14 @@
     <Content Remove="reCaptcha\**" />
     <Content Remove="SimpleWebClient\**" />
     <Content Remove="TelegramBot-API\**" />
+    <Content Remove="uploads\**" />
     <EmbeddedResource Remove="Electrum-JSONRPC\**" />
     <EmbeddedResource Remove="HmacHttp\**" />
     <EmbeddedResource Remove="MultiTool\**" />
     <EmbeddedResource Remove="reCaptcha\**" />
     <EmbeddedResource Remove="SimpleWebClient\**" />
     <EmbeddedResource Remove="TelegramBot-API\**" />
+    <EmbeddedResource Remove="uploads\**" />
     <None Remove="$(SpaRoot)**" />
     <None Remove="Electrum-JSONRPC\**" />
     <None Remove="HmacHttp\**" />
@@ -53,6 +56,7 @@
     <None Remove="reCaptcha\**" />
     <None Remove="SimpleWebClient\**" />
     <None Remove="TelegramBot-API\**" />
+    <None Remove="uploads\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 

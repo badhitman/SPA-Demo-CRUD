@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using SPADemoCRUD.Controllers;
 using SPADemoCRUD.Models;
