@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SPADemoCRUD.Models;
-using SPADemoCRUD.Models.view;
 
 namespace SPADemoCRUD.Controllers
 {

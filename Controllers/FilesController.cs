@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MultiTool;
 using SPADemoCRUD.Models;
-using SPADemoCRUD.Models.view;
 using SPADemoCRUD.Services;
 
 namespace SPADemoCRUD.Controllers

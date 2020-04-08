@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using SPADemoCRUD.Controllers;
 using SPADemoCRUD.Models;
-using SPADemoCRUD.Models.AuthorizePolicies;
 using System.Threading.Tasks;
 
 namespace SPADemoCRUD.Services

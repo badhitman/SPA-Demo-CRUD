@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using SPADemoCRUD.Models;
-using SPADemoCRUD.Models.AuthorizePolicies;
-using SPADemoCRUD.Models.view;
 
 namespace SPADemoCRUD.Controllers
 {

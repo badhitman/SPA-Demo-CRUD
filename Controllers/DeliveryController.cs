@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SPADemoCRUD.Models;
-using SPADemoCRUD.Models.db.delivery;
-using SPADemoCRUD.Models.view;
 
 namespace SPADemoCRUD.Controllers
 {

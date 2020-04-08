@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using SPADemoCRUD.Models;
-using SPADemoCRUD.Models.view.menu;
 
 namespace SPADemoCRUD.Controllers
 {

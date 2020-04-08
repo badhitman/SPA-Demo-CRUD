@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SPADemoCRUD.Models;
-using SPADemoCRUD.Models.db;
-using SPADemoCRUD.Models.view;
 
 namespace SPADemoCRUD.Controllers
 {
