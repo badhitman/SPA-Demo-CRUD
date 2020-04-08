@@ -27,6 +27,11 @@ import { viewGood } from './components/pages/goods/viewGood';
 import { createGood } from './components/pages/goods/createGood';
 import { deleteGood } from './components/pages/goods/deleteGood';
 
+import { listDeliveries } from './components/pages/delivery/listDeliveries';
+import { viewDelivery } from './components/pages/delivery/viewDelivery';
+import { createDelivery } from './components/pages/delivery/createDelivery';
+import { deleteDelivery } from './components/pages/delivery/deleteDelivery';
+
 import { listFiles } from './components/pages/files/listFiles';
 import { viewFile } from './components/pages/files/viewFile';
 import { deleteFile } from './components/pages/files/deleteFile';
@@ -87,6 +92,11 @@ export class Hub extends Component {
                         <Route path={`/goods/${App.viewNameMethod}`} component={viewGood} />
                         <Route path={`/goods/${App.createNameMethod}`} component={createGood} />
                         <Route path={`/goods/${App.deleteNameMethod}`} component={deleteGood} />
+
+                        <Route path={`/delivery/${App.listNameMethod}/`} component={listDeliveries} />
+                        <Route path={`/delivery/${App.viewNameMethod}`} component={viewDelivery} />
+                        <Route path={`/delivery/${App.createNameMethod}`} component={createDelivery} />
+                        <Route path={`/delivery/${App.deleteNameMethod}`} component={deleteDelivery} />
 
                         <Route path={`/notifications/${App.listNameMethod}/`} component={listNotifications} />
                         <Route path={`/notifications/${App.viewNameMethod}`} component={viewNotification} />

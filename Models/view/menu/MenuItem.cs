@@ -13,5 +13,7 @@ namespace SPADemoCRUD.Models.view.menu
         public string Href { get; set; }
 
         public string Tooltip { get; set; }
+
+        public bool IsDisabled { get; set; } = false;
     }
 }

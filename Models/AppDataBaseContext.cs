@@ -5,6 +5,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using SPADemoCRUD.Models.db;
+using SPADemoCRUD.Models.db.delivery;
 
 namespace SPADemoCRUD.Models
 {
@@ -30,6 +31,9 @@ namespace SPADemoCRUD.Models
         public DbSet<WarehouseGoodModel> WarehousesGoods { get; set; }
         public DbSet<InventoryGoodBalancesWarehousesModel> WarehousesGoodsInventoryBalances { get; set; }
         public DbSet<MovementGoodsWarehousesDocumentModel> MovementsGoodsWarehouses { get; set; }
+
+        public DbSet<DeliveryMethodModel> DeliveryMethods { get; set; }
+        public DbSet<DeliveryServiceModel> DeliveryServices { get; set; }
 
         public AppDataBaseContext(DbContextOptions<AppDataBaseContext> options)
             : base(options)

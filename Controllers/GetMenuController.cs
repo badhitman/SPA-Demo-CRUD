@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using SPADemoCRUD.Models;
-using SPADemoCRUD.Models.AuthorizePolicies;
 using SPADemoCRUD.Models.view.menu;
 
 namespace SPADemoCRUD.Controllers
@@ -23,7 +22,7 @@ namespace SPADemoCRUD.Controllers
             Tooltip = "Личное пространство",
             Childs = new MenuItem[]
             {
-                new MenuItem() { Title = "Сообщения", Href = "/notifications/list", Tooltip = "Мои уведомления" },
+                new MenuItem() { Title = "Сообщения", Href = "/notifications/list", Tooltip = "Отключено! Мои уведомления", IsDisabled = true },
                 new MenuItem() { Title = "Профиль", Href = "/profile/view/", Tooltip = "Мои настройки" },
                 null,
                 new MenuItem() { Title = "Выход", Href = "/signin/", Tooltip = "Выйти из приложения" }
@@ -47,8 +46,10 @@ namespace SPADemoCRUD.Controllers
             Tooltip = "Справочники и наборы данных",
             Childs = new MenuItem[]
             {
-                new MenuItem() { Title = "Номенклатура", Href = "/goods/list", Tooltip = "Товары и всё такое" },
-                new MenuItem() { Title = "Адреса", Href = "/addresses/list", Tooltip = "Адресный классификатор" },
+                new MenuItem() { Title = "Номенклатура", Href = "/goods/list", Tooltip = "Отключено! Товары и всё такое", IsDisabled = true },
+                new MenuItem() { Title = "Запасы", Href = "/turnover/list", Tooltip = "Отключено! Движения товаров", IsDisabled = true },
+                new MenuItem() { Title = "Доставка", Href = "/delivery/list", Tooltip = "Отключено! Методы/Службы доставки", IsDisabled = true },
+                null,
                 new MenuItem() { Title = "Файлы", Href = "/files/list", Tooltip = "Файловое хранилище" }
             }
         };
@@ -59,8 +60,8 @@ namespace SPADemoCRUD.Controllers
             Tooltip = "Управление сервером",
             Childs = new MenuItem[]
             {
-                new MenuItem() { Title = "Telegram", Href = "/telegram/list", Tooltip = "Telegram Bot" },
-                new MenuItem() { Title = "Electrum", Href = "/electrum/list", Tooltip = "Electrum wallet" },
+                new MenuItem() { Title = "Telegram", Href = "/telegram/list", Tooltip = "Отключено! Telegram Bot", IsDisabled = true },
+                new MenuItem() { Title = "Electrum", Href = "/electrum/list", Tooltip = "Отключено! Electrum wallet", IsDisabled = true },
                 new MenuItem() { Title = "Настройки", Href = "/server/view", Tooltip = "Настройки сервера" }
             }
         };

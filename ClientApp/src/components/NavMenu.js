@@ -60,8 +60,8 @@ export class NavMenu extends Component {
                                         ? <DropdownItem className='text-secondary' key={dividersKeys++} divider />
                                         :
                                         <DropdownItem key={subItem.href}>
-                                            <NavItem>
-                                                <NavLink className='text-dark' tag={Link} to={subItem.href} title={subItem.tooltip}>{subItem.title}</NavLink>
+                                            <NavItem title={subItem.tooltip}>
+                                                <NavLink disabled={subItem.isDisabled} className='text-dark' tag={Link} to={subItem.href}>{subItem.title}</NavLink>
                                             </NavItem>
                                         </DropdownItem>
                                 })}

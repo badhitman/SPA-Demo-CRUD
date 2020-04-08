@@ -36,8 +36,10 @@ export default class App extends Component {
             'profile',
             /** номенклатура */
             'goods',
-            /** адресный классификатор */
-            'addresses',
+            /** движение номенклатуры */
+            'turnover',
+            /** доставка */
+            'delivery',
             /** Telegram bot */
             'telegram',
             /** Electrum wallet */
