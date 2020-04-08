@@ -2,9 +2,11 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using SPADemoCRUD.Models.db.sys;
+
 namespace SPADemoCRUD.Models.db
 {
-    public class BtcTransactionOutModel : LiteEntityModel
+    public class BtcTransactionOutModel : BirthdayEntityModel
     {
         #region Навигационные свойства
 

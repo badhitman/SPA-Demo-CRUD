@@ -12,7 +12,7 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Пользователь/сотрудник
     /// </summary>
-    public class UserModel : ObjEntityModel
+    public class UserModel : ObjAvatarModel
     {
         public int DepartmentId { get; set; }
         public DepartmentModel Department { get; set; }

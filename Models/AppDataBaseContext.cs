@@ -12,13 +12,24 @@ namespace SPADemoCRUD.Models
     {
         public DbSet<DepartmentModel> Departments { get; set; }
         public DbSet<UserModel> Users { get; set; }
+
         public DbSet<FileStorageModel> FilesStorage { get; set; }
+
         public DbSet<СonversationModel> Сonversations { get; set; }
         public DbSet<NotificationModel> Notifications { get; set; }
         public DbSet<MessageModel> Messages { get; set; }
+
         public DbSet<TelegramBotUpdateModel> TelegramBotUpdates { get; set; }
+
         public DbSet<BtcTransactionModel> BtcTransactions { get; set; }
         public DbSet<BtcTransactionOutModel> BtcTransactionOuts { get; set; }
+
+        public DbSet<UnitGoodModel> Units { get; set; }
+        public DbSet<GoodModel> Goods { get; set; }
+        public DbSet<GroupGoodModel> GroupsGoods { get; set; }
+        public DbSet<WarehouseGoodModel> WarehousesGoods { get; set; }
+        public DbSet<InventoryGoodBalancesWarehousesModel> WarehousesGoodsInventoryBalances { get; set; }
+        public DbSet<MovementGoodsWarehousesDocumentModel> MovementsGoodsWarehouses { get; set; }
 
         public AppDataBaseContext(DbContextOptions<AppDataBaseContext> options)
             : base(options)
@@ -77,6 +88,12 @@ namespace SPADemoCRUD.Models
 
             modelBuilder.Entity<BtcTransactionOutModel>().Property(u => u.DateCreate).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<BtcTransactionOutModel>(builder =>
+            {
+                builder.Property(e => e.DateCreate).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            });
+
+            modelBuilder.Entity<MovementGoodsWarehousesDocumentModel>().Property(u => u.DateCreate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<MovementGoodsWarehousesDocumentModel>(builder =>
             {
                 builder.Property(e => e.DateCreate).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             });

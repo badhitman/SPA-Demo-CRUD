@@ -14,6 +14,7 @@ using SPADemoCRUD.Models;
 using SPADemoCRUD.Models.AuthorizePolicies;
 using SPADemoCRUD.Services;
 using System;
+using System.Reflection;
 
 namespace SPADemoCRUD
 {
@@ -38,6 +39,7 @@ namespace SPADemoCRUD
         public void ConfigureServices(IServiceCollection services)
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
+            connection = connection.Replace("'debugDataBaseMyReactApp'", "'debugDataBaseMyReactApp"+ Assembly.GetExecutingAssembly().GetName().Version.ToString().Replace(".","") + "'");
             services.AddDbContext<AppDataBaseContext>(options => options.UseSqlServer(connection));
             services.AddScoped<SessionUser>();
             #region AccessMinLevelHandler

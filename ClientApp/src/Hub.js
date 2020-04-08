@@ -22,6 +22,11 @@ import { viewDepartment } from './components/pages/departments/viewDepartment';
 import { createDepartment } from './components/pages/departments/createDepartment';
 import { deleteDepartment } from './components/pages/departments/deleteDepartment';
 
+import { listGoods } from './components/pages/goods/listGoods';
+import { viewGood } from './components/pages/goods/viewGood';
+import { createGood } from './components/pages/goods/createGood';
+import { deleteGood } from './components/pages/goods/deleteGood';
+
 import { listFiles } from './components/pages/files/listFiles';
 import { viewFile } from './components/pages/files/viewFile';
 import { deleteFile } from './components/pages/files/deleteFile';
@@ -38,6 +43,8 @@ import { listElectrum } from './components/pages/electrum/listElectrum';
 import { viewElectrum } from './components/pages/electrum/viewElectrum';
 
 import { viewProfile } from './components/pages/profile/viewProfile';
+
+import { viewServer } from './components/pages/server/viewServer';
 
 export class Hub extends Component {
     static displayName = Hub.name;
@@ -76,6 +83,11 @@ export class Hub extends Component {
                         <Route path={`/departments/${App.createNameMethod}`} component={createDepartment} />
                         <Route path={`/departments/${App.deleteNameMethod}`} component={deleteDepartment} />
 
+                        <Route path={`/goods/${App.listNameMethod}/`} component={listGoods} />
+                        <Route path={`/goods/${App.viewNameMethod}`} component={viewGood} />
+                        <Route path={`/goods/${App.createNameMethod}`} component={createGood} />
+                        <Route path={`/goods/${App.deleteNameMethod}`} component={deleteGood} />
+
                         <Route path={`/notifications/${App.listNameMethod}/`} component={listNotifications} />
                         <Route path={`/notifications/${App.viewNameMethod}`} component={viewNotification} />
                         <Route path={`/notifications/${App.deleteNameMethod}`} component={deleteNotification} />
@@ -92,6 +104,8 @@ export class Hub extends Component {
                         <Route path={`/electrum/${App.viewNameMethod}`} component={viewElectrum} />
 
                         <Route path={`/profile/${App.viewNameMethod}`} component={viewProfile} />
+                        
+                        <Route path={`/server/${App.viewNameMethod}`} component={viewServer} />
 
                         <Route path={'/accessdenied/'} component={AccessDenied} />
                         <Route component={NotFound} />

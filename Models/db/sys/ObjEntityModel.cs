@@ -3,13 +3,14 @@
 ////////////////////////////////////////////////
 
 using SPADemoCRUD.Models.db;
+using SPADemoCRUD.Models.db.sys;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SPADemoCRUD.Models
 {
-    public class ObjEntityModel : LiteEntityModel
+    public class ObjEntityModel : BirthdayEntityModel
     {
         /// <summary>
         /// Признак "только для чтения". Переименовывать или удалять такой объект может только ROOT

@@ -15,11 +15,7 @@ namespace SPADemoCRUD.Models.db
         [Display(Name = "Информация", Description = "Пользовательское описание")]
         public string Information { get; set; } = "";
 
-        /// <summary>
-        /// Дата создания объекта
-        /// </summary>
-        [Display(Name = "Дата создания", Description = "Дата/Время создания объекта")]
-        public virtual DateTime DateCreate { get; set; }
+
 
         public override bool Equals(object other)
         {

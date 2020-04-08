@@ -8,7 +8,7 @@ namespace SPADemoCRUD.Models.db
     /// <summary>
     /// Статусы доставки уведомления
     /// </summary>
-    public enum DeliveryStatusesEnum
+    public enum DeliveryNotificationStatusesEnum
     {
         /// <summary>
         /// Отправлено

@@ -1,16 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SPADemoCRUD.Models.db.sys;
+using System.ComponentModel.DataAnnotations;
 
 namespace SPADemoCRUD.Models.db
 {
     /// <summary>
     /// Уведомление пользователя
     /// </summary>
-    public class NotificationModel : LiteEntityModel
+    public class NotificationModel : BirthdayEntityModel
     {
         /// <summary>
         /// Статус доставки уведомления (в контексте получателя)
         /// </summary>
-        public DeliveryStatusesEnum DeliveryStatus { get; set; }
+        public DeliveryNotificationStatusesEnum DeliveryStatus { get; set; }
 
         /// <summary>
         /// Диалог, в рамках которого пришло уведомление
