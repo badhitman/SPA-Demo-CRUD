@@ -50,7 +50,7 @@ namespace SPADemoCRUD.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<BtcTransactionModel>> GetBtcTransactionModel(int id)
         {
-            var btcTransactionModel = await _context.BtcTransactions.FindAsync(id);
+            BtcTransactionModel btcTransactionModel = await _context.BtcTransactions.FindAsync(id);
 
             if (btcTransactionModel == null)
             {

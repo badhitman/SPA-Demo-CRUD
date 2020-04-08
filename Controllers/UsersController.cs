@@ -56,7 +56,7 @@ namespace SPADemoCRUD.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<object>> GetUserModel(int id)
         {
-            var userModel = await _context.Users.FindAsync(id);
+            UserModel userModel = await _context.Users.FindAsync(id);
 
             if (userModel == null)
             {

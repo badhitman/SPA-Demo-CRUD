@@ -50,7 +50,7 @@ namespace SPADemoCRUD.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TelegramBotUpdateModel>> GetTelegramBotUpdateModel(int id)
         {
-            var telegramBotUpdateModel = await _context.TelegramBotUpdates.FindAsync(id);
+            TelegramBotUpdateModel telegramBotUpdateModel = await _context.TelegramBotUpdates.FindAsync(id);
 
             if (telegramBotUpdateModel == null)
             {
@@ -75,7 +75,7 @@ namespace SPADemoCRUD.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<TelegramBotUpdateModel>> DeleteTelegramBotUpdateModel(int id)
         {
-            var telegramBotUpdateModel = await _context.TelegramBotUpdates.FindAsync(id);
+            TelegramBotUpdateModel telegramBotUpdateModel = await _context.TelegramBotUpdates.FindAsync(id);
             if (telegramBotUpdateModel == null)
             {
                 _logger.LogError("Удаление TelegramBot Update невозможно. Объект не найден");
