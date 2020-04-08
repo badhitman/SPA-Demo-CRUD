@@ -1,7 +1,8 @@
-﻿using SPADemoCRUD.Models.db.sys;
-using System.ComponentModel.DataAnnotations;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
 
-namespace SPADemoCRUD.Models.db
+namespace SPADemoCRUD.Models
 {
     /// <summary>
     /// Уведомление пользователя

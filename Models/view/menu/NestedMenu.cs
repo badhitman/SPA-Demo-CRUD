@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace SPADemoCRUD.Models.view.menu
+namespace SPADemoCRUD.Models
 {
     public class NestedMenu : MenuItem
     {

@@ -4,7 +4,7 @@
 
 using Microsoft.AspNetCore.Authorization;
 
-namespace SPADemoCRUD.Models.AuthorizePolicies
+namespace SPADemoCRUD.Models
 {
     public class AccessMinLevelRequirement : IAuthorizationRequirement
     {

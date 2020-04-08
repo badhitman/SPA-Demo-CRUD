@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-namespace SPADemoCRUD.Models.view
+namespace SPADemoCRUD.Models
 {
     /// <summary>
     /// Результат выполнения запроса сервером
@@ -13,10 +13,12 @@ namespace SPADemoCRUD.Models.view
         /// статус операции (успешно или нет)
         /// </summary>
         public bool Success { get; set; } = false;
+        
         /// <summary>
         /// Текст сообщения
         /// </summary>
         public string Info { get; set; }
+        
         /// <summary>
         /// стиль оформления сообщения (bootstrap alert)
         /// </summary>

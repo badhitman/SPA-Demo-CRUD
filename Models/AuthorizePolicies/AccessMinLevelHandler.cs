@@ -7,7 +7,7 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace SPADemoCRUD.Models.AuthorizePolicies
+namespace SPADemoCRUD.Models
 {
     public class AccessMinLevelHandler : AuthorizationHandler<AccessMinLevelRequirement>
     {

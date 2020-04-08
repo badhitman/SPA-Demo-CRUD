@@ -2,10 +2,9 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using SPADemoCRUD.Models.db.sys;
 using System.Collections.Generic;
 
-namespace SPADemoCRUD.Models.db
+namespace SPADemoCRUD.Models
 {
     public class BtcTransactionModel : BirthdayEntityModel
     {

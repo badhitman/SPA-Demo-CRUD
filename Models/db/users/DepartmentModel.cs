@@ -2,8 +2,6 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using SPADemoCRUD.Models.db;
-
 namespace SPADemoCRUD.Models
 {
     /// <summary>

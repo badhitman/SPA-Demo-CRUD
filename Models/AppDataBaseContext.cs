@@ -4,8 +4,6 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using SPADemoCRUD.Models.db;
-using SPADemoCRUD.Models.db.delivery;
 
 namespace SPADemoCRUD.Models
 {

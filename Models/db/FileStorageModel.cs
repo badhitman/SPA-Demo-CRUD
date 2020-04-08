@@ -2,8 +2,6 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using System.ComponentModel.DataAnnotations;
-
 namespace SPADemoCRUD.Models
 {
     /// <summary>

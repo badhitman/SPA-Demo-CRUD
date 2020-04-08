@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
 
-namespace SPADemoCRUD.Models.db.delivery
+namespace SPADemoCRUD.Models
 {
     public class DeliveryMethodModel : LiteEntityModel
     {

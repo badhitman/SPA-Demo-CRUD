@@ -1,26 +1,33 @@
-﻿using SPADemoCRUD.Models.db.sys;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
 
-namespace SPADemoCRUD.Models.db
+namespace SPADemoCRUD.Models
 {
     /// <summary>
     /// Документ движения номенклатуры по складу
     /// </summary>
     public class MovementGoodsWarehousesDocumentModel : BirthdayEntityModel
     {
-        public int UserId { get; set; }
         /// <summary>
-        /// Автор документа
+        /// Контекстный ключ. В паре с основанием движения позволяет получить связанный объект базы данных
         /// </summary>
-        public UserModel User { get; set; }
+        public int ContextKey { get; set; }
+        /// <summary>
+        /// Основание движения документа. В паре с контекстным ключём даёт ссылку на объект БД как основание документа
+        /// </summary>
+        public ReasonMovementGoodsDocumentEnum ReasonMovementDocument { get; set; }
 
         public int WarehouseId { get; set; }
+        /// <summary>
+        /// Склад движения
+        /// </summary>
         public WarehouseGoodModel Warehouse { get; set; }
 
         public int GoodId { get; set; }
+        /// <summary>
+        /// Номенклатура движения
+        /// </summary>
         public GoodModel Good { get; set; }
 
         /// <summary>

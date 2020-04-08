@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Security.Claims;
 
-namespace SPADemoCRUD.Models.AuthorizePolicies
+namespace SPADemoCRUD.Models
 {
     public class SessionUser
     {
@@ -21,7 +25,7 @@ namespace SPADemoCRUD.Models.AuthorizePolicies
             int userId = int.Parse("0" + httpContextccessor.HttpContext.User.FindFirst(c => c.Type == "id").Value);
             if (userId > 0)
             {
-                user = dbContext.Users.Include(x=>x.Department).FirstOrDefault(x => x.Id == userId);
+                user = dbContext.Users.Include(x => x.Department).FirstOrDefault(x => x.Id == userId);
             }
             if (!(user is null))
             {

@@ -2,10 +2,10 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-namespace SPADemoCRUD.Models.view
+namespace SPADemoCRUD.Models
 {
     /// <summary>
-    /// Стили оформления сообщения (неполный набор стилей: bootstrap alerts)
+    /// Стили оформления сообщения (набор стилей: bootstrap alerts)
     /// </summary>
     public enum StylesMessageEnum
     {

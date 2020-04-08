@@ -2,7 +2,6 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using SPADemoCRUD.Models.db;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

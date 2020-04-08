@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-namespace SPADemoCRUD.Models.view.menu
+namespace SPADemoCRUD.Models
 {
     public class MenuItem
     {

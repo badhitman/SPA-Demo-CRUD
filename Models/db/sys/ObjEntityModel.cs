@@ -2,11 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using SPADemoCRUD.Models.db;
-using SPADemoCRUD.Models.db.sys;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SPADemoCRUD.Models
 {
