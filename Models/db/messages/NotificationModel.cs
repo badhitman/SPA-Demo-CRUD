@@ -7,7 +7,7 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Уведомление пользователя
     /// </summary>
-    public class NotificationModel : BirthdayEntityModel
+    public class NotificationModel : BirthdayObjEntityModel
     {
         /// <summary>
         /// Статус доставки уведомления (в контексте получателя)

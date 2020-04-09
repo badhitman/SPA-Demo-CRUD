@@ -30,8 +30,18 @@ namespace SPADemoCRUD.Models
         public DbSet<InventoryGoodBalancesWarehousesModel> WarehousesGoodsInventoryBalances { get; set; }
         public DbSet<MovementGoodsWarehousesDocumentModel> MovementsGoodsWarehouses { get; set; }
 
+        /// <summary>
+        /// Методы доставки
+        /// </summary>
         public DbSet<DeliveryMethodModel> DeliveryMethods { get; set; }
+        /// <summary>
+        /// Службы доставки (курьерские службы)
+        /// </summary>
         public DbSet<DeliveryServiceModel> DeliveryServices { get; set; }
+        
+        public DbSet<MovementTurnoverDeliveryDocumentModel> MovementTurnoverDeliveryDocuments { get; set; }
+        public DbSet<MovementTurnoverDeliveryDocumentRowModel> MovementTurnoverDeliveryDocumentRows { get; set; }
+        public DbSet<InventoryGoodBalancesDeliveriesModel> InventoryGoodBalancesDeliveries { get; set; }
 
         public AppDataBaseContext(DbContextOptions<AppDataBaseContext> options)
             : base(options)
@@ -96,6 +106,18 @@ namespace SPADemoCRUD.Models
 
             modelBuilder.Entity<MovementGoodsWarehousesDocumentModel>().Property(u => u.DateCreate).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<MovementGoodsWarehousesDocumentModel>(builder =>
+            {
+                builder.Property(e => e.DateCreate).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            });
+
+            modelBuilder.Entity<ObjectFileRegisterRowModel>().Property(u => u.DateCreate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<ObjectFileRegisterRowModel>(builder =>
+            {
+                builder.Property(e => e.DateCreate).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            });
+
+            modelBuilder.Entity<MovementTurnoverDeliveryDocumentModel>().Property(u => u.DateCreate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<MovementTurnoverDeliveryDocumentModel>(builder =>
             {
                 builder.Property(e => e.DateCreate).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             });

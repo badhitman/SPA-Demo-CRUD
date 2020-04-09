@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace SPADemoCRUD.Models
 {
-    public class GroupGoodModel : ObjAvatarModel
+    public class GroupGoodModel : AvatarObjEntityModel
     {
         public List<GoodModel> Goods { get; set; }
     }

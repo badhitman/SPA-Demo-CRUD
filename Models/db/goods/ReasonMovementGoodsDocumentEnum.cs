@@ -10,18 +10,23 @@ namespace SPADemoCRUD.Models
     public enum ReasonMovementGoodsDocumentEnum
     {
         /// <summary>
-        /// ручная корректировка пользователем
+        /// ручная корректировка пользователем => связаный объект: UserModel
         /// </summary>
         Manual,
 
         /// <summary>
-        /// Внутреннее перемещение между складами
+        /// Внутреннее перемещение между складами => связаный документ: MovementGoodsWarehousesDocumentModel
         /// </summary>
         InternalMovement,
 
         /// <summary>
-        /// Перемещено в обеспечение наличия (выкладка/витрина)
+        /// Отгружено в оборот (продано/отправлено) => связаный объект: MovementTurnoverDeliveryDocumentRowModel (строка, положительная по количеству, документа: MovementTurnoverDeliveryDocumentModel)
         /// </summary>
-        Availability
+        Store,
+
+        /// <summary>
+        /// Возврат из службы доставки или пункта выдачи на склад => связаный объект: MovementTurnoverDeliveryDocumentRowModel (строка, отрицательная по количеству, документа: MovementTurnoverDeliveryDocumentModel)
+        /// </summary>
+        Returning
     }
 }

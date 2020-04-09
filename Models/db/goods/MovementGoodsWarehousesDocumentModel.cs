@@ -5,9 +5,9 @@
 namespace SPADemoCRUD.Models
 {
     /// <summary>
-    /// Документ движения номенклатуры по складу
+    /// Документ внутреннего складского движения номенклатуры
     /// </summary>
-    public class MovementGoodsWarehousesDocumentModel : BirthdayEntityModel
+    public class MovementGoodsWarehousesDocumentModel : ObjectFileRegisterModel
     {
         /// <summary>
         /// Контекстный ключ. В паре с основанием движения позволяет получить связанный объект базы данных

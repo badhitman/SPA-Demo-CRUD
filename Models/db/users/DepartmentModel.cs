@@ -7,7 +7,7 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Департамент
     /// </summary>
-    public class DepartmentModel : ObjAvatarModel
+    public class DepartmentModel : AvatarObjEntityModel
     {
         
     }

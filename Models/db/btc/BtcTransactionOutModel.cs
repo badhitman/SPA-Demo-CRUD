@@ -4,7 +4,7 @@
 
 namespace SPADemoCRUD.Models
 {
-    public class BtcTransactionOutModel : BirthdayEntityModel
+    public class BtcTransactionOutModel : BirthdayObjEntityModel
     {
         #region Навигационные свойства
 

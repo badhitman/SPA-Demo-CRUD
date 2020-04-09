@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SPADemoCRUD.Models
 {
-    public class LiteEntityModel
+    public class LiteObjEntityModel
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -35,7 +35,7 @@ namespace SPADemoCRUD.Models
             return (this.GetType().Name + this.Id.ToString()).GetHashCode();
         }
 
-        public static bool operator ==(LiteEntityModel a1, LiteEntityModel a2)
+        public static bool operator ==(LiteObjEntityModel a1, LiteObjEntityModel a2)
         {
             if (a1 is null && a2 is null)
                 return true;
@@ -44,7 +44,7 @@ namespace SPADemoCRUD.Models
             return a1.Equals(a2);
         }
 
-        public static bool operator !=(LiteEntityModel a1, LiteEntityModel a2)
+        public static bool operator !=(LiteObjEntityModel a1, LiteObjEntityModel a2)
         {
             if (a1 is null && a2 is null)
                 return true;

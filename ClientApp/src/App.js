@@ -36,9 +36,9 @@ export default class App extends Component {
             'profile',
             /** номенклатура */
             'goods',
-            /** движение номенклатуры */
+            /** движение номенклатуры (в доставке/продаже) */
             'turnover',
-            /** доставка */
+            /** доставка (настройки служб и методов) */
             'delivery',
             /** Telegram bot */
             'telegram',

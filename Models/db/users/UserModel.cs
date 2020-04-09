@@ -11,7 +11,7 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Пользователь/сотрудник
     /// </summary>
-    public class UserModel : ObjAvatarModel
+    public class UserModel : AvatarObjEntityModel
     {
         public int DepartmentId { get; set; }
         public DepartmentModel Department { get; set; }

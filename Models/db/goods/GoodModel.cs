@@ -9,7 +9,7 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Номенклатура
     /// </summary>
-    public class GoodModel : ObjAvatarModel
+    public class GoodModel : AvatarObjEntityModel
     {
         public int GroupId { get; set; }
         /// <summary>

@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MultiTool;
@@ -382,27 +383,15 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            FileStorageModel newStorageFile = new FileStorageModel() { Information = md.FileInfo.Name, Length = md.FileInfo.Length };
-            DbContext.FilesStorage.Add(newStorageFile);
-            DbContext.SaveChanges();
-            try
-            {
-                md.FileInfo.MoveTo(Path.Combine(StoragePath, newStorageFile.Id.ToString() + md.FileInfo.Extension));
-                if (!(md.ThumbFileInfo is null))
-                {
-                    md.ThumbFileInfo.MoveTo(Path.Combine(StorageThumbsPath, newStorageFile.Id.ToString() + md.FileInfo.Extension));
-                }
-            }
-            catch (IOException ex)
-            {
-                _logger.LogError("Ошибка доступа к диску: {0}", ex.Message);
-                DbContext.FilesStorage.Remove(newStorageFile);
-                DbContext.SaveChanges();
+            FileStorageModel storedFile = UploadFile(md.FileInfo.FullName, md.FileInfo.Name);
 
+            if (storedFile is null)
+            {
+                _logger.LogError("Не удалось получить информацию по файлу: {0}", md.FileInfo.FullName);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Ошибка перемещения файла: " + ex.Message,
+                    Info = "Ошибка обработки запроса",
                     Status = StylesMessageEnum.warning.ToString()
                 });
             }
@@ -412,7 +401,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Файл сохранён",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { newStorageFile.Id, newStorageFile.Information, Size = glob_tools.SizeDataAsString(newStorageFile.Length) }
+                Tag = new { storedFile, storedFile.Information, Size = glob_tools.SizeDataAsString(storedFile.Length) }
             });
         }
 
@@ -498,8 +487,8 @@ namespace SPADemoCRUD.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<object>> Storage(PaginationParameters pagingParameters)
         {
-            pagingParameters.Init(DbContext.FilesStorage.Count());
-            IQueryable<FileStorageModel> files = DbContext.FilesStorage.OrderBy(x => x.Id);
+            IQueryable<FileStorageModel> files = DbContext.FilesStorage.Include(x => x.LogAccessorRow).Where(x => x.LogAccessorRow == null).OrderBy(x => x.Id);
+            pagingParameters.Init(files.Count());
             if (pagingParameters.PageNum > 1)
                 files = files.Skip(pagingParameters.Skip);
 
@@ -590,7 +579,7 @@ namespace SPADemoCRUD.Controllers
             string file_name = PickFileName(md.Object.Information, UploadsPath);
 
             md.FileInfo.MoveTo(Path.Combine(UploadsPath, file_name));
-            if(!(md.ThumbFileInfo is null))
+            if (!(md.ThumbFileInfo is null))
             {
                 md.ThumbFileInfo.MoveTo(Path.Combine(UploadsThumbsPath, file_name));
             }
@@ -655,6 +644,46 @@ namespace SPADemoCRUD.Controllers
                 Status = StylesMessageEnum.success.ToString(),
                 Tag = md.FileInfo.Name
             });
+        }
+
+        /// <summary>
+        /// Загрузка файла в хранимую папку
+        /// </summary>
+        /// <param name="sourceFilePath">Путь к исходному файлу</param>
+        /// <param name="shortFileNameWithExtension">Новое имя файла</param>
+        /// <param name="isMoveFile">Перемещение или копирование файла</param>
+        /// <returns>Id объекта базы данных</returns>
+        [NonAction]
+        public FileStorageModel UploadFile(string sourceFilePath, string shortFileNameWithExtension, bool isMoveFile = true)
+        {
+            FileInfo fileInfo = new FileInfo(sourceFilePath);
+            if (!fileInfo.Exists)
+            {
+                return null;
+            }
+            FileStorageModel newStorageFile = new FileStorageModel() { Name = shortFileNameWithExtension, Information = shortFileNameWithExtension, Length = fileInfo.Length };
+            DbContext.FilesStorage.Add(newStorageFile);
+            DbContext.SaveChanges();
+            try
+            {
+                if (isMoveFile)
+                {
+                    fileInfo.MoveTo(Path.Combine(StoragePath, newStorageFile.Id.ToString() + fileInfo.Extension));
+                }
+                else
+                {
+                    fileInfo.CopyTo(Path.Combine(StoragePath, newStorageFile.Id.ToString() + fileInfo.Extension));
+                }
+                return newStorageFile;
+            }
+            catch (IOException ex)
+            {
+                _logger.LogError("Ошибка доступа к диску: {0}", ex.Message);
+                DbContext.FilesStorage.Remove(newStorageFile);
+                DbContext.SaveChanges();
+
+                return null;
+            }
         }
         #endregion
     }

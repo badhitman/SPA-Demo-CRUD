@@ -4,7 +4,7 @@
 
 namespace SPADemoCRUD.Models
 {
-    public class TelegramBotUpdateModel : BirthdayEntityModel
+    public class TelegramBotUpdateModel : BirthdayObjEntityModel
     {
         public int UserId { get; set; }
         public UserModel User { get; set; }

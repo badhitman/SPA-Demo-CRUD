@@ -5,16 +5,22 @@
 namespace SPADemoCRUD.Models
 {
     /// <summary>
-    /// Остатки номенклатуры на складах
+    /// Номенклатура в обороте/доставке
     /// </summary>
-    public class InventoryGoodBalancesWarehousesModel : ObjectFileRegisterModel
+    public class InventoryGoodBalancesDeliveriesModel : ObjectFileRegisterModel
     {
-        public int WarehouseId { get; set; }
+        public int DeliveryMethodId { get; set; }
         /// <summary>
-        /// Склад
+        /// Метод доставки
         /// </summary>
-        public WarehouseGoodModel Warehouse { get; set; }
+        public DeliveryMethodModel DeliveryMethod { get; set; }
 
+        public int DeliveryServiceId { get; set; }
+        /// <summary>
+        /// Служба доставки
+        /// </summary>
+        public DeliveryServiceModel DeliveryService { get; set; }
+        
         public int GoodId { get; set; }
         /// <summary>
         /// Номенклатура

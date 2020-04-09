@@ -4,7 +4,7 @@
 
 namespace SPADemoCRUD.Models
 {
-    public class DeliveryServiceModel : LiteEntityModel
+    public class DeliveryServiceModel : LiteObjEntityModel
     {
 
     }

@@ -7,7 +7,7 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Объекту добавлена аватарка
     /// </summary>
-    public class ObjAvatarModel : ObjEntityModel
+    public class AvatarObjEntityModel : ObjEntityModel
     {
         public int? AvatarId { get; set; }
         public FileStorageModel Avatar { get; set; }

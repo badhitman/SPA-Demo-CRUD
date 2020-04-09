@@ -13,5 +13,10 @@ namespace SPADemoCRUD.Models
         /// Размер данных в байтах
         /// </summary>
         public long Length { get; set; }
+        /// <summary>
+        /// Если файл подчинён записи снимка данных объекта. Владелец файла - запись регистра доступа к объекту.
+        /// Требуется хранить целостность таких файлов в ассоциации с записью лога
+        /// </summary>
+        public ObjectFileRegisterRowModel LogAccessorRow { get; set; }
     }
 }

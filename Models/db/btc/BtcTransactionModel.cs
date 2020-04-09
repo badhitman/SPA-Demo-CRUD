@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace SPADemoCRUD.Models
 {
-    public class BtcTransactionModel : BirthdayEntityModel
+    public class BtcTransactionModel : BirthdayObjEntityModel
     {
         /// <summary>
         /// Связаные btc выходы

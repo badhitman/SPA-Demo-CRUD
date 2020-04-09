@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SPADemoCRUD.Models
 {
-    public class BirthdayEntityModel : LiteEntityModel
+    public class BirthdayObjEntityModel : LiteObjEntityModel
     {
         /// <summary>
         /// Дата создания объекта

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SPADemoCRUD.Models
 {
-    public class ObjEntityModel : BirthdayEntityModel
+    public class ObjEntityModel : BirthdayObjEntityModel
     {
         /// <summary>
         /// Признак "только для чтения". Переименовывать или удалять такой объект может только ROOT

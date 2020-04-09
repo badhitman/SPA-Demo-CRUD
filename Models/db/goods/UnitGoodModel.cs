@@ -7,7 +7,7 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Единица измерения
     /// </summary>
-    public class UnitGoodModel : LiteEntityModel
+    public class UnitGoodModel : LiteObjEntityModel
     {
 
     }
