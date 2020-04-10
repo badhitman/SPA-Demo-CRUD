@@ -43,7 +43,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос TelegramBot Updates",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = await botUpdates.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Information }).ToListAsync()
+                Tag = await botUpdates.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Name }).ToListAsync()
             });
         }
 

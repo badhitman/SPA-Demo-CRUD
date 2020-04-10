@@ -26,7 +26,7 @@ export class listNotifications extends aPageList {
                     </thead>
                     <tbody>
                         {notifications.map(function (notification) {
-                            return <tr key={user.id}>
+                            return <tr key={notification.id}>
                                 <td>{notification.id}</td>
                                 <td>{notification.name}</td>
                                 <td>{notification.information}</td>

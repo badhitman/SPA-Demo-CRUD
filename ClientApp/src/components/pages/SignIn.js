@@ -91,11 +91,11 @@ export class SignIn extends Component {
         var PublicKey = this.getRecaptchaPublicKey();
         if (App.session.isAuthenticated !== true && PublicKey !== null && PublicKey.length > 0) {
             if (jQuery.find(`#recaptchaWıdget${this.authorisationFormName}`).length) {
-                grecaptcha.render(`recaptchaWıdget${this.authorisationFormName}`);
+                this.grecaptcha.render(`recaptchaWıdget${this.authorisationFormName}`);
             }
             //
             if (jQuery.find(`#recaptchaWıdget${this.registrationFormName}`).length) {
-                grecaptcha.render(`recaptchaWıdget${this.registrationFormName}`);
+                this.grecaptcha.render(`recaptchaWıdget${this.registrationFormName}`);
             }
         }
     }

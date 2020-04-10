@@ -30,6 +30,10 @@ namespace SPADemoCRUD.Models
 
         public DateTime LastTelegramVisit { get; set; }
 
+        [Display(Name = "Имя", Description = "Сокращённое имя пользователя")]
+        [Required]
+        public new string Name { get; set; }
+
         public List<NotificationModel> Notifications { get; set; }
     }
 }

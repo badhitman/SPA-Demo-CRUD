@@ -93,7 +93,7 @@ namespace SPADemoCRUD.Controllers
                         Success = false,
                         Info = "Вход временно невозможен. Пользователь отключён от системы",
                         Status = StylesMessageEnum.danger.ToString(),
-                        Tag = new { user.Information, user.Role, Department = user.Department.Information }
+                        Tag = new { user.Name, user.Role, Department = user.Department.Name }
                     });
                 }
                 await Authenticate(user);
@@ -102,7 +102,7 @@ namespace SPADemoCRUD.Controllers
                     Success = true,
                     Info = "Вход успешно выполнен.",
                     Status = StylesMessageEnum.success.ToString(),
-                    Tag = new { user.Information, user.Role, Department = user.Department.Information }
+                    Tag = new { user.Name, user.Role, Department = user.Department.Name }
                 });
             }
             else
@@ -159,7 +159,7 @@ namespace SPADemoCRUD.Controllers
                 }
             }
 
-            bool checkPublicName = await DbContext.Users.AnyAsync(u => u.Information == regUser.PublicNameRegister);
+            bool checkPublicName = await DbContext.Users.AnyAsync(u => u.Name == regUser.PublicNameRegister);
             if (checkPublicName)
             {
                 return new ObjectResult(new ServerActionResult()
@@ -181,15 +181,15 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            DepartmentModel userDepartment = DbContext.Departments.FirstOrDefault(x => x.Information.ToLower() == "user");
+            DepartmentModel userDepartment = DbContext.Departments.FirstOrDefault(x => x.Name.ToLower() == "user");
             if (userDepartment is null)
             {
-                userDepartment = new DepartmentModel() { Information = "user", Readonly = true };
+                userDepartment = new DepartmentModel() { Name = "user", Readonly = true };
                 DbContext.Departments.Add(userDepartment);
                 DbContext.SaveChanges();
             }
 
-            user = new UserModel { Email = regUser.EmailRegister, Information = regUser.PublicNameRegister, Password = glob_tools.GetHashString(regUser.PasswordRegister), Role = AccessLevelUserRolesEnum.Auth, DepartmentId = userDepartment.Id };
+            user = new UserModel { Email = regUser.EmailRegister, Name = regUser.PublicNameRegister, Password = glob_tools.GetHashString(regUser.PasswordRegister), Role = AccessLevelUserRolesEnum.Auth, DepartmentId = userDepartment.Id };
             DbContext.Users.Add(user);
             DbContext.SaveChanges();
 
@@ -199,7 +199,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Регистрация успешно завершена",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { user.Information, user.Role, Department = user.Department.Information }
+                Tag = new { user.Name, user.Role, Department = user.Department.Name }
             });
         }
 
@@ -217,7 +217,7 @@ namespace SPADemoCRUD.Controllers
             var claims = new List<Claim>
             {
                 new Claim("id", user.Id.ToString()),
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Information),
+                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name),
                 new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role.ToString())
             };
             //

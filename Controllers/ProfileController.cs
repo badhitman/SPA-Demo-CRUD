@@ -41,7 +41,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос профиля обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { _sessionUser.user.DateCreate, Department = _sessionUser.user.Department.Information, _sessionUser.user.Email, _sessionUser.user.Id, _sessionUser.user.isDisabled, _sessionUser.user.Information, _sessionUser.user.Readonly, Role = _sessionUser.user.Role.ToString() }
+                Tag = new { _sessionUser.user.DateCreate, Department = _sessionUser.user.Department.Name, _sessionUser.user.Email, _sessionUser.user.Id, _sessionUser.user.isDisabled, _sessionUser.user.Name, _sessionUser.user.Readonly, Role = _sessionUser.user.Role.ToString() }
             });
         }
 

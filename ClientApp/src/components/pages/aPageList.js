@@ -12,8 +12,8 @@ import { aPage } from './aPage';
 import { PaginationNavElement } from '../PaginationNavElement';
 import { PaginationTypesButton } from '../PaginationTypesButton';
 
-import jquery from 'jquery';
-import '../../jquery.cookie.js';
+//import jquery from 'jquery';
+import Cookies from 'universal-cookie';
 
 /** Списки/Справочники. Базовый (типа абстрактный) компонент */
 export class aPageList extends aPage {
@@ -46,8 +46,8 @@ export class aPageList extends aPage {
      * false - если изменений в пагинаторе не замечено */
     readPagination() {
         const regExp = /^\d+$/;
-
-        var rowsCount = jquery.cookie('rowsCount');
+        const cookies = new Cookies();
+        var rowsCount = cookies.get('rowsCount');
         if (regExp.test(rowsCount)) {
             rowsCount = parseInt(rowsCount, 10);
         }

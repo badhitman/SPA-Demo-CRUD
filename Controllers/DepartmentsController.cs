@@ -69,7 +69,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос успешно обработан. Департамент найден.",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { departmentModel.Id, departmentModel.Information, departmentModel.isDisabled, Users = usersByDepartment.Select(x => new { x.Id, x.Information, x.isDisabled }).ToList() }
+                Tag = new { departmentModel.Id, departmentModel.Name, departmentModel.isDisabled, Users = usersByDepartment.Select(x => new { x.Id, x.Name, x.isDisabled }).ToList() }
             });
         }
 

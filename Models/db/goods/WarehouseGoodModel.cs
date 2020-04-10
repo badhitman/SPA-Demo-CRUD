@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace SPADemoCRUD.Models
 {
     /// <summary>
-    /// Склад номенклатуры (учёт)
+    /// Склад номенклатуры (учёт/остатки)
     /// </summary>
     public class WarehouseGoodModel : AvatarObjEntityModel
     {

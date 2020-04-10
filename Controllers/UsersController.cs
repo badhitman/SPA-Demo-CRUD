@@ -46,7 +46,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос пользователей обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = await users.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Information, Department = x.Department.Information, Role = x.Role.ToString(), x.isDisabled }).ToListAsync()
+                Tag = await users.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString(), x.isDisabled }).ToListAsync()
             });
         }
 
@@ -72,7 +72,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос успешно обработан. Пользователь найден. ",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { userModel.Id, userModel.Information, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, userModel.isDisabled, departments, UsersMetadataController.roles }
+                Tag = new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, userModel.isDisabled, departments, UsersMetadataController.roles }
             });
         }
 
@@ -148,7 +148,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Изменения сохранены",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Information, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
+                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Name, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
             });
         }
 
@@ -170,7 +170,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            if (_context.Users.Any(x => x.Information == userModel.Information))
+            if (_context.Users.Any(x => x.Name == userModel.Name))
             {
                 return new ObjectResult(new ServerActionResult()
                 {
@@ -199,7 +199,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Пользователь успешно создан: id=" + userModel.Id,
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Information, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
+                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Name, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
             });
         }
 

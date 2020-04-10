@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace SPADemoCRUD.Models
 {
     /// <summary>
-    /// Строка документа
+    /// Строка документа складского товародвижения
     /// </summary>
     public class MovementTurnoverDeliveryDocumentRowModel : LiteObjEntityModel
     {

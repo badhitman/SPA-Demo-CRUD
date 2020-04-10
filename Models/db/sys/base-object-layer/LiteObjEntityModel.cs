@@ -12,10 +12,9 @@ namespace SPADemoCRUD.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Display(Name = "Информация", Description = "Пользовательское описание")]
-        public string Information { get; set; } = "";
-
-
+        [Display(Name = "Наименование", Description = "Короткое название объекта")]
+        [Required]
+        public string Name { get; set; }
 
         public override bool Equals(object other)
         {

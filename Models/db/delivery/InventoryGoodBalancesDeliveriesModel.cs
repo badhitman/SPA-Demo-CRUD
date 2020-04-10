@@ -5,7 +5,7 @@
 namespace SPADemoCRUD.Models
 {
     /// <summary>
-    /// Номенклатура в обороте/доставке
+    /// Номенклатура в обороте/доставке (учёт/остатки)
     /// </summary>
     public class InventoryGoodBalancesDeliveriesModel : ObjectFileRegisterModel
     {

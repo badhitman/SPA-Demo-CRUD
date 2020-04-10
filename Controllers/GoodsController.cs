@@ -25,12 +25,12 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Goods
         [HttpGet]
-        public ActionResult<IEnumerable<GoodModel>> GetGoods([FromQuery] PaginationParameters pagingParameters)
+        public ActionResult<object> GetGoods([FromQuery] PaginationParameters pagingParameters)
         {
-            pagingParameters.Init(_context.Goods.Count());
-            IQueryable<GoodModel> goods = _context.Goods.OrderBy(x => x.Id);
+            pagingParameters.Init(_context.GroupsGoods.Count());
+            IQueryable<GroupGoodModel> groupsGoods = _context.GroupsGoods.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
-                goods = goods.Skip(pagingParameters.Skip);
+                groupsGoods = groupsGoods.Skip(pagingParameters.Skip);
 
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
             return new ObjectResult(new ServerActionResult()
@@ -38,7 +38,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос номенклатуры обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = goods.Include(x => x.Group).Include(x => x.Unut).Take(pagingParameters.PageSize).ToList().Select(x => new { x.AvatarId, GroupName = x.Group.Name, x.Price, x.Readonly, UnitName = x.Unut.Information })
+                Tag = groupsGoods.Include(x=>x.Avatar).Include(x => x.Goods).Take(pagingParameters.PageSize).ToList().Select(x => new { x.Avatar, x.Name, x.Readonly, x.Goods.Count })
             });
         }
 

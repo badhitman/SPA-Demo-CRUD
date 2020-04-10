@@ -3,13 +3,14 @@
 ////////////////////////////////////////////////
 
 import React, { Component } from 'react';
+
 import { Route, Switch } from 'react-router';
 import { Layout } from './components/Layout';
 import { NotFound } from './components/NotFound';
 import { Hub } from './Hub';
 
-import jquery from 'jquery';
-import './jquery.cookie.js';
+//import jquery from 'jquery';
+import Cookies from 'universal-cookie';
 
 import './custom.css'
 
@@ -92,8 +93,9 @@ export default class App extends Component {
 
     /** Чтение состояния сессии */
     static readSession() {
-        var name = jquery.cookie('name');
-        var role = jquery.cookie('role');
+        const cookies = new Cookies();
+        var name = cookies.get('name');
+        var role = cookies.get('role');
 
         if (name && name.length > 0) {
             App.session =
@@ -104,7 +106,7 @@ export default class App extends Component {
             };
         }
         else {
-            var AllowedWebLogin = jquery.cookie('AllowedWebLogin');
+            var AllowedWebLogin = cookies.get('AllowedWebLogin');
             if (AllowedWebLogin && AllowedWebLogin.length > 0) {
                 AllowedWebLogin = (AllowedWebLogin.toLowerCase() === "true");
             }
@@ -112,7 +114,7 @@ export default class App extends Component {
                 AllowedWebLogin = false;
             }
 
-            var AllowedWebRegistration = jquery.cookie('AllowedWebRegistration');
+            var AllowedWebRegistration = cookies.get('AllowedWebRegistration');
             if (AllowedWebRegistration && AllowedWebRegistration.length > 0) {
                 AllowedWebRegistration = (AllowedWebRegistration.toLowerCase() === "true");
             }
@@ -128,15 +130,15 @@ export default class App extends Component {
             };
 
             if (AllowedWebLogin === true || AllowedWebRegistration === true) {
-                App.session.reCaptchaV2InvisiblePublicKey = jquery.cookie('reCaptchaV2InvisiblePublicKey');
-                App.session.reCaptchaV2PublicKey = jquery.cookie('reCaptchaV2PublicKey');
+                App.session.reCaptchaV2InvisiblePublicKey = cookies.get('reCaptchaV2InvisiblePublicKey');
+                App.session.reCaptchaV2PublicKey = cookies.get('reCaptchaV2PublicKey');
             }
             else {
                 App.session.reCaptchaV2InvisiblePublicKey = '';
                 App.session.reCaptchaV2PublicKey = '';
             }
         }
-        if (jquery.cookie('debug') === 'demo') {
+        if (cookies.get('debug') === 'demo') {
             App.session.isDemo = true;
         }
     }

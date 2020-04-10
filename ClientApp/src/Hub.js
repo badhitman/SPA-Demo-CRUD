@@ -32,6 +32,11 @@ import { viewDelivery } from './components/pages/delivery/viewDelivery';
 import { createDelivery } from './components/pages/delivery/createDelivery';
 import { deleteDelivery } from './components/pages/delivery/deleteDelivery';
 
+import { listTurnovers } from './components/pages/turnover/listTurnovers';
+import { viewTurnover } from './components/pages/turnover/viewTurnover';
+import { createTurnover } from './components/pages/turnover/createTurnover';
+import { deleteTurnover } from './components/pages/turnover/deleteTurnover';
+
 import { listFiles } from './components/pages/files/listFiles';
 import { viewFile } from './components/pages/files/viewFile';
 import { deleteFile } from './components/pages/files/deleteFile';
@@ -76,45 +81,63 @@ export class Hub extends Component {
                 <main role="main" className="pb-3">
                     <Switch>
                         <Route exact path='/' component={HomePage} />
+
+                        {/** Сессия (logIn/logOut) */}
                         <Route path={'/signin/'} component={SignIn} />
 
+                        {/** Пользователи */}
                         <Route path={`/users/${App.listNameMethod}/`} component={listUsers} />
                         <Route path={`/users/${App.viewNameMethod}`} component={viewUser} />
                         <Route path={`/users/${App.createNameMethod}`} component={createUser} />
                         <Route path={`/users/${App.deleteNameMethod}`} component={deleteUser} />
 
+                        {/** Департаменты/отделы */}
                         <Route path={`/departments/${App.listNameMethod}/`} component={listDepartments} />
                         <Route path={`/departments/${App.viewNameMethod}`} component={viewDepartment} />
                         <Route path={`/departments/${App.createNameMethod}`} component={createDepartment} />
                         <Route path={`/departments/${App.deleteNameMethod}`} component={deleteDepartment} />
 
+                        {/** номенклатура */}
                         <Route path={`/goods/${App.listNameMethod}/`} component={listGoods} />
                         <Route path={`/goods/${App.viewNameMethod}`} component={viewGood} />
                         <Route path={`/goods/${App.createNameMethod}`} component={createGood} />
                         <Route path={`/goods/${App.deleteNameMethod}`} component={deleteGood} />
 
+                        {/** доставка (настройки служб и методов) */}
                         <Route path={`/delivery/${App.listNameMethod}/`} component={listDeliveries} />
                         <Route path={`/delivery/${App.viewNameMethod}`} component={viewDelivery} />
                         <Route path={`/delivery/${App.createNameMethod}`} component={createDelivery} />
                         <Route path={`/delivery/${App.deleteNameMethod}`} component={deleteDelivery} />
 
+                        {/** движение номенклатуры (в доставке/продаже) */}
+                        <Route path={`/turnover/${App.listNameMethod}/`} component={listTurnovers} />
+                        <Route path={`/turnover/${App.viewNameMethod}`} component={viewTurnover} />
+                        <Route path={`/turnover/${App.createNameMethod}`} component={createTurnover} />
+                        <Route path={`/turnover/${App.deleteNameMethod}`} component={deleteTurnover} />
+
+                        {/** Пользовательские уведомления */}
                         <Route path={`/notifications/${App.listNameMethod}/`} component={listNotifications} />
                         <Route path={`/notifications/${App.viewNameMethod}`} component={viewNotification} />
                         <Route path={`/notifications/${App.deleteNameMethod}`} component={deleteNotification} />
 
+                        {/** Файловое хранилище */}
                         <Route path={`/files/${App.listNameMethod}/`} component={listFiles} />
                         <Route path={`/files/${App.viewNameMethod}`} component={viewFile} />
                         <Route path={`/files/${App.deleteNameMethod}`} component={deleteFile} />
 
+                        {/** Telegram bot */}
                         <Route path={`/telegram/${App.listNameMethod}/`} component={listTelegramBotUpdates} />
                         <Route path={`/telegram/${App.viewNameMethod}`} component={viewTelegramBotUpdate} />
                         <Route path={`/telegram/${App.deleteNameMethod}`} component={deleteTelegramBotUpdate} />
 
+                        {/** Electrum wallet */}
                         <Route path={`/electrum/${App.listNameMethod}/`} component={listElectrum} />
                         <Route path={`/electrum/${App.viewNameMethod}`} component={viewElectrum} />
 
+                        {/** работа с собственным профилем */}
                         <Route path={`/profile/${App.viewNameMethod}`} component={viewProfile} />
-                        
+
+                        {/** Настройки/состояние сервера */}
                         <Route path={`/server/${App.viewNameMethod}`} component={viewServer} />
 
                         <Route path={'/accessdenied/'} component={AccessDenied} />

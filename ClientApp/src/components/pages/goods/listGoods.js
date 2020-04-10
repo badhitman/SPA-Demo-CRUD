@@ -17,6 +17,18 @@ export class listGoods extends aPageList {
         var apiName = App.controller;
         return (
             <>
+                <label htmlFor="basic-url">Создание новой группы/папки номенклатуры</label>
+                <div className="input-group mb-3">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text" id="basic-addon3">имя новой папки/группы</span>
+                    </div>
+                    <input type="text" className="form-control" placeholder="Введите название новой группы" aria-label="Введите название новой группы" aria-describedby="button-addon4" />
+                    <div className="input-group-append" id="button-addon4">
+                        <button className="btn btn-outline-secondary" type="button">Создать</button>
+                        <button className="btn btn-outline-secondary" type="button">Сброс</button>
+                    </div>
+                </div>
+
                 <NavLink to={`/${apiName}/${App.createNameMethod}/`} className="btn btn-primary btn-block" role="button">Создать новую номенклатуру</NavLink>
 
                 <table className='table table-striped mt-4' aria-labelledby="tabelLabel">
