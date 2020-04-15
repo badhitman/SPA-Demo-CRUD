@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
@@ -18,18 +19,50 @@ namespace SPADemoCRUD.Controllers
     public class DisplacementsController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
+        private readonly ILogger<DisplacementsController> _logger;
 
-        public DisplacementsController(AppDataBaseContext context)
+        public DisplacementsController(AppDataBaseContext context, ILogger<DisplacementsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Displacements
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<InternalDisplacementWarehouseDocumentModel>>> GetInternalDisplacementWarehouseRegisters()
+        public async Task<ActionResult<IEnumerable<InternalDisplacementWarehouseDocumentModel>>> GetInternalDisplacementWarehouseRegisters([FromQuery] PaginationParametersModel pagingParameters)
         {
-            return await _context.InternalDisplacementWarehouseRegisters.ToListAsync();
+            pagingParameters.Init(_context.InternalDisplacementWarehouseRegisters.Count());
+            IQueryable<InternalDisplacementWarehouseDocumentModel> Displacements = _context.InternalDisplacementWarehouseRegisters.OrderBy(x => x.Id);
+            if (pagingParameters.PageNum > 1)
+                Displacements = Displacements.Skip(pagingParameters.Skip);
+
+            HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Запрос документов внутренних перемещений обработан",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = Displacements.Include(x => x.Author).Include(x => x.WarehouseReceipt).Take(pagingParameters.PageSize).Select(x => new
+                {
+                    x.Id,
+                    Author = new { x.Author.Id, x.Author.Name },
+                    WarehouseReceipt = new { x.WarehouseReceipt.Id, x.WarehouseReceipt.Name, x.WarehouseReceipt.Information },
+                    WarehouseDebiting = GetWarehouse(x.WarehouseDebitingId, _context),
+                    x.Information,
+                    x.Name
+                })
+            }); ; ;
         }
+
+        private static object GetWarehouse(int warehouseDebitingId, AppDataBaseContext context)
+        {
+            WarehouseGoodObjectModel warehouse = context.WarehousesGoods.Find(warehouseDebitingId);
+
+            return new { warehouse?.Id, warehouse?.Name, warehouse?.Information, avatar = new { warehouse?.Avatar?.Id, warehouse?.Avatar?.Name } };
+        }
+
+
 
         // GET: api/Displacements/5
         [HttpGet("{id}")]

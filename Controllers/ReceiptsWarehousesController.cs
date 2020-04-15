@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
@@ -16,17 +17,38 @@ namespace SPADemoCRUD.Controllers
     public class ReceiptsWarehousesController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
+        private readonly ILogger<ReceiptsWarehousesController> _logger;
 
-        public ReceiptsWarehousesController(AppDataBaseContext context)
+        public ReceiptsWarehousesController(AppDataBaseContext context, ILogger<ReceiptsWarehousesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/MovementGoodsWarehouses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReceiptToWarehouseDocumentModel>>> GetMovementsGoodsWarehouses()
+        public async Task<ActionResult<IEnumerable<ReceiptToWarehouseDocumentModel>>> GetMovementsGoodsWarehouses([FromQuery] PaginationParametersModel pagingParameters)
         {
-            return await _context.ReceiptesGoodsToWarehousesRegisters.ToListAsync();
+            pagingParameters.Init(_context.ReceiptesGoodsToWarehousesRegisters.Count());
+            IQueryable<ReceiptToWarehouseDocumentModel> ReceiptToWarehouses = _context.ReceiptesGoodsToWarehousesRegisters.OrderBy(x => x.Id);
+            if (pagingParameters.PageNum > 1)
+                ReceiptToWarehouses = ReceiptToWarehouses.Skip(pagingParameters.Skip);
+
+            HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Запрос документов поступления обработан",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = ReceiptToWarehouses.Take(pagingParameters.PageSize).Select(x => new
+                {
+                    x.Id,
+                    Author = new { x.Author.Id, x.Author.Name },
+                    WarehouseReceipt = new { x.WarehouseReceipt.Id, x.WarehouseReceipt.Name, x.WarehouseReceipt.Information },
+                    x.Information,
+                    x.Name
+                })
+            });
         }
 
         // GET: api/MovementGoodsWarehouses/5

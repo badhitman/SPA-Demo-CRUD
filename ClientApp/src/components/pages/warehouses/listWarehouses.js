@@ -20,17 +20,17 @@ export class listWarehouses extends aPageList {
             <>
                 <ul className="nav nav-tabs">
                     <li className="nav-item">
-                        <NavLink className='nav-link active'>Склады</NavLink>
+                        <NavLink to={`/warehouses/${App.listNameMethod}`} className='nav-link active'>Склады</NavLink>
                     </li>
                     <li className="nav-item">
-                        <NavLink className='nav-link'>Поступления</NavLink>
+                        <NavLink to={`/receiptswarehouses/${App.listNameMethod}`} className='nav-link'>Поступления</NavLink>
                     </li>
                     <li className="nav-item">
-                        <NavLink className='nav-link'>Перемещения</NavLink>
+                        <NavLink to={`/displacements/${App.listNameMethod}`} className='nav-link'>Перемещения</NavLink>
                     </li>
                 </ul>
 
-                <NavLink to={`/${apiName}/${App.createNameMethod}/`} className="btn btn-primary btn-block" role="button">Создать склад</NavLink>
+                <NavLink to={`/${apiName}/${App.createNameMethod}/`} className="btn btn-primary btn-block mt-3" role="button">Создать склад</NavLink>
 
                 <p className="lead">В процессе разработки...</p>
             </>

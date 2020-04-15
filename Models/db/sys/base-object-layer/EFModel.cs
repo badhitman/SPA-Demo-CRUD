@@ -2,6 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SPADemoCRUD.Models
@@ -46,5 +47,8 @@ namespace SPADemoCRUD.Models
                 return true;
             return !a1.Equals(a2);
         }
+
+        [Timestamp]
+        public byte[] Timestamp { get; set; }
     }
 }

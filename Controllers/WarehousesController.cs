@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
@@ -17,17 +18,37 @@ namespace SPADemoCRUD.Controllers
     public class WarehousesController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
+        private readonly ILogger<WarehousesController> _logger;
 
-        public WarehousesController(AppDataBaseContext context)
+        public WarehousesController(AppDataBaseContext context, ILogger<WarehousesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Warehouses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<WarehouseGoodObjectModel>>> GetWarehousesGoods()
+        public async Task<ActionResult<IEnumerable<WarehouseGoodObjectModel>>> GetWarehousesGoods([FromQuery] PaginationParametersModel pagingParameters)
         {
-            return await _context.WarehousesGoods.ToListAsync();
+            pagingParameters.Init(_context.WarehousesGoods.Count());
+            IQueryable<WarehouseGoodObjectModel> Warehouses = _context.WarehousesGoods.OrderBy(x => x.Id);
+            if (pagingParameters.PageNum > 1)
+                Warehouses = Warehouses.Skip(pagingParameters.Skip);
+
+            HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Запрос складов хранения обработан",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = Warehouses.Include(x => x.Avatar).Take(pagingParameters.PageSize).Select(x => new
+                {
+                    avatar = new { x.Avatar.Id, x.Avatar.Name },
+                    x.Id,
+                    x.Information,
+                    x.Name
+                })
+            }); ; ;
         }
 
         // GET: api/Warehouses/5
