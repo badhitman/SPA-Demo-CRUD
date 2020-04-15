@@ -28,7 +28,7 @@ namespace SPADemoCRUD
                     }
                     if (options.Value.SetUserRootById > 0)
                     {
-                        UserModel user = context.Users.FirstOrDefault(x => x.Id == options.Value.SetUserRootById);
+                        UserObjectModel user = context.Users.FirstOrDefault(x => x.Id == options.Value.SetUserRootById);
                         if (user != null)
                         {
                             user.Role = AccessLevelUserRolesEnum.ROOT;

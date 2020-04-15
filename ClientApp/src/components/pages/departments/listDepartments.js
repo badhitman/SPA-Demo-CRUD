@@ -6,6 +6,7 @@ import React from 'react';
 import { aPageList } from '../aPageList';
 import { NavLink } from 'react-router-dom'
 import App from '../../../App';
+import { PaginatorComponent } from '../../PaginatorComponent';
 
 /** Компонент для отображения списка департаментов */
 export class listDepartments extends aPageList {
@@ -42,7 +43,7 @@ export class listDepartments extends aPageList {
                         })}
                     </tbody>
                 </table>
-                {this.cardPaginator()}
+                <PaginatorComponent servicePaginator={this.servicePaginator} />
             </>
         );
     }

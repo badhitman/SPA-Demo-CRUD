@@ -4,8 +4,9 @@
 
 import React from 'react';
 import { aPageList } from '../aPageList';
-import { Link, NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import App from '../../../App';
+import { PaginatorComponent } from '../../PaginatorComponent';
 
 /** Компонент для отображения списка файлов */
 export class listFiles extends aPageList {
@@ -160,10 +161,10 @@ export class listFiles extends aPageList {
 
     /** Рендер тела карточки страницы */
     cardBody() {
-        if (this.readPagination() === true) {
-            this.load();
-            return <></>;
-        }
+        //if (this.servicePaginator.readPagination() === true) {
+        //    this.load();
+        //    return <></>;
+        //}
         const files = App.data;
         const isTilesModeView = localStorage.getItem('modeView') === 'tiles';
 
@@ -240,7 +241,7 @@ export class listFiles extends aPageList {
                     })}
                 </div>
             </div >
-            {this.cardPaginator()}
+            {this.servicePaginator.render()}
         </>
         );
     }
@@ -269,7 +270,7 @@ export class listFiles extends aPageList {
                         })}
                     </tbody>
                 </table>
-                {this.cardPaginator()}
+                <PaginatorComponent servicePaginator={this.servicePaginator} />
             </>
         );
     }

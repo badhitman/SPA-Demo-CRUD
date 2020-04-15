@@ -33,10 +33,10 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetUsers([FromQuery] PaginationParameters pagingParameters)
+        public async Task<ActionResult<IEnumerable<object>>> GetUsers([FromQuery] PaginationParametersModel pagingParameters)
         {
             pagingParameters.Init(_context.Users.Count());
-            IQueryable<UserModel> users = _context.Users.OrderBy(x => x.Id);
+            IQueryable<UserObjectModel> users = _context.Users.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
                 users = users.Skip(pagingParameters.Skip);
 
@@ -54,7 +54,7 @@ namespace SPADemoCRUD.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<object>> GetUserModel(int id)
         {
-            UserModel userModel = await _context.Users.FindAsync(id);
+            UserObjectModel userModel = await _context.Users.FindAsync(id);
 
             if (userModel == null)
             {
@@ -66,7 +66,7 @@ namespace SPADemoCRUD.Controllers
                     Status = StylesMessageEnum.warning.ToString()
                 });
             }
-            List<DepartmentModel> departments = await _context.Departments.ToListAsync();
+            List<DepartmentObjectModel> departments = await _context.Departments.ToListAsync();
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
@@ -80,7 +80,7 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserModel(int id, UserModel userModel)
+        public async Task<IActionResult> PutUserModel(int id, UserObjectModel userModel)
         {
             if (!ModelState.IsValid)
             {
@@ -105,7 +105,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            UserModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
+            UserObjectModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
             if (userRow?.Readonly == true)
             {
                 _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
@@ -142,7 +142,7 @@ namespace SPADemoCRUD.Controllers
                     throw;
                 }
             }
-            List<DepartmentModel> departments = await _context.Departments.ToListAsync();
+            List<DepartmentObjectModel> departments = await _context.Departments.ToListAsync();
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
@@ -156,7 +156,7 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<UserModel>> PostUserModel(UserModel userModel)
+        public async Task<ActionResult<UserObjectModel>> PostUserModel(UserObjectModel userModel)
         {
             if (!ModelState.IsValid)
             {
@@ -193,7 +193,7 @@ namespace SPADemoCRUD.Controllers
             _context.Users.Add(userModel);
             await _context.SaveChangesAsync();
             _logger.LogInformation("Пользователь создан: id={0}", userModel.Id);
-            List<DepartmentModel> departments = await _context.Departments.ToListAsync();
+            List<DepartmentObjectModel> departments = await _context.Departments.ToListAsync();
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
@@ -219,7 +219,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            UserModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
+            UserObjectModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
             if (userRow?.Readonly == true)
             {
                 _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
@@ -246,7 +246,7 @@ namespace SPADemoCRUD.Controllers
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<UserModel>> DeleteUserModel(int id)
+        public async Task<ActionResult<UserObjectModel>> DeleteUserModel(int id)
         {
             var userModel = await _context.Users.FindAsync(id);
             if (userModel == null)
@@ -260,7 +260,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            UserModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
+            UserObjectModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
             if (userRow?.Readonly == true)
             {
                 _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
@@ -272,8 +272,8 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            _context.Users.Remove(userModel);
-            await _context.SaveChangesAsync();
+            //_context.Users.Remove(userModel);
+            //await _context.SaveChangesAsync();
 
             _logger.LogInformation("Пользователь удалён: id={0}", id);
             return new ObjectResult(new ServerActionResult()

@@ -302,7 +302,7 @@ namespace SPADemoCRUD.Controllers
         #region ftp
         // GET: /files/ftp?PageNum=1&PageSise=10
         [HttpGet]
-        public ActionResult<IEnumerable<object>> Ftp(PaginationParameters pagingParameters)
+        public ActionResult<IEnumerable<object>> Ftp(PaginationParametersModel pagingParameters)
         {
             List<FileInfo> Files = new DirectoryInfo(conf.UploadsPath).GetFiles().Where(x => x.Name.Substring(0, 1) != ".").OrderBy(c => c.Name).ToList();
             pagingParameters.Init(ref Files);
@@ -383,7 +383,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            FileStorageModel storedFile = UploadFile(md.FileInfo.FullName, md.FileInfo.Name);
+            FileStorageObjectModel storedFile = UploadFile(md.FileInfo.FullName, md.FileInfo.Name);
 
             if (storedFile is null)
             {
@@ -485,9 +485,9 @@ namespace SPADemoCRUD.Controllers
         #region storage
         // GET: /files/storage?PageNum=1&PageSise=10
         [HttpGet]
-        public ActionResult<IEnumerable<object>> Storage(PaginationParameters pagingParameters)
+        public ActionResult<IEnumerable<object>> Storage(PaginationParametersModel pagingParameters)
         {
-            IQueryable<FileStorageModel> files = DbContext.FilesStorage.Include(x => x.LogAccessorRow).Where(x => x.LogAccessorRow == null).OrderBy(x => x.Id);
+            IQueryable<FileStorageObjectModel> files = DbContext.FilesStorage.Include(x => x.LogAccessorRow).Where(x => x.LogAccessorRow == null).OrderBy(x => x.Id);
             pagingParameters.Init(files.Count());
             if (pagingParameters.PageNum > 1)
                 files = files.Skip(pagingParameters.Skip);
@@ -522,7 +522,7 @@ namespace SPADemoCRUD.Controllers
             id = id.Substring(0, id.Length - md.FileInfo.Extension.Length);
             int idObject = int.Parse(id);
 
-            FileStorageModel fileStorage = DbContext.FilesStorage.Find(idObject);
+            FileStorageObjectModel fileStorage = DbContext.FilesStorage.Find(idObject);
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
@@ -654,14 +654,14 @@ namespace SPADemoCRUD.Controllers
         /// <param name="isMoveFile">Перемещение или копирование файла</param>
         /// <returns>Id объекта базы данных</returns>
         [NonAction]
-        public FileStorageModel UploadFile(string sourceFilePath, string shortFileNameWithExtension, bool isMoveFile = true)
+        public FileStorageObjectModel UploadFile(string sourceFilePath, string shortFileNameWithExtension, bool isMoveFile = true)
         {
             FileInfo fileInfo = new FileInfo(sourceFilePath);
             if (!fileInfo.Exists)
             {
                 return null;
             }
-            FileStorageModel newStorageFile = new FileStorageModel() { Name = shortFileNameWithExtension, Information = shortFileNameWithExtension, Length = fileInfo.Length };
+            FileStorageObjectModel newStorageFile = new FileStorageObjectModel() { Name = shortFileNameWithExtension, Information = shortFileNameWithExtension, Length = fileInfo.Length };
             DbContext.FilesStorage.Add(newStorageFile);
             DbContext.SaveChanges();
             try

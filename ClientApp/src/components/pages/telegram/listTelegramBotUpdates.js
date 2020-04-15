@@ -5,6 +5,7 @@
 import React from 'react';
 import { aPageList } from '../aPageList';
 import App from '../../../App';
+import { PaginatorComponent } from '../../PaginatorComponent';
 
 /** Компонент для отображения списка TelegramBot Updates */
 export class listTelegramBotUpdates extends aPageList {
@@ -31,7 +32,7 @@ export class listTelegramBotUpdates extends aPageList {
                         })}
                     </tbody>
                 </table>
-                {this.cardPaginator()}
+                <PaginatorComponent servicePaginator={this.servicePaginator} />
             </>
         );
     }

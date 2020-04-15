@@ -9,7 +9,6 @@ import { Layout } from './components/Layout';
 import { NotFound } from './components/NotFound';
 import { Hub } from './Hub';
 
-//import jquery from 'jquery';
 import Cookies from 'universal-cookie';
 
 import './custom.css'
@@ -35,10 +34,20 @@ export default class App extends Component {
             'notifications',
             /** работа с собственным профилем */
             'profile',
+            /** группы товаров */
+            'groupsgoods',
             /** номенклатура */
             'goods',
-            /** движение номенклатуры (в доставке/продаже) */
-            'turnover',
+            /** единицы измерения номенклатуры */
+            'unitsgoods',
+            /** документы регистров отгрузки номенклатуры в доставку/продажу */
+            'turnovers',
+            /** склады учёта количества номенклатуры */
+            'warehouses',
+            /** документы регистров поступления на склад */
+            'receiptswarehouses',
+            /** документы регистров внутреннего перемещения */
+            'displacements',
             /** доставка (настройки служб и методов) */
             'delivery',
             /** Telegram bot */
@@ -204,6 +213,7 @@ export default class App extends Component {
                     <Route path='/:controller?/:method?/:id?' component={Hub} />
                     <Route component={NotFound} />
                 </Switch>
+                <footer></footer>
             </Layout>
         );
     }

@@ -30,7 +30,7 @@ export class aPageCard extends aPage {
         if (App.id) {
             this.apiPostfix = `${this.apiPostfix}/${App.id}`;
         }
-        
+
         await super.ajax();
     }
 
@@ -161,26 +161,6 @@ export class aPageCard extends aPage {
         else {
             return <button onClick={this.handleClickButtonDisable} title='объект включен. для выключения - нажмите на кнопку' className="badge badge-pill badge-primary">Вкл</button>;
         }
-    }
-
-    /**
-     * Отрисовка объекьа в виде тела формы
-     * @param {object} obj - объект для отрисовки
-     * @param {array} skipFields - перечень полей, которые отрисовывать не нужно
-     */
-    mapObjectToReadonlyForm(obj, skipFields = []) {
-        return Object.keys(obj).map((keyName, i) => {
-            return Array.isArray(obj[keyName]) || skipFields.includes(keyName)
-                ?
-                <React.Fragment key={i}></React.Fragment>
-                :
-                <div className='form-group row' key={i}>
-                    <label htmlFor={keyName} className='col-sm-2 col-form-label'>{keyName}</label>
-                    <div className='col-sm-10'>
-                        <input name={keyName} id={keyName} readOnly={true} defaultValue={obj[keyName]} className='form-control' type='text' />
-                    </div>
-                </div>
-        })
     }
 
     /** Набор кнопок управления для формы просмотра/редактирования объекта */

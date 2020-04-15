@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ namespace SPADemoCRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "AccessMinLevelAuth")]
     public class DeliveryController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
@@ -28,10 +30,10 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Delivery
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DeliveryServiceModel>>> GetDeliveryMethods([FromQuery] PaginationParameters pagingParameters)
+        public async Task<ActionResult<IEnumerable<DeliveryServiceObjectModel>>> GetDeliveryMethods([FromQuery] PaginationParametersModel pagingParameters)
         {
             pagingParameters.Init(_context.DeliveryServices.Count());
-            IQueryable<DeliveryServiceModel> delServices = _context.DeliveryServices.OrderBy(x => x.Id);
+            IQueryable<DeliveryServiceObjectModel> delServices = _context.DeliveryServices.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
                 delServices = delServices.Skip(pagingParameters.Skip);
 
@@ -47,7 +49,7 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Delivery/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<DeliveryMethodModel>> GetDeliveryMethodModel(int id)
+        public async Task<ActionResult<DeliveryMethodObjectModel>> GetDeliveryMethodModel(int id)
         {
             var deliveryMethodModel = await _context.DeliveryMethods.FindAsync(id);
 
@@ -74,7 +76,7 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDeliveryMethodModel(int id, DeliveryMethodModel deliveryMethodModel)
+        public async Task<IActionResult> PutDeliveryMethodModel(int id, DeliveryMethodObjectModel deliveryMethodModel)
         {
             if (id != deliveryMethodModel.Id)
             {
@@ -112,7 +114,7 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<DeliveryMethodModel>> PostDeliveryMethodModel(DeliveryMethodModel deliveryMethodModel)
+        public async Task<ActionResult<DeliveryMethodObjectModel>> PostDeliveryMethodModel(DeliveryMethodObjectModel deliveryMethodModel)
         {
             _context.DeliveryMethods.Add(deliveryMethodModel);
             await _context.SaveChangesAsync();
@@ -122,7 +124,7 @@ namespace SPADemoCRUD.Controllers
 
         // DELETE: api/Delivery/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<DeliveryMethodModel>> DeleteDeliveryMethodModel(int id)
+        public async Task<ActionResult<DeliveryMethodObjectModel>> DeleteDeliveryMethodModel(int id)
         {
             var deliveryMethodModel = await _context.DeliveryMethods.FindAsync(id);
             if (deliveryMethodModel == null)
@@ -130,8 +132,8 @@ namespace SPADemoCRUD.Controllers
                 return NotFound();
             }
 
-            _context.DeliveryMethods.Remove(deliveryMethodModel);
-            await _context.SaveChangesAsync();
+            //_context.DeliveryMethods.Remove(deliveryMethodModel);
+            //await _context.SaveChangesAsync();
 
             return deliveryMethodModel;
         }

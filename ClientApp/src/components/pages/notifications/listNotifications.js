@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { aPageList } from '../aPageList';
-import { NavLink } from 'react-router-dom'
+import { PaginatorComponent } from '../../PaginatorComponent';
 import App from '../../../App';
 
 /** Компонент для отображения списка уведомлений */
@@ -34,7 +34,7 @@ export class listNotifications extends aPageList {
                         })}
                     </tbody>
                 </table>
-                {this.cardPaginator()}
+                <PaginatorComponent servicePaginator={this.servicePaginator} />
             </>
         );
     }

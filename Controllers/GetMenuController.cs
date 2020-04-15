@@ -14,60 +14,60 @@ namespace SPADemoCRUD.Controllers
     [ApiController]
     public class GetMenu : ControllerBase
     {
-        private readonly NestedMenu my = new NestedMenu()
+        private readonly NestedMenuModel my = new NestedMenuModel()
         {
             Title = "me",
             Href = "#",
             Tooltip = "Личное пространство",
-            Childs = new MenuItem[]
+            Childs = new MenuItemModel[]
             {
-                new MenuItem() { Title = "Сообщения", Href = "/notifications/list", Tooltip = "Отключено! Мои уведомления", IsDisabled = true },
-                new MenuItem() { Title = "Профиль", Href = "/profile/view/", Tooltip = "Мои настройки" },
+                new MenuItemModel() { Title = "Сообщения", Href = "/notifications/list", Tooltip = "Отключено! Мои уведомления", IsDisabled = true },
+                new MenuItemModel() { Title = "Профиль", Href = "/profile/view/", Tooltip = "Мои настройки" },
                 null,
-                new MenuItem() { Title = "Выход", Href = "/signin/", Tooltip = "Выйти из приложения" }
+                new MenuItemModel() { Title = "Выход", Href = "/signin/", Tooltip = "Выйти из приложения" }
             }
         };
-        private readonly NestedMenu users = new NestedMenu()
+        private readonly NestedMenuModel users = new NestedMenuModel()
         {
             Title = "Пользователи",
             Href = "#",
             Tooltip = "Управление пользователями",
-            Childs = new MenuItem[]
+            Childs = new MenuItemModel[]
             {
-                new MenuItem() { Title = "Пользователи", Href = "/users/list", Tooltip = "Акаунты зарегистрированных участников" },
-                new MenuItem() { Title = "Группы", Href = "/departments/list", Tooltip = "Отделы и депаратменты" }
+                new MenuItemModel() { Title = "Пользователи", Href = "/users/list", Tooltip = "Акаунты зарегистрированных участников" },
+                new MenuItemModel() { Title = "Группы", Href = "/departments/list", Tooltip = "Отделы и депаратменты" }
             }
         };
-        private readonly NestedMenu catalogues = new NestedMenu()
+        private readonly NestedMenuModel catalogues = new NestedMenuModel()
         {
             Title = "Каталоги",
             Href = "#",
             Tooltip = "Справочники и наборы данных",
-            Childs = new MenuItem[]
+            Childs = new MenuItemModel[]
             {
-                new MenuItem() { Title = "Номенклатура", Href = "/goods/list", Tooltip = "Отключено! Товары и всё такое", IsDisabled = true },
-                new MenuItem() { Title = "Запасы", Href = "/turnover/list", Tooltip = "Отключено! Движения товаров", IsDisabled = true },
-                new MenuItem() { Title = "Доставка", Href = "/delivery/list", Tooltip = "Отключено! Методы/Службы доставки", IsDisabled = true },
+                new MenuItemModel() { Title = "Номенклатура", Href = "/groupsgoods/list", Tooltip = "Товары и группы" },
+                new MenuItemModel() { Title = "Склад.учёт", Href = "/warehouses/list", Tooltip = "Склады, остатки и документы движения товаров", IsDisabled = true },
+                new MenuItemModel() { Title = "Доставка", Href = "/delivery/list", Tooltip = "Отключено! Методы/Службы доставки", IsDisabled = true },
                 null,
-                new MenuItem() { Title = "Файлы", Href = "/files/list", Tooltip = "Файловое хранилище" }
+                new MenuItemModel() { Title = "Файлы", Href = "/files/list", Tooltip = "Файловое хранилище" }
             }
         };
-        private readonly NestedMenu server = new NestedMenu()
+        private readonly NestedMenuModel server = new NestedMenuModel()
         {
             Title = "Сервер",
             Href = "#",
             Tooltip = "Управление сервером",
-            Childs = new MenuItem[]
+            Childs = new MenuItemModel[]
             {
-                new MenuItem() { Title = "Telegram", Href = "/telegram/list", Tooltip = "Отключено! Telegram Bot", IsDisabled = true },
-                new MenuItem() { Title = "Electrum", Href = "/electrum/list", Tooltip = "Отключено! Electrum wallet", IsDisabled = true },
-                new MenuItem() { Title = "Настройки", Href = "/server/view", Tooltip = "Настройки сервера" }
+                new MenuItemModel() { Title = "Telegram", Href = "/telegram/list", Tooltip = "Отключено! Telegram Bot", IsDisabled = true },
+                new MenuItemModel() { Title = "Electrum", Href = "/electrum/list", Tooltip = "Отключено! Electrum wallet", IsDisabled = true },
+                new MenuItemModel() { Title = "Настройки", Href = "/server/view", Tooltip = "Настройки сервера" }
             }
         };
 
         // GET: api/getmenu
         [HttpGet]
-        public ActionResult<IEnumerable<MenuItem>> GetUsers()
+        public ActionResult<IEnumerable<MenuItemModel>> GetUsers()
         {
             AccessLevelUserRolesEnum role = User.HasClaim(c => c.Type == ClaimTypes.Role)
                 ? (AccessLevelUserRolesEnum)Enum.Parse(typeof(AccessLevelUserRolesEnum), User.FindFirst(c => c.Type == ClaimTypes.Role).Value)
@@ -76,21 +76,21 @@ namespace SPADemoCRUD.Controllers
             switch (role)
             {
                 case AccessLevelUserRolesEnum.Auth:
-                    return new NestedMenu[] { my };
+                    return new NestedMenuModel[] { my };
                 case AccessLevelUserRolesEnum.Verified:
-                    return new NestedMenu[] { my };
+                    return new NestedMenuModel[] { my };
                 case AccessLevelUserRolesEnum.Privileged:
-                    return new NestedMenu[] { my };
+                    return new NestedMenuModel[] { my };
                 case AccessLevelUserRolesEnum.Manager:
-                    return new NestedMenu[] { users, my };
+                    return new NestedMenuModel[] { users, my };
                 case AccessLevelUserRolesEnum.Admin:
-                    return new NestedMenu[] { users, catalogues, my };
+                    return new NestedMenuModel[] { users, catalogues, my };
                 case AccessLevelUserRolesEnum.ROOT:
-                    return new NestedMenu[] { users, catalogues, server, my };
+                    return new NestedMenuModel[] { users, catalogues, server, my };
                 case AccessLevelUserRolesEnum.Guest:
-                    return new MenuItem[]
+                    return new MenuItemModel[]
                     {
-                        new MenuItem()
+                        new MenuItemModel()
                         {
                             Title = "Вход",
                             Href = "/signin/",
@@ -98,9 +98,9 @@ namespace SPADemoCRUD.Controllers
                         }
                     };
                 default:
-                    return new MenuItem[]
+                    return new MenuItemModel[]
                     {
-                        new MenuItem()
+                        new MenuItemModel()
                         {
                             Title = "Ошибка",
                             Href = "#",

@@ -30,10 +30,10 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Electrum
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BtcTransactionModel>>> GetBtcTransactions([FromQuery] PaginationParameters pagingParameters)
+        public async Task<ActionResult<IEnumerable<BtcTransactionObjectModel>>> GetBtcTransactions([FromQuery] PaginationParametersModel pagingParameters)
         {
             pagingParameters.Init(_context.BtcTransactions.Count());
-            IQueryable<BtcTransactionModel> users = _context.BtcTransactions.OrderBy(x => x.Id);
+            IQueryable<BtcTransactionObjectModel> users = _context.BtcTransactions.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
                 users = users.Skip(pagingParameters.Skip);
 
@@ -49,9 +49,9 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Electrum/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<BtcTransactionModel>> GetBtcTransactionModel(int id)
+        public async Task<ActionResult<BtcTransactionObjectModel>> GetBtcTransactionModel(int id)
         {
-            BtcTransactionModel btcTransactionModel = await _context.BtcTransactions.FindAsync(id);
+            BtcTransactionObjectModel btcTransactionModel = await _context.BtcTransactions.FindAsync(id);
 
             if (btcTransactionModel == null)
             {

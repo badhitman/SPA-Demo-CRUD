@@ -48,7 +48,7 @@ export class NavMenu extends Component {
         var dividersKeys = 0;
         var uncontrolledDropdown = 0;
         const menuItems = this.state.loading === true
-            ? <li>Загрузка меню...</li>
+            ? <li>Загрузка меню... <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></li>
             : NavMenu.myMenu.map(function (item) {
                 if (Array.isArray(item.childs)) {
                     return (

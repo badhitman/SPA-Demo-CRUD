@@ -29,7 +29,7 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Notifications
         [HttpGet]
-        public ActionResult<IEnumerable<NotificationModel>> GetNotificationModel([FromQuery] PaginationParameters pagingParameters)
+        public ActionResult<IEnumerable<NotificationObjectModel>> GetNotificationModel([FromQuery] PaginationParametersModel pagingParameters)
         {
             if (_sessionUser.user is null)
             {
@@ -61,7 +61,7 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Notifications/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<NotificationModel>> GetNotificationModel(int id)
+        public async Task<ActionResult<NotificationObjectModel>> GetNotificationModel(int id)
         {
             var notificationModel = await _context.Notifications.FindAsync(id);
 
@@ -77,7 +77,7 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutNotificationModel(int id, NotificationModel notificationModel)
+        public async Task<IActionResult> PutNotificationModel(int id, NotificationObjectModel notificationModel)
         {
             if (id != notificationModel.Id)
             {
@@ -109,7 +109,7 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<NotificationModel>> PostNotificationModel(NotificationModel notificationModel)
+        public async Task<ActionResult<NotificationObjectModel>> PostNotificationModel(NotificationObjectModel notificationModel)
         {
             _context.Notifications.Add(notificationModel);
             await _context.SaveChangesAsync();
@@ -119,7 +119,7 @@ namespace SPADemoCRUD.Controllers
 
         // DELETE: api/Notifications/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<NotificationModel>> DeleteNotificationModel(int id)
+        public async Task<ActionResult<NotificationObjectModel>> DeleteNotificationModel(int id)
         {
             var notificationModel = await _context.Notifications.FindAsync(id);
             if (notificationModel == null)
@@ -127,8 +127,8 @@ namespace SPADemoCRUD.Controllers
                 return NotFound();
             }
 
-            _context.Notifications.Remove(notificationModel);
-            await _context.SaveChangesAsync();
+            //_context.Notifications.Remove(notificationModel);
+            //await _context.SaveChangesAsync();
 
             return notificationModel;
         }

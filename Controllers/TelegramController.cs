@@ -30,10 +30,10 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Telegram
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TelegramBotUpdateModel>>> GetTelegramBotUpdate([FromQuery] PaginationParameters pagingParameters)
+        public async Task<ActionResult<IEnumerable<TelegramBotUpdateObjectModel>>> GetTelegramBotUpdate([FromQuery] PaginationParametersModel pagingParameters)
         {
             pagingParameters.Init(_context.TelegramBotUpdates.Count());
-            IQueryable<TelegramBotUpdateModel> botUpdates = _context.TelegramBotUpdates.OrderBy(x => x.Id);
+            IQueryable<TelegramBotUpdateObjectModel> botUpdates = _context.TelegramBotUpdates.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
                 botUpdates = botUpdates.Skip(pagingParameters.Skip);
 
@@ -49,9 +49,9 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Telegram/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TelegramBotUpdateModel>> GetTelegramBotUpdateModel(int id)
+        public async Task<ActionResult<TelegramBotUpdateObjectModel>> GetTelegramBotUpdateModel(int id)
         {
-            TelegramBotUpdateModel telegramBotUpdateModel = await _context.TelegramBotUpdates.FindAsync(id);
+            TelegramBotUpdateObjectModel telegramBotUpdateModel = await _context.TelegramBotUpdates.FindAsync(id);
 
             if (telegramBotUpdateModel == null)
             {
@@ -74,9 +74,9 @@ namespace SPADemoCRUD.Controllers
 
         // DELETE: api/Telegram/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<TelegramBotUpdateModel>> DeleteTelegramBotUpdateModel(int id)
+        public async Task<ActionResult<TelegramBotUpdateObjectModel>> DeleteTelegramBotUpdateModel(int id)
         {
-            TelegramBotUpdateModel telegramBotUpdateModel = await _context.TelegramBotUpdates.FindAsync(id);
+            TelegramBotUpdateObjectModel telegramBotUpdateModel = await _context.TelegramBotUpdates.FindAsync(id);
             if (telegramBotUpdateModel == null)
             {
                 _logger.LogError("Удаление TelegramBot Update невозможно. Объект не найден");
@@ -88,8 +88,8 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            _context.TelegramBotUpdates.Remove(telegramBotUpdateModel);
-            await _context.SaveChangesAsync();
+            //_context.TelegramBotUpdates.Remove(telegramBotUpdateModel);
+            //await _context.SaveChangesAsync();
 
             _logger.LogInformation("TelegramBot Update удалён: id={0}", id);
             return new ObjectResult(new ServerActionResult()

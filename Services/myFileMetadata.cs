@@ -11,6 +11,6 @@ namespace SPADemoCRUD.Services
     {
         public FileInfo FileInfo { get; set; }
         public FileInfo ThumbFileInfo { get; set; }
-        public FileStorageModel Object { get; set; }
+        public FileStorageObjectModel Object { get; set; }
     }
 }

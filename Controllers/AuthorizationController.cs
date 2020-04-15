@@ -83,7 +83,7 @@ namespace SPADemoCRUD.Controllers
                 }
             }
 
-            UserModel user = DbContext.Users.Include(x => x.Department).FirstOrDefault(u => u.Email == loginUser.EmailLogin && u.Password == glob_tools.GetHashString(loginUser.PasswordLogin));//glob_tools.GetHashString
+            UserObjectModel user = DbContext.Users.Include(x => x.Department).FirstOrDefault(u => u.Email == loginUser.EmailLogin && u.Password == glob_tools.GetHashString(loginUser.PasswordLogin));//glob_tools.GetHashString
             if (user != null)
             {
                 if (user.isDisabled)
@@ -170,7 +170,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            UserModel user = DbContext.Users.FirstOrDefault(u => u.Email == regUser.EmailRegister);
+            UserObjectModel user = DbContext.Users.FirstOrDefault(u => u.Email == regUser.EmailRegister);
             if (user != null)
             {
                 return new ObjectResult(new ServerActionResult()
@@ -181,15 +181,15 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            DepartmentModel userDepartment = DbContext.Departments.FirstOrDefault(x => x.Name.ToLower() == "user");
+            DepartmentObjectModel userDepartment = DbContext.Departments.FirstOrDefault(x => x.Name.ToLower() == "user");
             if (userDepartment is null)
             {
-                userDepartment = new DepartmentModel() { Name = "user", Readonly = true };
+                userDepartment = new DepartmentObjectModel() { Name = "user", Readonly = true };
                 DbContext.Departments.Add(userDepartment);
                 DbContext.SaveChanges();
             }
 
-            user = new UserModel { Email = regUser.EmailRegister, Name = regUser.PublicNameRegister, Password = glob_tools.GetHashString(regUser.PasswordRegister), Role = AccessLevelUserRolesEnum.Auth, DepartmentId = userDepartment.Id };
+            user = new UserObjectModel { Email = regUser.EmailRegister, Name = regUser.PublicNameRegister, Password = glob_tools.GetHashString(regUser.PasswordRegister), Role = AccessLevelUserRolesEnum.Auth, DepartmentId = userDepartment.Id };
             DbContext.Users.Add(user);
             DbContext.SaveChanges();
 
@@ -212,7 +212,7 @@ namespace SPADemoCRUD.Controllers
             UpdateSessionCookies(HttpContext, AppOptions);
         }
 
-        private async Task Authenticate(UserModel user)
+        private async Task Authenticate(UserObjectModel user)
         {
             var claims = new List<Claim>
             {
@@ -224,7 +224,7 @@ namespace SPADemoCRUD.Controllers
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(id);
             HttpContext.User = claimsPrincipal;
-            //
+            //           
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
             UpdateSessionCookies(HttpContext, AppOptions);
         }

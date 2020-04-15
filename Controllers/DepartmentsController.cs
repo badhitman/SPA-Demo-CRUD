@@ -29,10 +29,10 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Departments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DepartmentModel>>> GetDepartments([FromQuery] PaginationParameters pagingParameters)
+        public async Task<ActionResult<IEnumerable<DepartmentObjectModel>>> GetDepartments([FromQuery] PaginationParametersModel pagingParameters)
         {
             pagingParameters.Init(_context.Departments.Count());
-            IQueryable<DepartmentModel> departments = _context.Departments.OrderBy(x => x.Id);
+            IQueryable<DepartmentObjectModel> departments = _context.Departments.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
                 departments = departments.Skip(pagingParameters.Skip);
 
@@ -63,7 +63,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            List<UserModel> usersByDepartment = await _context.Users.Where(x => x.DepartmentId == id).ToListAsync();
+            List<UserObjectModel> usersByDepartment = await _context.Users.Where(x => x.DepartmentId == id).ToListAsync();
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
@@ -77,7 +77,7 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDepartmentModel(int id, DepartmentModel departmentModel)
+        public async Task<IActionResult> PutDepartmentModel(int id, DepartmentObjectModel departmentModel)
         {
             if (!ModelState.IsValid)
             {
@@ -102,7 +102,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            DepartmentModel departmentRow = _context.Departments.FirstOrDefault(x => x.Id == id);
+            DepartmentObjectModel departmentRow = _context.Departments.FirstOrDefault(x => x.Id == id);
             if (departmentRow.Readonly)
             {
                 _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
@@ -152,7 +152,7 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<DepartmentModel>> PostDepartmentModel(DepartmentModel departmentModel)
+        public async Task<ActionResult<DepartmentObjectModel>> PostDepartmentModel(DepartmentObjectModel departmentModel)
         {
             if (!ModelState.IsValid)
             {
@@ -182,7 +182,7 @@ namespace SPADemoCRUD.Controllers
         [HttpPatch("{id}")]
         public async Task<ActionResult> PatchDepartmentModel(int id)
         {
-            DepartmentModel departmentModel = await _context.Departments.FindAsync(id);
+            DepartmentObjectModel departmentModel = await _context.Departments.FindAsync(id);
             if (departmentModel is null)
             {
                 _logger.LogError("Манипуляция депаратментом невозможна. Объект не найден");
@@ -209,9 +209,9 @@ namespace SPADemoCRUD.Controllers
 
         // DELETE: api/Departments/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<DepartmentModel>> DeleteDepartmentModel(int id)
+        public async Task<ActionResult<DepartmentObjectModel>> DeleteDepartmentModel(int id)
         {
-            DepartmentModel departmentModel = await _context.Departments.FindAsync(id);
+            DepartmentObjectModel departmentModel = await _context.Departments.FindAsync(id);
             if (departmentModel is null)
             {
                 _logger.LogError("Удаление депаратмента невозможно. Объект не найден");
@@ -223,8 +223,9 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            _context.Departments.Remove(departmentModel);
-            await _context.SaveChangesAsync();
+            //_context.Departments.Remove(departmentModel);
+            //await _context.SaveChangesAsync();
+
             _logger.LogInformation("Департамент удалён: id={0}", id);
             return new ObjectResult(new ServerActionResult()
             {

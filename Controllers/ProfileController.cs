@@ -4,6 +4,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SPADemoCRUD.Models;
@@ -12,6 +13,7 @@ namespace SPADemoCRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "AccessMinLevelAuth")]
     public class ProfileController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
@@ -47,7 +49,7 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Profile/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<СonversationModel>> GetProfileModel(int id)
+        public async Task<ActionResult<СonversationDocumentModel>> GetProfileModel(int id)
         {
             var сonversationModel = await _context.Сonversations.FindAsync(id);
 
@@ -63,7 +65,7 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProfileModel(int id, СonversationModel сonversationModel)
+        public async Task<IActionResult> PutProfileModel(int id, СonversationDocumentModel сonversationModel)
         {
             if (id != сonversationModel.Id)
             {
@@ -95,7 +97,7 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<СonversationModel>> PostProfileModel(СonversationModel сonversationModel)
+        public async Task<ActionResult<СonversationDocumentModel>> PostProfileModel(СonversationDocumentModel сonversationModel)
         {
             _context.Сonversations.Add(сonversationModel);
             await _context.SaveChangesAsync();
@@ -105,7 +107,7 @@ namespace SPADemoCRUD.Controllers
 
         // DELETE: api/Profile/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<СonversationModel>> DeleteProfileModel(int id)
+        public async Task<ActionResult<СonversationDocumentModel>> DeleteProfileModel(int id)
         {
             var сonversationModel = await _context.Сonversations.FindAsync(id);
             if (сonversationModel == null)
@@ -113,8 +115,8 @@ namespace SPADemoCRUD.Controllers
                 return null; // NotFound();
             }
 
-            _context.Сonversations.Remove(сonversationModel);
-            await _context.SaveChangesAsync();
+            //_context.Сonversations.Remove(сonversationModel);
+            //await _context.SaveChangesAsync();
 
             return null; // сonversationModel;
         }

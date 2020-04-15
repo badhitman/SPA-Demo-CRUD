@@ -10,6 +10,6 @@ namespace SPADemoCRUD.Models
     public class AvatarObjEntityModel : ObjEntityModel
     {
         public int? AvatarId { get; set; }
-        public FileStorageModel Avatar { get; set; }
+        public FileStorageObjectModel Avatar { get; set; }
     }
 }

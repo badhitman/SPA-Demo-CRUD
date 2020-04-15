@@ -29,9 +29,9 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Departments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DepartmentModel>>> GetDepartments()
+        public async Task<ActionResult<IEnumerable<DepartmentObjectModel>>> GetDepartments()
         {
-            List<DepartmentModel> departments = await _context.Departments.ToListAsync();
+            List<DepartmentObjectModel> departments = await _context.Departments.ToListAsync();
 
             return new ObjectResult(new { departments, roles });
         }

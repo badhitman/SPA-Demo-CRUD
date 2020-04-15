@@ -13,7 +13,7 @@ namespace SPADemoCRUD.Models
 {
     public class SessionUser
     {
-        public readonly UserModel user;
+        public readonly UserObjectModel user;
 
         public SessionUser(AppDataBaseContext dbContext, ILogger<SessionUser> logger, IHttpContextAccessor httpContextccessor)
         {

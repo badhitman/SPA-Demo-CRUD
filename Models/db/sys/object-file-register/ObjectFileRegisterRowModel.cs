@@ -17,16 +17,16 @@ namespace SPADemoCRUD.Models
         /// </summary>
         public ObjectFileRegisterRowTypesEnum RowType { get; set; } = ObjectFileRegisterRowTypesEnum.snapshot;
 
-        public int UserId { get; set; }
+        public int AuthorId { get; set; }
         /// <summary>
         /// Пользователь, инициирующий запись в регистр
         /// </summary>
-        public UserModel User { get; set; }
+        public UserObjectModel Author { get; set; }
 
         public int FileStorageId { get; set; }
         /// <summary>
         /// Связаный файл куда записаны данные регистра
         /// </summary>
-        public FileStorageModel FileStorage { get; set; }
+        public FileStorageObjectModel FileStorage { get; set; }
     }
 }
