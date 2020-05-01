@@ -29,7 +29,7 @@ export class viewDepartment extends aPageCard {
                         <input name='name' defaultValue={department.name} type="text" className="form-control" id="departments-input" placeholder="Новое название" />
                     </div>
                     {this.getInformation()}
-                    {this.rootPanelObject}
+                    {this.rootPanelObject()}
                     {this.viewButtons()}
                 </form>
                 <DepatmentUsers />
