@@ -11,7 +11,7 @@ export class viewUser extends aPageCard {
     static displayName = viewUser.name;
 
     async load() {
-        await this.ajax();
+        await super.load(true);
         this.cardTitle = `Пользователь: [#${App.data.id}] ${App.data.name}`;
         this.setState({ loading: false });
     }
@@ -20,7 +20,7 @@ export class viewUser extends aPageCard {
         const user = App.data;
         const departments = user.departments;
         const roles = user.roles;
-
+        
         return (
             <form className='mb-2' key='view-form'>
                 <input name='id' defaultValue={user.id} type='hidden' />
@@ -62,6 +62,8 @@ export class viewUser extends aPageCard {
                     <label htmlFor="user-telegram-id">Telegram идентификатор</label>
                     <input readOnly={true} name='telegramId' defaultValue={user.telegramId} type="number" className="form-control" id="user-telegram-id" />
                 </div>
+                {this.getInformation()}
+                {this.rootPanelObject()}
                 {this.viewButtons()}
             </form>
         );

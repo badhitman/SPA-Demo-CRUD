@@ -28,6 +28,8 @@ export class createDepartment extends viewDepartment {
                         <label htmlFor="departments-input">Наименование</label>
                         <input name='name' type="text" className="form-control" id="departments-input" placeholder="Название нового департамента" />
                     </div>
+                    {this.getInformation()}
+                    {this.rootPanelObject()}
                     {this.createButtons()}
                 </form>
             </>

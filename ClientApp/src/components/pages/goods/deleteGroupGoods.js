@@ -56,7 +56,7 @@ export class deleteGroupGoods extends viewGroupGoods {
         return (
             <>
                 <label htmlFor="basic-url">Удаление группы номенклатуры</label>
-                <input readOnly defaultValue={App.data.name} type="text" className="form-control mb-3" aria-describedby="button-addon4" />
+                <input readOnly defaultValue={App.data.name} type="text" className="form-control mb-3" />
                 {deleteButton}
                 <NavLink className='btn btn-outline-primary btn-block' to={`/${App.controller}/${App.viewNameMethod}/${App.id}`} role='button' title='Редактирование/просмотр объекта'>Отмена</NavLink>
                 <NavLink className='btn btn-outline-primary btn-block' to={`/${App.controller}/${App.listNameMethod}`} role='button' title='Вернуться в список/справочник'>Вернуться к списку</NavLink>

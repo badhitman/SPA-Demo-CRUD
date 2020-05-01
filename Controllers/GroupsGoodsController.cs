@@ -2,6 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -20,21 +21,31 @@ namespace SPADemoCRUD.Controllers
     {
         private readonly AppDataBaseContext _context;
         private readonly ILogger<GroupsGoodsController> _logger;
+        private readonly UserObjectModel _user;
 
-        public GroupsGoodsController(AppDataBaseContext context, ILogger<GroupsGoodsController> logger)
+        public GroupsGoodsController(AppDataBaseContext context, ILogger<GroupsGoodsController> logger, SessionUser session)
         {
             _context = context;
             _logger = logger;
+            _user = session.user;
         }
 
         // GET: api/GroupsGoods
         [HttpGet]
-        public ActionResult<object> GetGroupsGoods([FromQuery] PaginationParametersModel pagingParameters)
+        public async Task<ActionResult<object>> GetGroupsGoods([FromQuery] PaginationParametersModel pagingParameters)
         {
-            pagingParameters.Init(_context.GroupsGoods.Count());
-            IQueryable<GroupGoodsObjectModel> groupsGoods = _context.GroupsGoods.OrderBy(x => x.Id);
+            IQueryable<GroupGoodsObjectModel> groups = _context.GroupsGoods.AsQueryable();
+            if (_user.Role < AccessLevelUserRolesEnum.Admin)
+            {
+                groups = groups.Where(group => !group.isDisabled);
+            }
+
+            pagingParameters.Init(await _context.GroupsGoods.CountAsync());
+
+            groups = groups.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
-                groupsGoods = groupsGoods.Skip(pagingParameters.Skip);
+                groups = groups.Skip(pagingParameters.Skip);
+            groups = groups.Take(pagingParameters.PageSize);
 
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
             return new ObjectResult(new ServerActionResult()
@@ -42,17 +53,33 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос групп номенклатуры обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = groupsGoods.Include(x => x.Avatar).Include(x => x.Goods).Take(pagingParameters.PageSize).ToList().Select(x => new { x.Id, x.Avatar, x.Name, x.Readonly, x.Goods.Count })
+                Tag = await groups.Include(x => x.Avatar).Select(group => new
+                {
+                    group.Id,
+                    group.Name,
+                    group.Information,
+
+                    group.isReadonly,
+                    group.isDisabled,
+                    group.isGlobalFavorite,
+                    Avatar = new
+                    {
+                        group.Avatar.Id,
+                        group.Avatar.Name,
+                        group.Avatar.Information
+                    },
+                    countGoods = _context.Goods.Count(good => good.GroupId == group.Id)
+                }).ToListAsync()
             });
         }
 
         // GET: api/GroupGoods/5
         [HttpGet("{id}")]
-        public ActionResult<object> GetGroupGoods([FromQuery] PaginationParametersModel pagingParameters, int id)
+        public async Task<ActionResult<object>> GetGroupGoods([FromQuery] PaginationParametersModel pagingParameters, int id)
         {
-            GroupGoodsObjectModel groupGoodModel = _context.GroupsGoods.Include(x => x.Avatar).FirstOrDefault(x => x.Id == id);
+            GroupGoodsObjectModel group = await _context.GroupsGoods.Include(group => group.Avatar).FirstOrDefaultAsync(group => group.Id == id);
 
-            if (groupGoodModel is null)
+            if (group is null)
             {
                 _logger.LogError("Запрашиваемая группа товаров не найдена: id={0}", id);
                 return new ObjectResult(new ServerActionResult()
@@ -62,145 +89,212 @@ namespace SPADemoCRUD.Controllers
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
-            IQueryable<GoodObjectModel> goods = _context.Goods.Where(x => x.GroupId == id).OrderBy(x => x.Id);
-            pagingParameters.Init(goods.Count());
+
+            IQueryable<GoodObjectModel> goods = _context.Goods.Where(good => good.GroupId == id);
+            pagingParameters.Init(await goods.CountAsync());
+            HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+            goods = goods.OrderBy(good => good.Id);
             if (pagingParameters.PageNum > 1)
                 goods = goods.Skip(pagingParameters.Skip);
+            goods = goods.Take(pagingParameters.PageSize);
 
-            HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
-            //List<UnitGoodModel> units = _context.Units.ToList();
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
                 Info = "Запрос номенклатурнй группы обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { groupGoodModel.Id, groupGoodModel.Name, groupGoodModel.Avatar, goods = goods.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.GroupId, x.Information, x.isDisabled, x.IsGlobalFavorite, x.Name, x.Price, x.Readonly, x.UnitId }), units = _context.Units.Select(x => new { x.Id, x.Name, x.Information }) }
+                Tag = new
+                {
+                    group.Id,
+                    group.Name,
+                    group.Information,
+
+                    group.isDisabled,
+                    group.isGlobalFavorite,
+                    group.isReadonly,
+
+                    noDelete = await _context.Goods.AnyAsync(good => good.GroupId == id),
+
+                    Avatar = new
+                    {
+                        group.Avatar?.Id,
+                        group.Avatar?.Name,
+                        group.Avatar?.Information
+                    },
+
+                    goods = await goods.Select(good => new
+                    {
+                        good.Id,
+                        good.Name,
+                        good.Information,
+                        good.Price,
+                        good.UnitId,
+
+                        good.isReadonly,
+                        good.isDisabled,
+                        good.isGlobalFavorite
+                    }).ToListAsync(),
+
+                    units = await _context.Units.Select(unit => new
+                    {
+                        unit.Id,
+                        unit.Name,
+                        unit.Information
+                    }).ToListAsync()
+                }
+            });
+        }
+
+        // POST: api/GroupGoods
+        [HttpPost]
+        public async Task<ActionResult<GroupGoodsObjectModel>> PostGroupGoods(GroupGoodsObjectModel ajaxGroup)
+        {
+            _logger.LogInformation("Создание номенклатурной группы. Инициатор: " + _user.FullInfo);
+            string msg;
+
+            ajaxGroup.Name = ajaxGroup.Name.Trim();
+            ajaxGroup.Information = ajaxGroup.Information.Trim();
+
+            if (!ModelState.IsValid || string.IsNullOrEmpty(ajaxGroup.Name))
+            {
+                msg = "Ошибка в запросе";
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString(),
+                    Tag = ModelState
+                });
+            }
+
+            if (_context.GroupsGoods.Any(x => x.Name.ToLower() == ajaxGroup.Name.ToLower()))
+            {
+                msg = "Номенклатурная группа с таким именем уже существует. Придумайте уникальное имя.";
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
+            if (_user.Role != AccessLevelUserRolesEnum.ROOT)
+            {
+                ajaxGroup.isDisabled = false;
+                ajaxGroup.isGlobalFavorite = false;
+                ajaxGroup.isReadonly = false;
+            }
+
+            _context.GroupsGoods.Add(ajaxGroup);
+            await _context.SaveChangesAsync();
+
+            HttpContext.Response.Cookies.Append("rowsCount", (await _context.GroupsGoods.CountAsync()).ToString());
+            msg = "Номенклатурная группа создана";
+            _logger.LogInformation(msg);
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = msg,
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = ajaxGroup.Id
             });
         }
 
         // PUT: api/GroupsGoods/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGroupsGoods(int id, GroupGoodsObjectModel groupGoodModel)
+        public async Task<IActionResult> PutGroupsGoods(int id, GroupGoodsObjectModel ajaxGroup)
         {
-            if (!ModelState.IsValid)
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Ошибка контроля валидности модели",
-                    Status = StylesMessageEnum.danger.ToString(),
-                    Tag = ModelState
-                });
-            }
+            _logger.LogInformation($"Редактирование номенклатурной группы [#{id}]. Инициатор: " + _user.FullInfo);
+            string msg;
 
-            if (id != groupGoodModel.Id)
+            ajaxGroup.Name = ajaxGroup.Name.Trim();
+            ajaxGroup.Information = ajaxGroup.Information.Trim();
+
+            if (!ModelState.IsValid
+                || string.IsNullOrEmpty(ajaxGroup.Name)
+                || id != ajaxGroup.Id
+                || id < 1
+                || !await _context.GroupsGoods.AnyAsync(gGroup => gGroup.Id == id))
             {
-                _logger.LogError("Ошибка в запросе: {0} != groupGoodModel.Id", id);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
                     Info = "Ошибка в запросе",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
-            _context.GroupsGoods.Attach(groupGoodModel);
-            _context.Entry(groupGoodModel).Property(x => x.Name).IsModified = true;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                groupGoodModel = _context.GroupsGoods.Find(id);
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = true,
-                    Info = "Имя номенклатурной группы сохранено",
-                    Status = StylesMessageEnum.success.ToString(),
-                    Tag = groupGoodModel
-                });
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GroupsGoodExists(id))
-                {
-                    _logger.LogError("Группа не найдена {0}", id);
-                    return new ObjectResult(new ServerActionResult()
-                    {
-                        Success = false,
-                        Info = "Группа не найдена",
-                        Status = StylesMessageEnum.danger.ToString()
-                    });
-                }
-                else
-                {
-                    _logger.LogError("Невнятная ошибка во время обновлении номенклатурной группы");
-                    return new ObjectResult(new ServerActionResult()
-                    {
-                        Success = false,
-                        Info = "Невнятная ошибка во время обновлении номенклатурной группы",
-                        Status = StylesMessageEnum.danger.ToString()
-                    });
-                }
-            }
-        }
-
-        // POST: api/GroupGoods
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
-        public async Task<ActionResult<GroupGoodsObjectModel>> PostGroupGoods(GroupGoodsObjectModel groupGoodModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Ошибка контроля валидности модели",
                     Status = StylesMessageEnum.danger.ToString(),
                     Tag = ModelState
                 });
             }
 
-            groupGoodModel.Name = groupGoodModel.Name.Trim();
-            if (string.IsNullOrEmpty(groupGoodModel.Name))
+            if (await _context.GroupsGoods.AnyAsync(gGroup => gGroup.Name.ToLower() == ajaxGroup.Name.ToLower() && gGroup.Id != id))
             {
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Создаваемый объект должен иметь имя",
+                    Info = "Группа с таким именем уже существует в бд. Придумайте уникальное",
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
 
-            if (_context.GroupsGoods.Any(x => x.Name == groupGoodModel.Name))
+            GroupGoodsObjectModel groupDb = await _context.GroupsGoods.FindAsync(id);
+
+            if (groupDb.isReadonly && _user.Role != AccessLevelUserRolesEnum.ROOT)
             {
+                msg = $"Группа находится статусе 'read only'. Ваш уровень доступа [{_user.Role}] не позволяет удалять/редактировать подобные объекты";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Такое имя уже существует",
+                    Info = msg,
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
 
-            _context.GroupsGoods.Add(groupGoodModel);
-            await _context.SaveChangesAsync();
-            HttpContext.Response.Cookies.Append("rowsCount", _context.GroupsGoods.Count().ToString());
-            return new ObjectResult(new ServerActionResult()
+            groupDb.Name = ajaxGroup.Name;
+            groupDb.Information = ajaxGroup.Information;
+
+            if (_user.Role == AccessLevelUserRolesEnum.ROOT)
             {
-                Success = true,
-                Info = "Номенклатурная группа создана",
-                Status = StylesMessageEnum.success.ToString(),
-                Tag = groupGoodModel
-            });
+                groupDb.isGlobalFavorite = ajaxGroup.isGlobalFavorite;
+                groupDb.isDisabled = ajaxGroup.isDisabled;
+                groupDb.isReadonly = ajaxGroup.isReadonly;
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                msg = $"Изменения группы [#{groupDb.Id}] сохранены";
+                _logger.LogInformation(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = true,
+                    Info = msg,
+                    Status = StylesMessageEnum.success.ToString()
+                });
+            }
+            catch (Exception ex)
+            {
+                msg = $"Во время сохранения изменений в номенклатурной группе [#{id}] произошла ошибка: {ex.Message}{(ex.InnerException is null ? "" : ". InnerException: " + ex.InnerException.Message)}";
+                _logger.LogError(ex, msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
         }
 
         // DELETE: api/GroupGoods/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<GroupGoodsObjectModel>> DeleteGroupGoods(int id)
+        public async Task<ActionResult<object>> DeleteGroupGoods(int id)
         {
-            var groupGoodModel = await _context.GroupsGoods.FindAsync(id);
-            if (groupGoodModel == null)
+            string msg;
+            _logger.LogInformation($"Удаление группы номенклатуры {id}. Инициатор: " + _user.FullInfo);
+
+            GroupGoodsObjectModel group = await _context.GroupsGoods.FindAsync(id);
+            if (group == null)
             {
                 _logger.LogError("Запрашиваемая группа номенклатуры не найдена: id={0}", id);
                 return new ObjectResult(new ServerActionResult()
@@ -211,32 +305,41 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            if (_context.Goods.Any(x => x.GroupId == id))
+            if (group.isReadonly && _user.Role != AccessLevelUserRolesEnum.ROOT)
             {
-                _logger.LogError("Запрашиваемая номенклатурная группа не может быть удалена (есть ссылки в номенклатуре): id={0}", id);
+                msg = $"Группа находится статусе 'read only'. Ваш уровень доступа [{_user.Role}] не позволяет удалять/редактировать подобные объекты";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Запрашиваемая номенклатурная группа не может быть удалена (есть ссылки в номенклатуре)",
+                    Info = msg,
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
 
-            _context.GroupsGoods.Remove(groupGoodModel);
+            if (await _context.Goods.AnyAsync(good => good.GroupId == id))
+            {
+                msg = $"Запрашиваемая номенклатурная группа не может быть удалена (есть ссылки в номенклатуре): id={id}";
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
+            _context.GroupsGoods.Remove(group);
             await _context.SaveChangesAsync();
 
-            _logger.LogWarning("Группа номенклатуры удалена: id={0}", id);
+            msg = $"Группа номенклатуры удалена: id={id}";
+            _logger.LogWarning(msg);
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
-                Info = "Группа удалена",
+                Info = msg,
                 Status = StylesMessageEnum.info.ToString()
             });
-        }
-
-        private bool GroupsGoodExists(int id)
-        {
-            return _context.GroupsGoods.Any(e => e.Id == id);
         }
     }
 }

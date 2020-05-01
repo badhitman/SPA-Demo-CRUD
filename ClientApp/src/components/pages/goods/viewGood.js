@@ -18,7 +18,6 @@ export class viewGood extends aPageList {
         this.state.unitId = 0;
         this.state.groupId = 0;
         this.state.price = 0;
-        this.state.name = '';
 
         /** изменение цены */
         this.handlePriceChange = this.handlePriceChange.bind(this);
@@ -26,12 +25,11 @@ export class viewGood extends aPageList {
         this.handleUnitChange = this.handleUnitChange.bind(this);
         /** изменение группы */
         this.handleGroupChange = this.handleGroupChange.bind(this);
-        /** изменение имени */
-        this.handleNameChange = this.handleNameChange.bind(this);
-        /** сброс формы в исходное состояние */
-        this.handleResetClick = this.handleResetClick.bind(this);
         /** сохранение в бд */
         this.handleSaveClick = this.handleSaveClick.bind(this);
+
+        /** изменение наименования номенклатуры */
+        this.handleNameChange = this.handleNameChange.bind(this);
     }
 
     /**
@@ -103,18 +101,6 @@ export class viewGood extends aPageList {
         }
     }
 
-    /** Сброс формы */
-    handleResetClick() {
-        const data = App.data;
-        this.setState({
-            name: data.name,
-            unitId: data.unitId,
-            price: data.price,
-            groupId: data.groupId,
-            loading: false
-        });
-    }
-
     /** сохранение */
     async handleSaveClick() {
         var priceValue = `${this.state.price}`;
@@ -127,7 +113,12 @@ export class viewGood extends aPageList {
             name: this.state.name,
             unitId: this.state.unitId,
             groupId: this.state.groupId,
-            price: parseFloat(parseFloat(priceValue.replace(',', '.')).toFixed(2))
+            price: parseFloat(parseFloat(priceValue.replace(',', '.')).toFixed(2)),
+            information: this.state.information,
+
+            isDisabled: this.state.isDisabled,
+            isGlobalFavorite: this.state.isGlobalFavorite,
+            isReadonly: this.state.isReadonly
         };
         const response = await fetch(`${this.apiPrefix}/${App.controller}/${App.id}`, {
             method: 'PUT',
@@ -141,11 +132,7 @@ export class viewGood extends aPageList {
             try {
                 const result = await response.json();
                 if (result.success === true) {
-                    App.data.name = result.tag.name;
-                    App.data.price = result.tag.price;
-                    App.data.groupId = result.tag.groupId;
-                    App.data.unitId = result.tag.unitId;
-                    this.handleResetClick();
+                    this.load();
                 }
                 else {
                     this.clientAlert(result.info, result.status);
@@ -157,31 +144,23 @@ export class viewGood extends aPageList {
         }
     }
 
-    async ajax() {
+    async load(continueLoading = false) {
         this.apiPostfix = `/${App.id}`;
-        await super.ajax();
-    }
-
-    async load() {
-        await this.ajax();
+        await super.load(true);
         this.cardTitle = `Номенклатура: [#${App.data.id}] ${App.data.name}`;
-        this.handleResetClick();
+        const data = App.data;
+        this.setState({
+            loading: false,
+            unitId: data.unitId,
+            groupId: data.groupId,
+            price: data.price
+        });
     }
 
     cardBody() {
         const good = App.data;
 
-        const buttonSaveEnable = this.state.name.length > 0 && (this.state.name !== App.data.name || this.state.price !== App.data.price || this.state.unitId !== App.data.unitId || this.state.groupId !== App.data.groupId);
-        const buttonResetEnable = this.state.name.length >= 0 && (this.state.name !== App.data.name || this.state.price !== App.data.price || this.state.unitId !== App.data.unitId || this.state.groupId !== App.data.groupId);
         const buttonDeleteEnable = (this.servicePaginator.rowsCount === 0 || this.servicePaginator.rowsCount === '0') && App.data.noDelete !== true;
-
-        const buttonSave = buttonSaveEnable === true
-            ? <button onClick={this.handleSaveClick} type="button" className="btn btn-outline-success btn-block" title='Сохранить объект в БД'>Сохранить</button>
-            : <button disabled type="button" className="btn btn-outline-secondary btn-block" title='Объект в исходном состоянии'>Сохранение</button>;
-
-        const buttonReset = buttonResetEnable === true
-            ? <button onClick={this.handleResetClick} type="button" className="btn btn-outline-dark btn-block" title='Сброс значений формы на исходное'>Сбросить</button>
-            : <button disabled type="button" className="btn btn-outline-secondary btn-block" title='Сброс значений формы на исходное'>Сбросить</button>;
 
         const buttonDelete = buttonDeleteEnable === true
             ? <NavLink className='btn btn-outline-danger btn-block' to={`/${App.controller}/${App.deleteNameMethod}/${App.id}`} role='button' title='Диалог удаления объекта'>Удаление</NavLink>
@@ -200,33 +179,34 @@ export class viewGood extends aPageList {
                         </div>
                         <div className="col">
                             <label>Группа</label>
-                            <select value={this.state.groupId} onChange={this.handleGroupChange} className="custom-select">
+                            <select value={this.state.groupId} onChange={this.handleGroupChange} name='groupId' className="custom-select">
                                 {good.groups.map(function (element) {
                                     return <option key={element.id} value={element.id} title={element.information}>{element.name}</option>
                                 })}
                             </select>
                         </div>
                     </div>
-                    <div className="form-row">
+                    <div className="form-row mb-2">
                         <div className="col">
-                            <label>Единица измерения</label>
-                            <select value={this.state.unitId} onChange={this.handleUnitChange} className="custom-select">
+                            <label>Ед. измерения</label>
+                            <select value={this.state.unitId} name='unitId' onChange={this.handleUnitChange} className="custom-select" aria-describedby="unitHelp">
                                 {good.units.map(function (element) {
                                     return <option key={element.id} value={element.id} title={element.information}>{element.name}</option>
                                 })}
                             </select>
+                            <small id="unitHelp" className="form-text text-muted">Ед.изм. по умолчанию.</small>
                         </div>
                         <div className="col">
                             <label>Цена</label>
-                            <input value={this.state.price} onChange={this.handlePriceChange} name='name' type="text" className="form-control" placeholder="0.0" />
+                            <input value={this.state.price} onChange={this.handlePriceChange} name='price' type="text" className="form-control" placeholder="0.0" aria-describedby="priceHelp" />
+                            <small id="priceHelp" className="form-text text-muted">Цена продажи</small>
                         </div>
                     </div>
+                    {this.getInformation()}
+                    {this.rootPanelObject()}
                 </form>
                 <hr />
-                <div className='form-row my-2'>
-                    <div className='col'>{buttonSave}</div>
-                    <div className='col'>{buttonReset}</div>
-                </div>
+                <button onClick={this.handleSaveClick} type="button" className="btn btn-outline-success btn-block mb-2" title='Сохранить объект в БД'>Сохранить</button>
                 <div className='form-row mb-3'>
                     <div className='col'>{buttonDelete}</div>
                     <div className='col'>{buttonBack}</div>
@@ -281,14 +261,14 @@ export class viewGood extends aPageList {
                                     }
                                     const currentNavLink = register.isDisabled === true
                                         ? <del><NavLink className='text-muted' to={urlDocument} title='открыть документ'>{document.about}</NavLink></del>
-                                        : <><NavLink to='#' /*to={urlDocument}*/ title='открыть документ'>{document.about}</NavLink> {authorDom} {extDataAboutDocument}</>
+                                        : <><NavLink to='#' /*to={urlDocument}*/ title='открыть документ'>{document.name}</NavLink> {authorDom} {extDataAboutDocument}</>
 
                                     return <tr title='строка/регистр документа' key={register.id}>
                                         <td>{register.id}</td>
                                         <td>
                                             {currentNavLink}
                                         </td>
-                                        <td>{register.quantity} {good.units.find(function (element, index, array) { return element.id === register.unitId }).name} x ${register.price}</td>
+                                        <td>{register.quantity} {good.units.find(function (element, index, array) { return element.id === register.unitId }).name}</td>
                                     </tr>
                                 })}
                             </tbody>

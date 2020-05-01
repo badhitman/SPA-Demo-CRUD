@@ -7,12 +7,8 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Документ складского поступления номенклатуры
     /// </summary>
-    public class ReceiptToWarehouseDocumentModel : BodyGoodMovementDocumentModel
+    public class ReceiptToWarehouseDocumentModel : WarehouseDocumentsModel
     {
-        public int WarehouseReceiptId { get; set; }
-        /// <summary>
-        /// Склад поступления
-        /// </summary>
-        public WarehouseGoodObjectModel WarehouseReceipt { get; set; }
+        
     }
 }

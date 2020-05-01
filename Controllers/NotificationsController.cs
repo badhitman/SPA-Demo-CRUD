@@ -2,6 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
@@ -19,123 +21,119 @@ namespace SPADemoCRUD.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
-        private readonly SessionUser _sessionUser;
+        private readonly ILogger<NotificationsController> _logger;
+        private readonly UserObjectModel _user;
 
-        public NotificationsController(AppDataBaseContext context, SessionUser sessionUser)
+        public NotificationsController(AppDataBaseContext context, SessionUser session, ILogger<NotificationsController> logger)
         {
             _context = context;
-            _sessionUser = sessionUser;
+            _user = session.user;
+            _logger = logger;
         }
 
         // GET: api/Notifications
         [HttpGet]
-        public ActionResult<IEnumerable<NotificationObjectModel>> GetNotificationModel([FromQuery] PaginationParametersModel pagingParameters)
+        public async Task<ActionResult<IEnumerable<object>>> GetNotification([FromQuery] PaginationParametersModel pagingParameters)
         {
-            if (_sessionUser.user is null)
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Ошибка обработки запроса уведомлений. Пользователь текущей сессии не определён",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
+            IQueryable<NotificationObjectModel> notifications = _context.Notifications.Where(x => x.RecipientId == _user.Id);
 
-            var notifications = _context.Notifications.OrderBy(x => x.DateCreate).Include(x => x.Conversation)
-                .Where(x => x.RecipientId == _sessionUser.user.Id);
-                //.GroupBy(x => x.Conversation, (key, val) => new { key, val, countUnreadMessages = val.Where(x=>x.DeliveryStatus< DeliveryStatusesEnum.Read).Count(), countUndeliveredMessages = val.Where(x => x.DeliveryStatus < DeliveryStatusesEnum.Notified).Count() });
-
-            pagingParameters.Init(notifications.Count());
+            pagingParameters.Init(await notifications.CountAsync());
             if (pagingParameters.PageNum > 1)
                 notifications = notifications.Skip(pagingParameters.Skip);
-            
+
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+
+            notifications = notifications.OrderBy(x => x.DateCreate).Include(x => x.Conversation);
+
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
                 Info = "Запрос уведомлений обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = notifications.ToList()
+                Tag = (await notifications.ToListAsync()).Select(x => new
+                {
+                    x.Id,
+                    x.Name,
+                    x.Information,
+                    x.DateCreate,
+                    Conversation = new
+                    {
+                        x.Conversation.Id,
+                        x.Conversation.Name,
+                        x.Conversation.Information,
+                        Initiator = new
+                        {
+                            Id = x.Conversation.InitiatorId,
+                            Type = x.Conversation.InitiatorType.ToString()
+                        },
+                        x.Conversation.DateCreate
+                    },
+                    DeliveryStatus = x.DeliveryStatus.ToString()
+                })
             });
         }
 
         // GET: api/Notifications/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<NotificationObjectModel>> GetNotificationModel(int id)
+        public async Task<ActionResult<object>> GetNotification(int id)
         {
-            var notificationModel = await _context.Notifications.FindAsync(id);
+            NotificationObjectModel notification = await _context.Notifications.FindAsync(id);
 
-            if (notificationModel == null)
+            if (notification == null)
             {
                 return NotFound();
             }
 
-            return notificationModel;
+            return notification;
         }
 
         // PUT: api/Notifications/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutNotificationModel(int id, NotificationObjectModel notificationModel)
+        public async Task<IActionResult> PutNotification(int id, NotificationObjectModel ajaxNotification)
         {
-            if (id != notificationModel.Id)
+            if (id != ajaxNotification.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(notificationModel).State = EntityState.Modified;
+            _context.Entry(ajaxNotification).State = EntityState.Modified;
 
             try
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!NotificationModelExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
         }
 
         // POST: api/Notifications
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<NotificationObjectModel>> PostNotificationModel(NotificationObjectModel notificationModel)
+        public async Task<ActionResult<object>> PostNotification(NotificationObjectModel ajaxNotification)
         {
-            _context.Notifications.Add(notificationModel);
+            _context.Notifications.Add(ajaxNotification);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetNotificationModel", new { id = notificationModel.Id }, notificationModel);
+            return CreatedAtAction("GetNotificationModel", new { id = ajaxNotification.Id }, ajaxNotification);
         }
 
         // DELETE: api/Notifications/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<NotificationObjectModel>> DeleteNotificationModel(int id)
+        public async Task<ActionResult<object>> DeleteNotification(int id)
         {
-            var notificationModel = await _context.Notifications.FindAsync(id);
-            if (notificationModel == null)
+            NotificationObjectModel notification = await _context.Notifications.FindAsync(id);
+            if (notification == null)
             {
                 return NotFound();
             }
 
-            //_context.Notifications.Remove(notificationModel);
-            //await _context.SaveChangesAsync();
+            _context.Notifications.Remove(notification);
+            await _context.SaveChangesAsync();
 
-            return notificationModel;
-        }
-
-        private bool NotificationModelExists(int id)
-        {
-            return _context.Notifications.Any(e => e.Id == id);
+            return notification;
         }
     }
 }

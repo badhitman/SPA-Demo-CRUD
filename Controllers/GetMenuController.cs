@@ -46,7 +46,7 @@ namespace SPADemoCRUD.Controllers
             Childs = new MenuItemModel[]
             {
                 new MenuItemModel() { Title = "Номенклатура", Href = "/groupsgoods/list", Tooltip = "Товары и группы" },
-                new MenuItemModel() { Title = "Склад.учёт", Href = "/warehouses/list", Tooltip = "Склады, остатки и документы движения товаров" },
+                new MenuItemModel() { Title = "Склад.учёт", Href = "/warehouses/list", Tooltip = "Склады, остатки и документы движения товаров", IsDisabled = true },
                 new MenuItemModel() { Title = "Доставка", Href = "/delivery/list", Tooltip = "Отключено! Методы/Службы доставки", IsDisabled = true },
                 null,
                 new MenuItemModel() { Title = "Файлы", Href = "/files/list", Tooltip = "Файловое хранилище" }

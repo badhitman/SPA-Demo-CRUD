@@ -22,8 +22,6 @@ export class aPageCard extends aPage {
 
         /** Обработчик нажатия кнопки "Ок" */
         this.handleClickButton = this.handleClickButton.bind(this);
-        /** Вкл/Выкл объект */
-        this.handleClickButtonDisable = this.handleClickButtonDisable.bind(this);
     }
 
     async ajax() {
@@ -50,13 +48,14 @@ export class aPageCard extends aPage {
             if (item.name.toLowerCase() === 'id' || form[item.name].type.toLowerCase() === 'number' || form[item.name].tagName.toLowerCase() === 'select') {
                 obj[item.name] = parseInt(item.value, 10);
             }
+            else if (form[item.name].type.toLowerCase() === 'checkbox') {
+                obj[item.name] = form[item.name].checked === true || form[item.name].value.toLowerCase() === 'on' || form[item.name].value.toLowerCase() === 'checked' || form[item.name].value.toLowerCase() === 'true';
+            }
             else {
                 obj[item.name] = item.value;
             }
             return obj;
         }, {});
-
-        sendedFormData['isDisabled'] = App.data.isDisabled === true;
 
         try {
             switch (App.method) {
@@ -115,7 +114,7 @@ export class aPageCard extends aPage {
                         this.props.history.push(`/${apiName}/${App.listNameMethod}/`)
                     }
                     else {
-                        this.props.history.push(`/${apiName}/${App.viewNameMethod}/${result.tag.id}/`);
+                        this.props.history.push(`/${apiName}/${App.viewNameMethod}/${result.tag}/`);
                     }
 
                     return;
@@ -143,24 +142,8 @@ export class aPageCard extends aPage {
         }
     }
 
-    /** Вкл/Выкл объект */
-    async handleClickButtonDisable() {
-        const response = await fetch(`${this.apiPrefix}/${App.controller}${this.apiPostfix}`, { method: 'PATCH' });
-        if (response.ok) {
-            var result = await response.json();
-            App.data.isDisabled = result.tag;
-            this.forceUpdate();
-            this.clientAlert(result.info, result.status);
-        }
-    }
-
     cardHeaderPanel() {
-        if (App.data.isDisabled === true) {
-            return <button onClick={this.handleClickButtonDisable} type="button" title='объект выключен. для включения - нажмите на кнопку' className="badge badge-pill badge-secondary">Выкл</button>;
-        }
-        else {
-            return <button onClick={this.handleClickButtonDisable} title='объект включен. для выключения - нажмите на кнопку' className="badge badge-pill badge-primary">Вкл</button>;
-        }
+        return <></>;
     }
 
     /** Набор кнопок управления для формы просмотра/редактирования объекта */
@@ -187,10 +170,18 @@ export class aPageCard extends aPage {
     }
 
     /** Набор кнопок управления для формы удаления объекта */
-    deleteButtons() {
-        return (<>
-            <NavLink className='btn btn-primary btn-block' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку'>Отмена</NavLink>
-            <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-danger btn-block" title='Подтвердить удаление объекта'>Подтверждение удаления</button>
-        </>);
+    deleteButtons(allowDelete = true) {
+        return allowDelete === true
+            ? (<>
+                <NavLink className='btn btn-primary btn-block' to={`/${App.controller}/${App.viewNameMethod}/${App.id}`} role='button' title='Перейти к редактированию объекта'>Редактировать</NavLink>
+                <NavLink className='btn btn-outline-primary btn-block' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку/справочнику'>Отмена</NavLink>
+                <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-danger btn-block" title='Подтвердить удаление объекта'>Подтверждение удаления</button>
+            </>)
+
+            : (<>
+                <NavLink className='btn btn-primary btn-block' to={`/${App.controller}/${App.viewNameMethod}/${App.id}`} role='button' title='Перейти к редактированию объекта'>Редактировать</NavLink>
+                <NavLink className='btn btn-outline-primary btn-block' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку'>Отмена</NavLink>
+                <button disabled type="button" className="btn btn-outline-danger btn-block" title='Удаление объекта недоступно'>Удаление невозможно</button>
+            </>);
     }
 }

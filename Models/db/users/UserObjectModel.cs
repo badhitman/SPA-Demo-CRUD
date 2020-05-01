@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SPADemoCRUD.Models
 {
@@ -30,10 +31,9 @@ namespace SPADemoCRUD.Models
 
         public DateTime LastTelegramVisit { get; set; }
 
-        [Display(Name = "Имя", Description = "Сокращённое имя пользователя")]
-        [Required]
-        public new string Name { get; set; }
-
         public List<NotificationObjectModel> Notifications { get; set; }
+
+        [NotMapped]
+        public new string FullInfo => $"{base.FullInfo} [department id: {DepartmentId}]•[role: {Role}]{(TelegramId != 0 ? "" : $"•[telegram id:{TelegramId}]")}{(Notifications == null || Notifications.Count == 0 ? "" : $"•[notifications: {Notifications.Count}]")}";
     }
 }

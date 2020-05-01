@@ -91,7 +91,7 @@ namespace SPADemoCRUD.Controllers
                     return new ObjectResult(new ServerActionResult()
                     {
                         Success = false,
-                        Info = "Вход временно невозможен. Пользователь отключён от системы",
+                        Info = "Вход невозможен. Пользователь отключён. Для снятия данного ограничения обратитесь к администратору",
                         Status = StylesMessageEnum.danger.ToString(),
                         Tag = new { user.Name, user.Role, Department = user.Department.Name }
                     });
@@ -159,8 +159,7 @@ namespace SPADemoCRUD.Controllers
                 }
             }
 
-            bool checkPublicName = await DbContext.Users.AnyAsync(u => u.Name == regUser.PublicNameRegister);
-            if (checkPublicName)
+            if (await DbContext.Users.AnyAsync(u => u.Name.ToLower() == regUser.PublicNameRegister.ToLower()))
             {
                 return new ObjectResult(new ServerActionResult()
                 {
@@ -170,7 +169,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            UserObjectModel user = DbContext.Users.FirstOrDefault(u => u.Email == regUser.EmailRegister);
+            UserObjectModel user = DbContext.Users.FirstOrDefault(u => u.Email.ToLower() == regUser.EmailRegister.ToLower());
             if (user != null)
             {
                 return new ObjectResult(new ServerActionResult()
@@ -184,7 +183,7 @@ namespace SPADemoCRUD.Controllers
             DepartmentObjectModel userDepartment = DbContext.Departments.FirstOrDefault(x => x.Name.ToLower() == "user");
             if (userDepartment is null)
             {
-                userDepartment = new DepartmentObjectModel() { Name = "user", Readonly = true };
+                userDepartment = new DepartmentObjectModel() { Name = "user", isReadonly = true };
                 DbContext.Departments.Add(userDepartment);
                 DbContext.SaveChanges();
             }

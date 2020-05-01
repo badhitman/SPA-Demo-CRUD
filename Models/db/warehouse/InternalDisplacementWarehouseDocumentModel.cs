@@ -7,10 +7,10 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Документ внутреннего складского перемещения номенклатуры
     /// </summary>
-    public class InternalDisplacementWarehouseDocumentModel : ReceiptToWarehouseDocumentModel
+    public class InternalDisplacementWarehouseDocumentModel : WarehouseDocumentsModel
     {
         /// <summary>
-        /// Склад списания/обеспечения
+        /// Корреспондирующий Склад (списания/обеспечения)
         /// </summary>
         public int WarehouseDebitingId { get; set; }
     }

@@ -17,28 +17,18 @@ export class deleteUser extends viewUser {
     }
     cardBody() {
         var user = App.data;
-        user.departmen = user.departments.find(function (element, index, array) { return element.id === user.departmentId });
-        if (user.departmen === undefined) {
-            user.departmen = '<битая ссылка>';
-        }
-        else {
-            user.departmen = user.departmen.name;
-        }
 
         user.role = user.roles.find(function (element, index, array) { return element.id === user.role });
         if (user.role === undefined) {
             user.role = '<битая ссылка>';
         }
-        else {
-            user.role = user.role.name;
-        }
 
         return (
             <>
-                <div className="alert alert-danger" role="alert">Безвозвратное удаление пользователя! Данное дейтсвие нельзя будет отменить!</div>
+                <div className="alert alert-danger" role="alert">{(App.data.noDelete === false ? 'Безвозвратное удаление пользователя! Данное дейтсвие нельзя будет отменить!' : 'Объект невозможно удалить. На него существуют ссылки')}</div>
                 <form className="mb-3" key='delete-form'>
-                    {this.mapObjectToReadonlyForm(user, ['departmentId', 'id'])}
-                    {this.deleteButtons()}
+                    {this.mapObjectToReadonlyForm(user, ['departmentId', 'id', 'avatar'])}
+                    {this.deleteButtons(App.data.noDelete === false)}
                 </form>
             </>
         );

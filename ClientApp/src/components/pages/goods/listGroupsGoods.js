@@ -69,8 +69,8 @@ export class listGroupsGoods extends aPageList {
                 const result = await response.json();
                 if (result.success === true) {
                     await this.ajax();
-                    App.data = null;
-                    this.setState({ loading: false, newName: '', buttonsDisabled: true});
+                    //App.data = null;
+                    this.setState({ loading: false, newName: '', buttonsDisabled: true });
                 }
                 else {
                     this.clientAlert(result.info, result.status);
@@ -83,7 +83,6 @@ export class listGroupsGoods extends aPageList {
     }
 
     cardBody() {
-        var goods = App.data;
         const myButtons = this.state.buttonsDisabled === true
             ? <><button disabled className="btn btn-outline-secondary" type="button">Создать</button>
                 <button disabled className="btn btn-outline-secondary" type="reset">Сброс</button></>
@@ -93,8 +92,8 @@ export class listGroupsGoods extends aPageList {
             <>
                 <label htmlFor="basic-url">Создание новой группы номенклатуры</label>
                 <div title='Для создания новой группы введите её название и нажмите кнопку - Создать' className="input-group mb-3">
-                    <input onChange={this.handleNewNameChange} value={this.state.newName} type="text" className="form-control" placeholder="Введите название новой группы" aria-label="Введите название новой группы" aria-describedby="button-addon4" />
-                    <div className="input-group-append" id="button-addon4">
+                    <input onChange={this.handleNewNameChange} value={this.state.newName} type="text" className="form-control" placeholder="Введите название новой группы" aria-label="Введите название новой группы" />
+                    <div className="input-group-append">
                         {myButtons}
                     </div>
                 </div>
@@ -108,18 +107,18 @@ export class listGroupsGoods extends aPageList {
                         </tr>
                     </thead>
                     <tbody>
-                        {goods.map(function (good) {
-                            const currentNavLink = good.isDisabled === true
-                                ? <del><NavLink className='text-muted' to={`/${App.controller}/${App.viewNameMethod}/${good.id}`} title='кликните для редактирования'>{good.name}</NavLink></del>
-                                : <NavLink to={`/${App.controller}/${App.viewNameMethod}/${good.id}`} title='кликните для редактирования'>{good.name}</NavLink>
+                        {App.data.map(function (gGroup) {
+                            const currentNavLink = gGroup.isDisabled === true
+                                ? <del><NavLink className='text-muted' to={`/${App.controller}/${App.viewNameMethod}/${gGroup.id}`} title='кликните для редактирования'>{gGroup.name}</NavLink></del>
+                                : <NavLink to={`/${App.controller}/${App.viewNameMethod}/${gGroup.id}`} title='кликните для редактирования'>{gGroup.name}</NavLink>
 
-                            return <tr key={good.id}>
-                                <td>{good.id} <span className="badge badge-secondary">группа</span></td>
+                            return <tr key={gGroup.id}>
+                                <td>{gGroup.id} <span className="badge badge-secondary">группа</span></td>
                                 <td>
                                     {currentNavLink}
-                                    <NavLink to={`/${App.controller}/${App.deleteNameMethod}/${good.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
+                                    <NavLink to={`/${App.controller}/${App.deleteNameMethod}/${gGroup.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
                                 </td>
-                                <td>x{good.count}</td>
+                                <td>x{gGroup.countGoods}</td>
                             </tr>
                         })}
                     </tbody>

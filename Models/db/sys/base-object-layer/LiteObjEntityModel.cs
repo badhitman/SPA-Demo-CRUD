@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SPADemoCRUD.Models
 {
@@ -11,5 +12,8 @@ namespace SPADemoCRUD.Models
         [Display(Name = "Наименование", Description = "Короткое название объекта")]
         [Required]
         public string Name { get; set; }
+
+        [NotMapped]
+        public string FullInfo => $"[#{Id}]•[name:{Name}]";
     }
 }

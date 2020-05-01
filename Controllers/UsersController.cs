@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
+using MultiTool;
 using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
@@ -22,271 +22,414 @@ namespace SPADemoCRUD.Controllers
     {
         private readonly AppDataBaseContext _context;
         private readonly ILogger<UsersController> _logger;
-        private readonly SessionUser _sessionUser;
+        private readonly UserObjectModel _user;
 
-        public UsersController(AppDataBaseContext context, ILogger<UsersController> logger, SessionUser sessionUser)
+        public UsersController(AppDataBaseContext context, ILogger<UsersController> logger, SessionUser session)
         {
             _context = context;
             _logger = logger;
-            _sessionUser = sessionUser;
+            _user = session.user;
         }
 
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetUsers([FromQuery] PaginationParametersModel pagingParameters)
         {
-            pagingParameters.Init(_context.Users.Count());
-            IQueryable<UserObjectModel> users = _context.Users.OrderBy(x => x.Id);
+            IQueryable<UserObjectModel> users = _context.Users.AsQueryable();
+            if (_user.Role < AccessLevelUserRolesEnum.Admin)
+            {
+                users = users.Where(x => !x.isDisabled);
+            }
+
+            pagingParameters.Init(await users.CountAsync());
+            HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+
+            users = users.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
                 users = users.Skip(pagingParameters.Skip);
 
-            HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+            users = users.Take(pagingParameters.PageSize)
+                .Include(x => x.Department)
+                .Include(x => x.Avatar);
+
+            string TypeName = nameof(UserObjectModel);
+
+            var qUsers = from user in users
+                         join UserFavoriteLocator in _context.UserFavoriteLocators
+                         on new { ObjectId = user.Id, TypeName, UserId = _user.Id }
+                         equals new { UserFavoriteLocator.ObjectId, UserFavoriteLocator.TypeName, UserFavoriteLocator.UserId }
+                         into joinFavoriteLocator
+                         from isFavoriteMark in joinFavoriteLocator.DefaultIfEmpty()
+                         select new { user, isFavoriteMark };
+
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
                 Info = "Запрос пользователей обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = await users.Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Name, Department = x.Department.Name, Role = x.Role.ToString(), x.isDisabled }).ToListAsync()
+                Tag = (await qUsers.ToListAsync()).Select(selectItem => new
+                {
+                    selectItem.user.Id,
+                    selectItem.user.Name,
+                    selectItem.user.Information,
+                    selectItem.user.TelegramId,
+                    Role = selectItem.user.Role.ToString(),
+
+                    selectItem.user.isReadonly,
+                    selectItem.user.isDisabled,
+                    selectItem.user.isGlobalFavorite,
+                    IsUserFavorite = selectItem.isFavoriteMark != null,
+                    selectItem.user.LastTelegramVisit,
+                    selectItem.user.LastWebVisit,
+
+                    Department = new
+                    {
+                        selectItem.user.Department.Id,
+                        selectItem.user.Department.Name
+                    },
+                    Avatar = new
+                    {
+                        selectItem.user.Avatar?.Id,
+                        selectItem.user.Avatar?.Name
+                    }
+                })
             });
         }
 
         // GET: api/Users/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<object>> GetUserModel(int id)
+        public async Task<ActionResult<object>> GetUser(int id)
         {
-            UserObjectModel userModel = await _context.Users.FindAsync(id);
+            string TypeName = nameof(UserObjectModel);
 
-            if (userModel == null)
+            IQueryable<UserObjectModel> users = _context.Users.AsQueryable();
+            var qUsers = from user in users.Include(x => x.Avatar).Include(x => x.Department)
+                         join UserFavoriteLocator in _context.UserFavoriteLocators
+                         on new { ObjectId = user.Id, TypeName, UserId = _user.Id }
+                         equals new { UserFavoriteLocator.ObjectId, UserFavoriteLocator.TypeName, UserFavoriteLocator.UserId }
+                         into joinFavoriteLocator
+                         from isFavoriteMark in joinFavoriteLocator.DefaultIfEmpty()
+                         select new { user, isFavoriteMark };
+
+            var selectItem = await qUsers.FirstOrDefaultAsync(x => x.user.Id == id);
+
+            if (selectItem == null)
             {
-                _logger.LogError("Запрашиваемый пользователь не найден по ключу: {0}", id);
+                string msg = $"Запрашиваемый пользователь не найден в БД. Id={id}";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Пользователь не найден: id=" + id,
+                    Info = msg,
                     Status = StylesMessageEnum.warning.ToString()
                 });
             }
-            List<DepartmentObjectModel> departments = await _context.Departments.ToListAsync();
+
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
-                Info = "Запрос успешно обработан. Пользователь найден. ",
+                Info = "Запрос пользователя успешно обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { userModel.Id, userModel.Name, userModel.TelegramId, userModel.Email, userModel.DepartmentId, userModel.Role, userModel.isDisabled, departments, UsersMetadataController.roles }
-            });
-        }
-
-        // PUT: api/Users/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserModel(int id, UserObjectModel userModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Изменение пользователя невозможно. Ошибка контроля валидации модели");
-                return new ObjectResult(new ServerActionResult()
+                Tag = new
                 {
-                    Success = false,
-                    Info = "Ошибка валидации модели",
-                    Status = StylesMessageEnum.danger.ToString(),
-                    Tag = ModelState
-                });
-            }
+                    selectItem.user.Id,
+                    selectItem.user.Name,
+                    selectItem.user.Information,
+                    selectItem.user.isDisabled,
+                    selectItem.user.isGlobalFavorite,
+                    IsUserFavorite = selectItem.isFavoriteMark != null,
+                    selectItem.user.LastTelegramVisit,
+                    selectItem.user.LastWebVisit,
+                    selectItem.user.isReadonly,
+                    selectItem.user.TelegramId,
+                    selectItem.user.Email,
+                    selectItem.user.Role,
 
-            if (id != userModel.Id || id <= 0)
-            {
-                _logger.LogError("Ошибка контроля связи модели с параметрами запроса: id:{0} != userModel.Id:{1}  || id <= 0", id, userModel.Id);
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Ошибка в запросе: id != departmentModel.Id",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
+                    noDelete = _context.MovementTurnoverDeliveryDocuments.Any(x => x.BuyerId == selectItem.user.Id)
+                    || _context.BtcTransactionOuts.Any(x => x.UserId == selectItem.user.Id)
+                    || _context.UserFavoriteLocators.Any(x => x.UserId == selectItem.user.Id)
+                    || _context.TelegramBotUpdates.Any(x => x.UserId == selectItem.user.Id)
+                    || _context.FileRegisteringObjectRows.Any(x => x.AuthorId == selectItem.user.Id)
+                    || _context.Notifications.Any(x => x.RecipientId == selectItem.user.Id)
+                    || _context.Messages.Any(x => x.SenderId == selectItem.user.Id)
+                    || _context.GoodMovementDocuments.Any(x => x.AuthorId == selectItem.user.Id)
+                    || _context.Сonversations.Any(x => x.InitiatorType == ConversationInitiatorsEnum.User && x.InitiatorId == selectItem.user.Id),
 
-            UserObjectModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
-            if (userRow?.Readonly == true)
-            {
-                _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Ошибка доступа к системному объекту (read only). Подобные объекты редактируются на уровне sqlcmd",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
-
-            _context.Entry(userModel).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка выполнения запроса EF");
-                if (!UserModelExists(id))
-                {
-                    _logger.LogError("Пользователь не найден: id={0}", id);
-                    return new ObjectResult(new ServerActionResult()
+                    Department = new
                     {
-                        Success = false,
-                        Info = "Пользователь не найден",
-                        Status = StylesMessageEnum.danger.ToString()
-                    });
+                        selectItem.user.Department.Id,
+                        selectItem.user.Department.Name
+                    },
+                    Avatar = new
+                    {
+                        selectItem.user.Avatar?.Id,
+                        selectItem.user.Avatar?.Name
+                    },
+
+                    departments = await _context.Departments.Include(x => x.Avatar).Select(x => new
+                    {
+                        x.Id,
+                        x.Name,
+                        x.Information,
+                        x.isDisabled,
+                        IsFavorite = x.isGlobalFavorite,
+                        x.isReadonly,
+                        Avatar = new
+                        {
+                            x.Avatar.Id,
+                            x.Avatar.Name
+                        }
+                    }).ToListAsync(),
+                    UsersMetadataController.roles
                 }
-                else
-                {
-                    _logger.LogWarning("Невнятная ошибка с пользователем id:{0}", id);
-                    throw;
-                }
-            }
-            List<DepartmentObjectModel> departments = await _context.Departments.ToListAsync();
-            return new ObjectResult(new ServerActionResult()
-            {
-                Success = true,
-                Info = "Изменения сохранены",
-                Status = StylesMessageEnum.success.ToString(),
-                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Name, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
             });
         }
 
         // POST: api/Users
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<UserObjectModel>> PostUserModel(UserObjectModel userModel)
+        public async Task<ActionResult<object>> PostUser(UserObjectModel ajaxUser)
         {
-            if (!ModelState.IsValid)
+            _logger.LogInformation("Создание пользователя. Инициатор: " + _user.FullInfo);
+            string msg;
+
+            ajaxUser.Name = ajaxUser.Name.Trim();
+            ajaxUser.Information = ajaxUser.Information.Trim();
+            ajaxUser.Email = ajaxUser.Email.Trim();
+
+            if (!ModelState.IsValid || string.IsNullOrEmpty(ajaxUser.Name) || !await _context.Departments.AnyAsync(x => x.Id == ajaxUser.DepartmentId))
             {
-                _logger.LogError("Создание пользователя невозможно. Ошибка контроля валидации модели");
+                msg = "Ошибка запроса. Пользователь не создан";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Ошибка валидации модели",
+                    Info = msg,
                     Status = StylesMessageEnum.danger.ToString(),
                     Tag = ModelState
                 });
             }
 
-            if (_context.Users.Any(x => x.Name == userModel.Name))
+            if (await _context.Users.AnyAsync(usr => usr.Name.ToLower() == ajaxUser.Name.ToLower()))
             {
+                msg = $"Пользователь с таким именем '{ajaxUser.Name}' уже существует (без учёта регистра). Придумайте уникальное";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Пользователь с таким именем уже существует",
+                    Info = msg,
                     Status = StylesMessageEnum.warning.ToString()
                 });
             }
 
-            if (_context.Users.Any(x => x.Email == userModel.Email))
+            if (await _context.Users.AnyAsync(usr => usr.Email.ToLower() == ajaxUser.Email.ToLower()))
             {
+                msg = $"Пользователь с таким e-mail/login '{ajaxUser.Email}' уже существует (без учёта регистра). Придумайте уникальное";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Пользователь с таким логином уже существует",
+                    Info = msg,
                     Status = StylesMessageEnum.warning.ToString()
                 });
             }
 
-            _context.Users.Add(userModel);
+            if (_user.Role != AccessLevelUserRolesEnum.ROOT)
+            {
+                ajaxUser.isDisabled = false;
+                ajaxUser.isGlobalFavorite = false;
+                ajaxUser.isReadonly = false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(ajaxUser.Password))
+            {
+                ajaxUser.Password = glob_tools.GetHashString(ajaxUser.Password);
+            }
+
+            await _context.Users.AddAsync(ajaxUser);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Пользователь создан: id={0}", userModel.Id);
-            List<DepartmentObjectModel> departments = await _context.Departments.ToListAsync();
+
+            msg = $"Пользователь добавлен в БД: id={ajaxUser.Id}";
+            _logger.LogInformation(msg);
+
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
-                Info = "Пользователь успешно создан: id=" + userModel.Id,
+                Info = msg,
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { userModel.Id, userModel.DepartmentId, userModel.Email, userModel.isDisabled, userModel.Name, userModel.Readonly, userModel.Role, departments, UsersMetadataController.roles }
+                Tag = ajaxUser.Id
             });
         }
 
-        // PATCH: api/Users/5
-        [HttpPatch("{id}")]
-        public async Task<ActionResult> PatchUserModel(int id)
+        // PUT: api/Users/5
+        [HttpPut("{id}")]
+        public async Task<ActionResult<object>> PutUser(int id, UserObjectModel ajaxUser)
         {
-            var userModel = await _context.Users.FindAsync(id);
-            if (userModel == null)
+            _logger.LogInformation($"Запрос изменения пользователя [#{id}]. Инициатор: " + _user.FullInfo);
+            string msg;
+
+            ajaxUser.Name = ajaxUser.Name.Trim();
+            ajaxUser.Information = ajaxUser.Information.Trim();
+            ajaxUser.Email = ajaxUser.Email.Trim();
+
+            if (!ModelState.IsValid
+                || string.IsNullOrEmpty(ajaxUser.Name)
+                || id != ajaxUser.Id
+                || id <= 0)
             {
-                _logger.LogError("Манипуляция пользователем невозможна. Объект не найден");
+                msg = "Изменение пользователя невозможно. Ошибка контроля валидации модели";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Пользователь не найден",
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString(),
+                    Tag = ModelState
+                });
+            }
+
+            if (!await _context.Users.AnyAsync(usr => usr.Id == id)
+                || await _context.Users.AnyAsync(usr => (usr.Name.ToLower() == ajaxUser.Name.ToLower() || usr.Email.ToLower() == ajaxUser.Email.ToLower()) && usr.Id != id))
+            {
+                msg = "Ошибка в запросе. При проверке корректности запроса были обнаружены ошибки.";
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
 
-            UserObjectModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
-            if (userRow?.Readonly == true)
+            UserObjectModel userDb = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (userDb.isReadonly && _user.Role != AccessLevelUserRolesEnum.ROOT)
             {
-                _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
+                msg = $"Объект только для чтения. Для удаления данного объекта требуется уровень привелегий [{AccessLevelUserRolesEnum.ROOT}]. Ваш уровень привелегий: {_user.Role}"; ;
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Ошибка доступа к системному объекту (read only). Подобные объекты редактируются на уровне sqlcmd",
+                    Info = msg,
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
 
-            userModel.isDisabled = !userModel.isDisabled;
-            _context.Users.Update(userModel);
-            await _context.SaveChangesAsync();
+            userDb.AvatarId = ajaxUser.AvatarId;
+            userDb.DepartmentId = ajaxUser.DepartmentId;
+            userDb.Email = ajaxUser.Email;
+            userDb.Information = ajaxUser.Information;
+            userDb.Name = ajaxUser.Name;
 
-            return new ObjectResult(new ServerActionResult()
+            if (_user.Role == AccessLevelUserRolesEnum.ROOT)
             {
-                Success = true,
-                Info = "Объект " + (userModel.isDisabled ? "Выключен" : "Включён"),
-                Status = userModel.isDisabled ? StylesMessageEnum.secondary.ToString() : StylesMessageEnum.success.ToString(),
-                Tag = userModel.isDisabled
-            });
+                userDb.Role = ajaxUser.Role;
+                userDb.isGlobalFavorite = ajaxUser.isGlobalFavorite;
+                userDb.isDisabled = ajaxUser.isDisabled;
+                userDb.isReadonly = ajaxUser.isReadonly;
+            }
+
+            _context.Users.Update(userDb);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                msg = $"Изменения пользователя [{userDb.Id}] сохранены";
+                _logger.LogInformation(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = true,
+                    Info = msg,
+                    Status = StylesMessageEnum.success.ToString()
+                });
+            }
+            catch (Exception ex)
+            {
+                msg = $"Во время изменения 'Пользователя' [{userDb.Id}] произошла ошибка. Exception: {ex.Message}{(ex.InnerException is null ? "" : ". InnerException: " + ex.InnerException.Message)}";
+                _logger.LogError(ex, msg);
+
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
         }
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<UserObjectModel>> DeleteUserModel(int id)
+        public async Task<ActionResult<object>> DeleteUser(int id)
         {
-            var userModel = await _context.Users.FindAsync(id);
-            if (userModel == null)
+            _logger.LogInformation($"Запрос удаления пользователя [#{id}]. Инициатор: " + _user.FullInfo);
+            string msg;
+
+            UserObjectModel user = await _context.Users.FindAsync(id);
+            if (user == null)
             {
-                _logger.LogError("Удаление пользователя невозможно. Объект не найден");
+                msg = $"Удаление пользователя невозможно. Объект не найден";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Пользователь не найден",
+                    Info = msg,
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
 
-            UserObjectModel userRow = _context.Users.FirstOrDefault(x => x.Id == id);
-            if (userRow?.Readonly == true)
+            if (user.isReadonly && _user.Role != AccessLevelUserRolesEnum.ROOT)
             {
-                _logger.LogError("Системный объект запрещено редактировать. Подобные объекты редактируются на уровне sqlcmd");
+                msg = $"Объект только для чтения. Для удаления данного объекта требуется уровень привелегий [{AccessLevelUserRolesEnum.ROOT}]. Ваш уровень привелегий: {_user.Role}";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Ошибка доступа к системному объекту (read only). Подобные объекты редактируются на уровне sqlcmd",
+                    Info = msg,
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
 
-            //_context.Users.Remove(userModel);
-            //await _context.SaveChangesAsync();
+            if (user.isReadonly && _user.Role != AccessLevelUserRolesEnum.ROOT)
+            {
+                msg = $"Объект [#{id}] 'только для чтения'. Для изменения такого объекта требуются привелегии [{AccessLevelUserRolesEnum.ROOT}]. Ваши привилегии: [{_user.Role}]";
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
 
-            _logger.LogInformation("Пользователь удалён: id={0}", id);
+            if (await _context.MovementTurnoverDeliveryDocuments.AnyAsync(x => x.BuyerId == id)
+                    || await _context.BtcTransactionOuts.AnyAsync(x => x.UserId == id)
+                    || await _context.UserFavoriteLocators.AnyAsync(x => x.UserId == id)
+                    || await _context.TelegramBotUpdates.AnyAsync(x => x.UserId == id)
+                    || await _context.FileRegisteringObjectRows.AnyAsync(x => x.AuthorId == id)
+                    || await _context.Notifications.AnyAsync(x => x.RecipientId == id)
+                    || await _context.Messages.AnyAsync(x => x.SenderId == id)
+                    || await _context.GoodMovementDocuments.AnyAsync(x => x.AuthorId == id)
+                    || await _context.Сonversations.AnyAsync(x => x.InitiatorType == ConversationInitiatorsEnum.User && x.InitiatorId == id))
+            {
+                msg = "Объект запрещено удалять (на него существуют ссылки)";
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            msg = $"Пользователь [#{user.Id}] удалён";
+            _logger.LogInformation(msg);
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
-                Info = "Пользователь удалён",
-                Status = StylesMessageEnum.success.ToString()
+                Info = msg,
+                Status = StylesMessageEnum.warning.ToString()
             });
-        }
-
-        private bool UserModelExists(int id)
-        {
-            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

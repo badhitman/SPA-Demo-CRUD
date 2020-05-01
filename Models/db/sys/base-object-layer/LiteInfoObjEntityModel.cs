@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SPADemoCRUD.Models
 {
@@ -10,5 +11,8 @@ namespace SPADemoCRUD.Models
     {
         [Display(Name = "Информация", Description = "Пользовательское описание")]
         public string Information { get; set; } = "";
+
+        [NotMapped]
+        public new string FullInfo => $"{base.FullInfo}•[info:{Information}]";
     }
 }

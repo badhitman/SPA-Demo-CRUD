@@ -14,8 +14,6 @@ namespace SPADemoCRUD.Models
         public int BodyDocumentId { get; set; }
         public BodyGoodMovementDocumentModel BodyDocument { get; set; }
 
-        //public MovementGoodsWarehousesDocumentModel MovementGoodsWarehousesDocument { get; set; }
-
         public int GoodId { get; set; }
         /// <summary>
         /// Номенклатура движения
@@ -31,10 +29,5 @@ namespace SPADemoCRUD.Models
         /// Номинал количества движения
         /// </summary>
         public double Quantity { get; set; }
-
-        /// <summary>
-        /// Цена движения
-        /// </summary>
-        public double Price { get; set; }
     }
 }

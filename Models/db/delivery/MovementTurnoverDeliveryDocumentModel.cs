@@ -7,7 +7,7 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Документ движения резервов. Резерв - это условно (или безуслвоно) проданое (в т.ч. предоплаченный).
     /// </summary>
-    public class MovementTurnoverDeliveryDocumentModel : BodyGoodMovementDocumentModel
+    public class MovementTurnoverDeliveryDocumentModel : WarehouseDocumentsModel
     {
         public int? BuyerId { get; set; }
         public UserObjectModel Buyer { get; set; }

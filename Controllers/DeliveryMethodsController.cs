@@ -17,12 +17,12 @@ namespace SPADemoCRUD.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Policy = "AccessMinLevelAuth")]
-    public class DeliveryController : ControllerBase
+    public class DeliveryMethodsController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
-        private readonly ILogger<DeliveryController> _logger;
+        private readonly ILogger<DeliveryMethodsController> _logger;
 
-        public DeliveryController(AppDataBaseContext context, ILogger<DeliveryController> logger)
+        public DeliveryMethodsController(AppDataBaseContext context, ILogger<DeliveryMethodsController> logger)
         {
             _context = context;
             _logger = logger;
@@ -30,9 +30,9 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Delivery
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DeliveryServiceObjectModel>>> GetDeliveryMethods([FromQuery] PaginationParametersModel pagingParameters)
+        public async Task<ActionResult<IEnumerable<object>>> GetDeliveryMethods([FromQuery] PaginationParametersModel pagingParameters)
         {
-            pagingParameters.Init(_context.DeliveryServices.Count());
+            pagingParameters.Init(await _context.DeliveryServices.CountAsync());
             IQueryable<DeliveryServiceObjectModel> delServices = _context.DeliveryServices.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
                 delServices = delServices.Skip(pagingParameters.Skip);
@@ -49,11 +49,11 @@ namespace SPADemoCRUD.Controllers
 
         // GET: api/Delivery/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<DeliveryMethodObjectModel>> GetDeliveryMethodModel(int id)
+        public async Task<ActionResult<object>> GetDeliveryMethod(int id)
         {
-            var deliveryMethodModel = await _context.DeliveryMethods.FindAsync(id);
+            DeliveryMethodObjectModel deliveryMethod = await _context.DeliveryMethods.FindAsync(id);
 
-            if (deliveryMethodModel == null)
+            if (deliveryMethod == null)
             {
                 _logger.LogError("Запрашиваемая доставка не найдена: id={0}", id);
                 return new ObjectResult(new ServerActionResult()
@@ -68,17 +68,27 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос успешно обработан. Департамент найден.",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = deliveryMethodModel
+                Tag = new { deliveryMethod.Id, deliveryMethod.Name }
             });
         }
 
-        // PUT: api/Delivery/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutDeliveryMethodModel(int id, DeliveryMethodObjectModel deliveryMethodModel)
+        // POST: api/Delivery
+        [HttpPost]
+        public async Task<ActionResult<object>> PostDeliveryMethod(DeliveryMethodObjectModel deliveryMethodAjax)
         {
-            if (id != deliveryMethodModel.Id)
+            deliveryMethodAjax.Name = deliveryMethodAjax.Name.Trim();
+            _context.DeliveryMethods.Add(deliveryMethodAjax);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetDeliveryMethodModel", new { id = deliveryMethodAjax.Id }, deliveryMethodAjax);
+        }
+
+        // PUT: api/Delivery/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutDeliveryMethod(int id, DeliveryMethodObjectModel deliveryMethodAjax)
+        {
+            deliveryMethodAjax.Name = deliveryMethodAjax.Name.Trim();
+            if (id != deliveryMethodAjax.Id || string.IsNullOrEmpty(deliveryMethodAjax.Name))
             {
                 _logger.LogError("Запрашиваемая доставка не найдена: id={0}", id);
                 return new ObjectResult(new ServerActionResult()
@@ -89,7 +99,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            _context.Entry(deliveryMethodModel).State = EntityState.Modified;
+            _context.Entry(deliveryMethodAjax).State = EntityState.Modified;
 
             try
             {
@@ -97,37 +107,18 @@ namespace SPADemoCRUD.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!DeliveryMethodModelExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
         }
 
-        // POST: api/Delivery
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
-        public async Task<ActionResult<DeliveryMethodObjectModel>> PostDeliveryMethodModel(DeliveryMethodObjectModel deliveryMethodModel)
-        {
-            _context.DeliveryMethods.Add(deliveryMethodModel);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetDeliveryMethodModel", new { id = deliveryMethodModel.Id }, deliveryMethodModel);
-        }
-
         // DELETE: api/Delivery/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<DeliveryMethodObjectModel>> DeleteDeliveryMethodModel(int id)
+        public async Task<ActionResult<object>> DeleteDeliveryMethod(int id)
         {
-            var deliveryMethodModel = await _context.DeliveryMethods.FindAsync(id);
-            if (deliveryMethodModel == null)
+            DeliveryMethodObjectModel deliveryMethod = await _context.DeliveryMethods.FindAsync(id);
+            if (deliveryMethod == null)
             {
                 return NotFound();
             }
@@ -135,12 +126,7 @@ namespace SPADemoCRUD.Controllers
             //_context.DeliveryMethods.Remove(deliveryMethodModel);
             //await _context.SaveChangesAsync();
 
-            return deliveryMethodModel;
-        }
-
-        private bool DeliveryMethodModelExists(int id)
-        {
-            return _context.DeliveryMethods.Any(e => e.Id == id);
+            return deliveryMethod;
         }
     }
 }

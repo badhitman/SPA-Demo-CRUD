@@ -18,7 +18,7 @@ export class listUsers extends aPageList {
         const apiName = App.controller;
         return (
             <>
-                <NavLink to={`/${apiName}/${App.createNameMethod}/`} className="btn btn-primary btn-block" role="button" >Создать нового пользователя</NavLink>
+                <NavLink to={`/${apiName}/${App.createNameMethod}/`} className="btn btn-primary btn-block" role="button">Создать нового пользователя</NavLink>
 
                 <table className='table table-striped mt-4' aria-labelledby="tabelLabel">
                     <thead>
@@ -40,7 +40,7 @@ export class listUsers extends aPageList {
                                     {currentNavLink}
                                     <NavLink to={`/${apiName}/${App.deleteNameMethod}/${user.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
                                 </td>
-                                <td><span className="badge badge-light">{user.department}</span></td>
+                                <td><span className="badge badge-light">{user.department.name}</span></td>
                             </tr>
                         })}
                     </tbody>

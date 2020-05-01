@@ -45,9 +45,9 @@ export default class App extends Component {
             /** склады учёта количества номенклатуры */
             'warehouses',
             /** документы регистров поступления на склад */
-            'receiptswarehouses',
+            'receiptswarehousesdocuments',
             /** документы регистров внутреннего перемещения */
-            'displacements',
+            'displacementsdocuments',
             /** доставка (настройки служб и методов) */
             'delivery',
             /** Telegram bot */
@@ -79,7 +79,7 @@ export default class App extends Component {
     /** полученные с сервера (ajax) контекстные данные */
     static data = null;
 
-    /** context session */
+    /** context user session */
     static session =
         {
             /** Пользователь авторизован */
@@ -100,7 +100,7 @@ export default class App extends Component {
             AllowedWebRegistration: false
         };
 
-    /** Чтение состояния сессии */
+    /** Чтение состояния сессии пользователя */
     static readSession() {
         const cookies = new Cookies();
         var name = cookies.get('name');

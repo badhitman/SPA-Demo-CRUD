@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SPADemoCRUD.Models
 {
@@ -11,7 +12,7 @@ namespace SPADemoCRUD.Models
         /// <summary>
         /// Признак "только для чтения". Переименовывать или удалять такой объект может только ROOT
         /// </summary>
-        public bool Readonly { get; set; } = false;
+        public bool isReadonly { get; set; } = false;
 
         /// <summary>
         /// Объект помечен как "неактивный"
@@ -22,6 +23,9 @@ namespace SPADemoCRUD.Models
         /// Проверка/Пометка отметки объекта как [Избранный]
         /// </summary>
         [Display(Name = "Избранный (для всех глобально)", Description = "Объект глобально [Избранный]")]
-        public bool IsGlobalFavorite { get; set; } = false;
+        public bool isGlobalFavorite { get; set; } = false;
+
+        [NotMapped]
+        public new string FullInfo => $"{base.FullInfo}{(isReadonly ? "•[readonly!]" : "")}{(isDisabled ? "•[disabled!]" : "")}{(isGlobalFavorite ? "•[global favorite!]" : "")}";
     }
 }

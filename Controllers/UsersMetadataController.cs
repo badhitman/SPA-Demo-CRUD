@@ -13,6 +13,9 @@ using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
 {
+    /// <summary>
+    /// Получение метаданных пользователей
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Policy = "AccessMinLevelAdmin")]
@@ -27,7 +30,11 @@ namespace SPADemoCRUD.Controllers
             _context = context;
         }
 
-        // GET: api/Departments
+        /// <summary>
+        /// Получить общие метаданные пользователей: перечень департаментов и ролей
+        /// </summary>
+        /// <returns>два именованных набора данных(поля json объекта): [departments] и [roles]</returns>
+        // GET: api/UsersMetadata/
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DepartmentObjectModel>>> GetDepartments()
         {

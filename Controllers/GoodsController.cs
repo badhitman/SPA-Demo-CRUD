@@ -2,6 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -20,21 +21,36 @@ namespace SPADemoCRUD.Controllers
     {
         private readonly AppDataBaseContext _context;
         private readonly ILogger<GoodsController> _logger;
+        private readonly UserObjectModel _user;
 
-        public GoodsController(AppDataBaseContext context, ILogger<GoodsController> logger)
+        public GoodsController(AppDataBaseContext context, ILogger<GoodsController> logger, SessionUser session)
         {
             _context = context;
             _logger = logger;
+            _user = session.user;
         }
 
         // GET: api/Goods
         [HttpGet]
-        public ActionResult<object> GetGoods([FromQuery] PaginationParametersModel pagingParameters)
+        public async Task<ActionResult<object>> GetGoods([FromQuery] PaginationParametersModel pagingParameters)
         {
-            pagingParameters.Init(_context.GroupsGoods.Count());
-            IQueryable<GoodObjectModel> groupsGoods = _context.Goods.OrderBy(x => x.Id);
+            IQueryable<GoodObjectModel> goods = _context.Goods.AsQueryable();
+            if (_user.Role < AccessLevelUserRolesEnum.Admin)
+            {
+                goods = goods.Where(x => !x.isDisabled);
+            }
+
+            pagingParameters.Init(await goods.CountAsync());
+
+            goods = goods.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
-                groupsGoods = groupsGoods.Skip(pagingParameters.Skip);
+                goods = goods.Skip(pagingParameters.Skip);
+
+            goods = goods
+                .Take(pagingParameters.PageSize)
+                .Include(x => x.Avatar)
+                .Include(x => x.Unit)
+                .Include(x => x.Group);
 
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
             return new ObjectResult(new ServerActionResult()
@@ -42,17 +58,52 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос номенклатуры обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = groupsGoods.Include(x => x.Avatar).Include(x => x.Unit).Include(x => x.Group).Take(pagingParameters.PageSize).Select(x => new { x.Id, x.Avatar, x.Name, x.Readonly, x.Group, x.Information, x.Price, x.Unit })
+                Tag = goods.Select(good => new
+                {
+                    good.Id,
+                    good.Name,
+                    good.Information,
+                    good.Price,
+
+                    good.isReadonly,
+                    good.isDisabled,
+                    good.isGlobalFavorite,
+
+                    Avatar = new
+                    {
+                        good.Avatar.Id,
+                        good.Avatar.Name,
+                        good.Avatar.Information
+                    },
+
+                    Group = new
+                    {
+                        good.Group.Id,
+                        good.Group.Name,
+                        good.Group.Information
+                    },
+                    Unit = new
+                    {
+                        good.Unit.Id,
+                        good.Unit.Name,
+                        good.Unit.Information
+                    }
+                })
             });
         }
 
         // GET: api/Goods/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<GoodObjectModel>> GetGoodModel([FromQuery] PaginationParametersModel pagingParameters, int id)
+        public async Task<ActionResult<object>> GetGood([FromQuery] PaginationParametersModel pagingParameters, int id)
         {
-            GoodObjectModel goodModel = await _context.Goods.Include(x => x.Avatar).Include(x => x.Unit).Include(x => x.Group).FirstOrDefaultAsync(x => x.Id == id);
+            GoodObjectModel good = await _context.Goods
+                .Where(x => x.Id == id)
+                .Include(x => x.Avatar)
+                .Include(x => x.Unit)
+                .Include(x => x.Group)
+                .FirstOrDefaultAsync();
 
-            if (goodModel == null)
+            if (good == null)
             {
                 _logger.LogError("Номенклатура не найдена: id={0}", id);
                 return new ObjectResult(new ServerActionResult()
@@ -63,12 +114,19 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            IQueryable<RowGoodMovementRegisterModel> goodRegisters = _context.GoodMovementDocumentRows.Where(x => x.GoodId == id).OrderBy(x => x.Id);
-            pagingParameters.Init(goodRegisters.Count());
+            IQueryable<RowGoodMovementRegisterModel> goodRegisters = _context.GoodMovementDocumentRows.Where(x => x.GoodId == id);
+            pagingParameters.Init(await goodRegisters.CountAsync());
+
+            goodRegisters = goodRegisters.OrderBy(x => x.Id);
             if (pagingParameters.PageNum > 1)
                 goodRegisters = goodRegisters.Skip(pagingParameters.Skip);
 
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+
+            goodRegisters = goodRegisters
+                .Take(pagingParameters.PageSize)
+                .Include(x => x.BodyDocument).ThenInclude(x => x.Author);
+
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
@@ -76,177 +134,66 @@ namespace SPADemoCRUD.Controllers
                 Status = StylesMessageEnum.success.ToString(),
                 Tag = new
                 {
-                    avatar = new { id = goodModel.AvatarId, goodModel.Avatar?.Name },
-                    goodModel.Id,
-                    goodModel.Name,
-                    goodModel.Information,
-                    goodModel.Price,
-                    goodModel.isDisabled,
-                    goodModel.IsGlobalFavorite,
-                    goodModel.Readonly,
-                    goodModel.GroupId,
-                    goodModel.UnitId,
-                    units = _context.Units.Select(x => new { x.Id, x.Name, x.Information }),
-                    groups = _context.GroupsGoods.Select(x => new { x.Id, x.Name, x.Information }),
-                    registers = goodRegisters.Include(x => x.BodyDocument).Take(pagingParameters.PageSize).Select(x => getRegister(x, _context))
+                    good.Id,
+                    good.Name,
+                    good.Information,
+                    good.Price,
+                    good.GroupId,
+                    good.UnitId,
+
+                    good.isReadonly,
+                    good.isDisabled,
+                    good.isGlobalFavorite,
+
+                    noDelete = await _context.GoodMovementDocumentRows.AnyAsync(x => x.GoodId == id) || await _context.InventoryGoodsBalancesDeliveries.AnyAsync(x => x.GoodId == id) || await _context.InventoryGoodsBalancesWarehouses.AnyAsync(x => x.GoodId == id),
+
+                    Avatar = new
+                    {
+                        id = good.AvatarId,
+                        good.Avatar?.Name
+                    },
+
+                    Units = await _context.Units.Select(x => new
+                    {
+                        x.Id,
+                        x.Name,
+                        x.Information
+                    }).ToListAsync(),
+                    Groups = await _context.GroupsGoods.Select(x => new
+                    {
+                        x.Id,
+                        x.Name,
+                        x.Information
+                    }).ToListAsync(),
+
+                    Registers = await goodRegisters
+                    .Select(x => new
+                    {
+                        x.Id,
+                        Document = BodyGoodMovementDocumentModel.getDocument(x.BodyDocument, _context),
+                        x.Quantity,
+                        x.UnitId
+                    }).ToListAsync()
                 }
             });
         }
 
-        /// <summary>
-        /// Формирование анонимного/динамического объекта: запись регистра оборотов номенклатуры
-        /// </summary>
-        /// <param name="x">объект строки записи регистра</param>
-        /// <param name="context">контекст базы данных</param>
-        /// <returns>возвращается запись регистра в виде объекта анонимного типа</returns>
-        private static object getRegister(RowGoodMovementRegisterModel x, AppDataBaseContext context)
-        {
-            return new
-            {
-                x.Id,
-                document = getDocument(x.BodyDocument, context),
-                x.Quantity,
-                x.Price,
-                x.UnitId
-            };
-        }
-
-        /// <summary>
-        /// Формирование анономного/динамического объекта: документ-владелец записи регистра.
-        /// </summary>
-        /// <param name="document">объект-документ, строки которого представляют записи регистров</param>
-        /// <param name="context">контекст базы данных</param>
-        /// <returns>возвращается объект-документ-владелец записи регистра в виде объекта анонимного типа</returns>
-        private static object getDocument(BodyGoodMovementDocumentModel document, AppDataBaseContext context)
-        {
-            switch (document.Discriminator.ToLower())
-            {
-                case "receipttowarehousedocumentmodel":
-                    ReceiptToWarehouseDocumentModel MovementGoodsWarehousesDocument = context.ReceiptesGoodsToWarehousesRegisters.Include(x => x.Author).Include(x => x.WarehouseReceipt).FirstOrDefault(x => x.Id == document.Id);
-                    MovementGoodsWarehousesDocument.WarehouseReceipt = context.WarehousesGoods.FirstOrDefault(x => x.Id == MovementGoodsWarehousesDocument.WarehouseReceiptId);
-                    return new
-                    {
-                        document.DateCreate,
-                        author = new { id = document.AuthorId, document.Author.Name },
-                        document.Id,
-                        document.Name,
-                        document.Information,
-                        apiName = "movementgoodswarehouses",
-                        about = "Поступление на склад",
-                        Warehouse = new { MovementGoodsWarehousesDocument.WarehouseReceipt.Id, MovementGoodsWarehousesDocument.WarehouseReceipt.Name, MovementGoodsWarehousesDocument.WarehouseReceipt.Information }
-                    };
-                case "movementturnoverdeliverydocumentmodel":
-                    MovementTurnoverDeliveryDocumentModel MovementTurnoverDeliveryDocument = context.MovementTurnoverDeliveryDocuments.Include(x => x.DeliveryService).Include(x => x.DeliveryMethod).Include(x => x.Buyer).FirstOrDefault(x => x.Id == document.Id);
-                    return new
-                    {
-                        document.DateCreate,
-                        author = new { id = document.AuthorId, document.Author.Name },
-                        document.Id,
-                        document.Name,
-                        document.Information,
-                        apiName = "movementturnoverdelivery",
-                        about = "Отгрузка/Доставка",
-                        buyer = new
-                        {
-                            MovementTurnoverDeliveryDocument.Buyer?.Id,
-                            MovementTurnoverDeliveryDocument.Buyer?.Name
-                        },
-                        deliveryMethod = new
-                        {
-                            MovementTurnoverDeliveryDocument.DeliveryMethod?.Id,
-                            MovementTurnoverDeliveryDocument.DeliveryMethod?.Name
-                        },
-                        deliveryService = new
-                        {
-                            MovementTurnoverDeliveryDocument.DeliveryService?.Id,
-                            MovementTurnoverDeliveryDocument.DeliveryService?.Name
-                        },
-                        MovementTurnoverDeliveryDocument.DeliveryAddress1,
-                        MovementTurnoverDeliveryDocument.DeliveryAddress2
-                    };
-                default:
-                    return new { document.Id, document.Name, document.Information };
-            }
-        }
-
-        // PUT: api/Goods/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutGoodModel(int id, GoodObjectModel goodModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Ошибка контроля валидности модели",
-                    Status = StylesMessageEnum.danger.ToString(),
-                    Tag = ModelState
-                });
-            }
-
-            if (id != goodModel.Id)
-            {
-                _logger.LogError("Ошибка в запросе: {0} != goodModel.Id", id);
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Ошибка в запросе",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
-
-            _context.Goods.Attach(goodModel);
-            _context.Entry(goodModel).Property(x => x.Name).IsModified = true;
-            _context.Entry(goodModel).Property(x => x.Price).IsModified = true;
-            _context.Entry(goodModel).Property(x => x.UnitId).IsModified = true;
-            _context.Entry(goodModel).Property(x => x.GroupId).IsModified = true;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                goodModel = _context.Goods.Find(id);
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = true,
-                    Info = "Номенклатура сохранена",
-                    Status = StylesMessageEnum.success.ToString(),
-                    Tag = goodModel
-                });
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GoodModelExists(id))
-                {
-                    _logger.LogError("Номенклатура не найдена {0}", id);
-                    return new ObjectResult(new ServerActionResult()
-                    {
-                        Success = false,
-                        Info = "Номенклатура не найдена",
-                        Status = StylesMessageEnum.danger.ToString()
-                    });
-                }
-                else
-                {
-                    _logger.LogError("Невнятная ошибка во время обновлении номенклатуры");
-                    return new ObjectResult(new ServerActionResult()
-                    {
-                        Success = false,
-                        Info = "Невнятная ошибка во время обновлении номенклатуры",
-                        Status = StylesMessageEnum.danger.ToString()
-                    });
-                }
-            }
-        }
-
-        // POST: api/Goods/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        // POST: api/Goods/9
         [HttpPost("{id}")]
-        public async Task<ActionResult<GroupGoodsObjectModel>> PostGood(int id, GoodObjectModel good)
+        public async Task<ActionResult<object>> PostGood([FromRoute] int id, [FromBody] GoodObjectModel ajaxGood)
         {
-            if (!ModelState.IsValid)
+            _logger.LogInformation("Создание номенклатуры. Инициатор: " + _user.FullInfo);
+
+            ajaxGood.Name = ajaxGood.Name.Trim();
+            ajaxGood.Information = ajaxGood.Information.Trim();
+
+            if (!ModelState.IsValid
+                || string.IsNullOrEmpty(ajaxGood.Name)
+                || ajaxGood.GroupId <= 0
+                || ajaxGood.GroupId != id
+                || ajaxGood.UnitId <= 0
+                || !await _context.GroupsGoods.AnyAsync(group => group.Id == ajaxGood.GroupId)
+                || !await _context.Units.AnyAsync(unit => unit.Id == ajaxGood.UnitId))
             {
                 return new ObjectResult(new ServerActionResult()
                 {
@@ -257,66 +204,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            if (good.GroupId != id)
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Ошибка в запросе: good.GroupId != " + id,
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
-
-            good.Name = good.Name.Trim();
-            if (string.IsNullOrEmpty(good.Name))
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Создаваемый объект должен иметь имя",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
-
-            if (good.GroupId <= 0)
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Требуется указать группу",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
-            if (!_context.GroupsGoods.Any(x => x.Id == good.GroupId))
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Группа номенклатуры не найдена",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
-
-            if (good.UnitId <= 0)
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Требуется указать единицу измерения",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
-            if (!_context.Units.Any(x => x.Id == good.UnitId))
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Единица измерения номенклатуры не найдена",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
-
-            if (_context.Goods.Any(x => x.Name == good.Name))
+            if (await _context.Goods.AnyAsync(good => good.Name.ToLower() == ajaxGood.Name.ToLower()))
             {
                 return new ObjectResult(new ServerActionResult()
                 {
@@ -325,60 +213,178 @@ namespace SPADemoCRUD.Controllers
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
-            _context.Goods.Add(good);
+
+            if (_user.Role != AccessLevelUserRolesEnum.ROOT)
+            {
+                ajaxGood.isDisabled = false;
+                ajaxGood.isGlobalFavorite = false;
+                ajaxGood.isReadonly = false;
+            }
+
+            await _context.Goods.AddAsync(ajaxGood);
             await _context.SaveChangesAsync();
-            HttpContext.Response.Cookies.Append("rowsCount", _context.Goods.Count().ToString());
+
+            HttpContext.Response.Cookies.Append("rowsCount", (await _context.Goods.CountAsync()).ToString());
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
                 Info = "Номенклатура создана",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = good
+                Tag = ajaxGood.Id
             });
+        }
+
+        // PUT: api/Goods/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutGoodModel([FromRoute]int id, [FromBody] GoodObjectModel ajaxGood)
+        {
+            _logger.LogInformation($"Редактирование номенклатуры [#{id}]. Инициатор: " + _user.FullInfo);
+            string msg;
+
+            ajaxGood.Name = ajaxGood.Name.Trim();
+            ajaxGood.Information = ajaxGood.Information.Trim();
+
+            if (!ModelState.IsValid
+                || ajaxGood.GroupId < 1
+                || string.IsNullOrEmpty(ajaxGood.Name)
+                || id != ajaxGood.Id
+                || !await _context.Goods.AnyAsync(x => x.Id == id)
+                || !await _context.GroupsGoods.AnyAsync(x=>x.Id == ajaxGood.GroupId))
+            {
+                msg = "Ошибка в запросе";
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString(),
+                    Tag = ModelState
+                });
+            }
+
+            if (await _context.Goods.AnyAsync(x => x.Name.ToLower() == ajaxGood.Name.ToLower() && x.Id != id))
+            {
+                msg = "Номенклатура с таким именем уже существует в бд. Придумайте уникальное";
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
+            GoodObjectModel goodDb = await _context.Goods.FindAsync(ajaxGood.Id);
+
+            if (goodDb.isReadonly && _user.Role != AccessLevelUserRolesEnum.ROOT)
+            {
+                msg = $"Номенклатура находится статусе 'read only'. Ваш уровень доступа [{_user.Role}] не позволяет редактировать/удалять подобные объекты";
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
+            goodDb.Name = ajaxGood.Name;
+            goodDb.Information = ajaxGood.Information;
+            goodDb.Price = ajaxGood.Price;
+            goodDb.UnitId = ajaxGood.UnitId;
+            goodDb.GroupId = ajaxGood.GroupId;
+
+            if (_user.Role == AccessLevelUserRolesEnum.ROOT)
+            {
+                goodDb.isGlobalFavorite = ajaxGood.isGlobalFavorite;
+                goodDb.isDisabled = ajaxGood.isDisabled;
+                goodDb.isReadonly = ajaxGood.isReadonly;
+            }
+
+            _context.Goods.Update(goodDb);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                msg = $"Номенклатура [#{id}] сохранена";
+                _logger.LogInformation(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = true,
+                    Info = msg,
+                    Status = StylesMessageEnum.success.ToString()
+                });
+            }
+            catch (Exception ex)
+            {
+                msg = $"Ошибка SQL доступа во время обновления номенклатуры [#{id}]: {ex.Message}{(ex.InnerException is null ? "" : ". InnerException: " + ex.InnerException.Message)}";
+                _logger.LogError(ex, msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
         }
 
         // DELETE: api/Goods/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<GoodObjectModel>> DeleteGoodModel(int id)
+        public async Task<ActionResult<object>> DeleteGood(int id)
         {
-            var goodModel = await _context.Goods.FindAsync(id);
-            if (goodModel == null)
+            string msg;
+            _logger.LogInformation($"Удаление номенклатуры {id}. Инициатор: " + _user.FullInfo);
+
+            GoodObjectModel good = await _context.Goods.FindAsync(id);
+            if (good == null)
             {
-                _logger.LogError("Запрашиваемая номенклатура не найдена: id={0}", id);
+                msg = $"Запрашиваемая номенклатура не найдена: id={0}";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Запрашиваемая номенклатура не найдена",
+                    Info = msg,
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
 
-            if (_context.GoodMovementDocumentRows.Any(x => x.GoodId == id))
+            if (good.isReadonly && _user.Role != AccessLevelUserRolesEnum.ROOT)
             {
-                _logger.LogError("Запрашиваемая номенклатура не может быть удалена (есть ссылки в регистрах): id={0}", id);
+                msg = $"Номенклатура находится статусе 'read only'. Ваш уровень доступа [{_user.Role}] не позволяет удалять/редактировать подобные объекты";
+                _logger.LogError(msg);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
-                    Info = "Запрашиваемая номенклатура не может быть удалена (есть ссылки в регистрах)",
+                    Info = msg,
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
 
-            _context.Goods.Remove(goodModel);
+            if (await _context.GoodMovementDocumentRows.AnyAsync(x => x.GoodId == id)
+                || await _context.InventoryGoodsBalancesDeliveries.AnyAsync(x => x.GoodId == id)
+                || await _context.InventoryGoodsBalancesWarehouses.AnyAsync(x => x.GoodId == id))
+            {
+                msg = $"Запрашиваемая номенклатура не может быть удалена (есть ссылки в регистрах сущетсвуют остатки): id={id}";
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
+            _context.Goods.Remove(good);
             await _context.SaveChangesAsync();
 
-            _logger.LogWarning("Номенклатура удалена: id={0}", id);
+            msg = $"Номенклатура удалена: id={id}";
+            _logger.LogWarning(msg);
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
-                Info = "Номенклатура удалена",
+                Info = msg,
                 Status = StylesMessageEnum.info.ToString()
             });
-        }
-
-        private bool GoodModelExists(int id)
-        {
-            return _context.Goods.Any(e => e.Id == id);
         }
     }
 }

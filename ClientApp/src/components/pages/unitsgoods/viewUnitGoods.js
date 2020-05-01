@@ -16,16 +16,8 @@ export class viewUnitGoods extends aPageList {
     constructor(props) {
         super(props);
 
-        this.state.unitName = '';
-        this.state.unitInfo = '';
-        this.state.buttonsDisabled = true;
-
-        /** изменение значения поля полного имени */
-        this.handleUnitInfoChange = this.handleUnitInfoChange.bind(this);
         /** изменение значения поля краткого имени */
         this.handleUnitNameChange = this.handleUnitNameChange.bind(this);
-        /** сброс введёного значения поля на исходное: имя */
-        this.handleResetClick = this.handleResetClick.bind(this);
         /** сохранение в бд группы номенклатуры */
         this.handleSaveClick = this.handleSaveClick.bind(this);
     }
@@ -36,53 +28,21 @@ export class viewUnitGoods extends aPageList {
      */
     handleUnitNameChange(e) {
         const target = e.target;
-        const data = App.data;
-        var buttonsDisabled = true;
-        if (target.value) {
-            if (target.value.length > 0 && target.value.trim() !== data.name && this.state.unitInfo.length > 0) {
-                buttonsDisabled = false;
-            }
-        }
 
         this.setState({
-            unitName: target.value,
-            buttonsDisabled: buttonsDisabled
-        });
-    }
-
-    /**
-     * событие изменения полного имени единицы измерения
-     * @param {object} e - object sender
-     */
-    handleUnitInfoChange(e) {
-        const target = e.target;
-        const data = App.data;
-        var buttonsDisabled = true;
-        if (target.value) {
-            if (target.value.length > 0 && target.value.trim() !== data.information && this.state.unitName.length > 0) {
-                buttonsDisabled = false;
-            }
-        }
-
-        this.setState({
-            unitInfo: target.value,
-            buttonsDisabled: buttonsDisabled
-        });
-    }
-
-    /** Сброс формы создания новой группы номенклатуры */
-    handleResetClick() {
-        const data = App.data;
-        this.setState({
-            unitName: data.name,
-            unitInfo: data.information,
-            buttonsDisabled: true
+            name: target.value
         });
     }
 
     /** сохранение имени номенклатурной группы */
     async handleSaveClick() {
-        var sendedFormData = { id: parseInt(App.id, 10), name: this.state.unitName, information: this.state.unitInfo };
+        var sendedFormData =
+        {
+            id: parseInt(App.id, 10),
+            name: this.state.name,
+            information: this.state.information
+        };
+
         const response = await fetch(`${this.apiPrefix}/${App.controller}/${App.id}`, {
             method: 'PUT',
             body: JSON.stringify(sendedFormData),
@@ -95,9 +55,9 @@ export class viewUnitGoods extends aPageList {
             try {
                 const result = await response.json();
                 if (result.success === true) {
-                    result.tag.goods = App.data.goods;
-                    App.data = result.tag;
-                    this.handleResetClick();
+                    //result.tag.goods = App.data.goods;
+                    //App.data = result.tag;
+                    await this.load();
                 }
                 else {
                     this.clientAlert(result.info, result.status);
@@ -113,22 +73,15 @@ export class viewUnitGoods extends aPageList {
         this.apiPostfix = `/${App.id}`;
         await super.ajax();
         const data = App.data;
-        this.setState({ unitName: data.name, unitInfo: data.information });
+        this.setState({ name: data.name, information: data.information });
     }
 
     cardBody() {
         var goods = App.data.goods;
 
-        const buttonsDisabled = this.state.buttonsDisabled === true;
-        const resetButtonDisabled = buttonsDisabled === true && this.state.unitName.length > 0 && this.state.unitInfo.length > 0;
-
-        const saveButton = buttonsDisabled === true
-            ? <button disabled className="btn btn-outline-secondary" type="button">Записать</button>
+        const saveButton = this.state.name === App.data.name && this.state.information === App.data.information === true
+            ? <button disabled className="btn btn-outline-secondary" type="button">Сохранить</button>
             : <button onClick={this.handleSaveClick} className="btn btn-outline-success" type="button">Записать</button>;
-
-        const resetButton = resetButtonDisabled === true
-            ? <button disabled className="btn btn-outline-secondary" type="reset">Сброс</button>
-            : <button onClick={this.handleResetClick} className="btn btn-outline-primary" type="reset">Сброс</button>;
 
         const deleteButton = Array.isArray(goods) === true && goods.length === 0 && App.data.noDelete !== true
             ? <NavLink className='btn btn-outline-danger btn-block' to={`/${App.controller}/${App.deleteNameMethod}/${App.id}`} role='button' title='Удалить единицу измерения'>Удаление</NavLink>
@@ -152,11 +105,10 @@ export class viewUnitGoods extends aPageList {
             <>
                 <label htmlFor="basic-url">Название единицы измерения</label>
                 <div className="input-group mb-3">
-                    <input onChange={this.handleUnitNameChange} value={this.state.unitName} type="text" className="form-control" placeholder="Введите краткое название единицы измерения" aria-label="Введите краткое название ед.изм." />
-                    <input onChange={this.handleUnitInfoChange} value={this.state.unitInfo} type="text" className="form-control" placeholder="Введите полное наименование единицы измерения" aria-label="Введите полное наименование ед.изм." />
-                    <div className="input-group-append" id="button-addon4">
+                    <input onChange={this.handleUnitNameChange} value={this.state.name} type="text" className="form-control" placeholder="Введите краткое название единицы измерения" aria-label="Введите краткое название ед.изм." />
+                    <input onChange={this.InformationTextareaChangeHandler} value={this.state.information} type="text" className="form-control" placeholder="Введите полное наименование единицы измерения" aria-label="Введите полное наименование ед.изм." />
+                    <div className="input-group-append">
                         {saveButton}
-                        {resetButton}
                     </div>
                 </div>
                 <NavLink className='btn btn-outline-info btn-block' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку единиц измерения номенклатуры'>К перечню едениц измерения</NavLink>

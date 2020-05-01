@@ -28,6 +28,6 @@ export class aPageList extends aPage {
     }
 
     cardHeaderPanel() {
-        return <span title='реализация фильтров запланирована в ближайшем будущем'>фильтры</span>;
+        return <></>;
     }
 }

@@ -7,7 +7,7 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Номенклатура в обороте/доставке (учёт/остатки)
     /// </summary>
-    public class InventoryGoodBalancesDeliveriesAnalyticalModel : aInventoryGoodBalancesAnalyticalModel
+    public class InventoryBalancesDeliveriesAnalyticalModel : aInventoryGoodBalancesAnalyticalModel
     {
         public int DeliveryMethodId { get; set; }
         /// <summary>
@@ -15,6 +15,7 @@ namespace SPADemoCRUD.Models
         /// </summary>
         public DeliveryMethodObjectModel DeliveryMethod { get; set; }
 
+        public int? DeliveryServiceId { get; set; }
         /// <summary>
         /// Служба доставки
         /// </summary>

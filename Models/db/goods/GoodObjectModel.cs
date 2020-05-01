@@ -26,7 +26,7 @@ namespace SPADemoCRUD.Models
         /// <summary>
         /// Сводка/срез остатков номенклатуры в разрезе складов
         /// </summary>
-        public List<InventoryGoodBalancesWarehousesAnalyticalModel> BalancesWarehouses { get; set; }
+        public List<InventoryBalancesWarehousesAnalyticalModel> BalancesWarehouses { get; set; }
 
         /// <summary>
         /// Документы движения номенклатуры в контексте складов

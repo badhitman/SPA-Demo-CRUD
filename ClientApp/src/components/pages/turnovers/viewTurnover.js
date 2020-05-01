@@ -12,7 +12,7 @@ export class viewTurnover extends aPageCard {
 
     async load() {
         await this.ajax();
-        this.cardTitle = `отгрузка: [#${App.data.id}] ${App.data.name}`;
+        this.cardTitle = `Документ отгрузки в доставку: [#${App.data.id}] ${App.data.name}`;
         this.setState({ loading: false });
     }
 
@@ -23,5 +23,9 @@ export class viewTurnover extends aPageCard {
                 <p className="lead">В процессе разработки...</p>
             </>
         );
+    }
+
+    cardHeaderPanel() {
+        return <></>;
     }
 }

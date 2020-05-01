@@ -8,16 +8,18 @@ namespace SPADemoCRUD.Models
     {
         #region Навигационные свойства
 
-        public int BtcTransactionModelId { get; set; }
+        public int BtcTransactionId { get; set; }
         /// <summary>
         /// Родительская btc транзакция
         /// </summary>
-        public BtcTransactionObjectModel BtcTransactionModel { get; set; }
+        public BtcTransactionObjectModel BtcTransaction { get; set; }
+
         public int? UserId { get; set; }
         /// <summary>
         /// Связаный пользователь зачисления
         /// </summary>
         public UserObjectModel User { get; set; }
+
         #endregion
 
         #region Реквизиты

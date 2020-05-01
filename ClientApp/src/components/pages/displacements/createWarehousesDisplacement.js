@@ -25,7 +25,6 @@ export class createWarehousesDisplacement extends viewWarehousesDisplacement {
             <>
                 <form>
                     <p className="lead">В процессе разработки...</p>
-                    {this.createButtons()}
                 </form>
             </>
         );

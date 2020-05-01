@@ -143,16 +143,16 @@ export class Hub extends Component {
                         <Route path={`/turnovers/${App.deleteNameMethod}`} component={deleteTurnover} />
 
                         {/** внутреннее перемещение (между складами) */}
-                        <Route path={`/displacements/${App.listNameMethod}/`} component={listWarehousesDisplacements} />
-                        <Route path={`/displacements/${App.viewNameMethod}`} component={viewWarehousesDisplacement} />
-                        <Route path={`/displacements/${App.createNameMethod}`} component={createWarehousesDisplacement} />
-                        <Route path={`/displacements/${App.deleteNameMethod}`} component={deleteWarehousesDisplacement} />
+                        <Route path={`/displacementsdocuments/${App.listNameMethod}/`} component={listWarehousesDisplacements} />
+                        <Route path={`/displacementsdocuments/${App.viewNameMethod}`} component={viewWarehousesDisplacement} />
+                        <Route path={`/displacementsdocuments/${App.createNameMethod}`} component={createWarehousesDisplacement} />
+                        <Route path={`/displacementsdocuments/${App.deleteNameMethod}`} component={deleteWarehousesDisplacement} />
 
                         {/** поступление на склад */}
-                        <Route path={`/receiptswarehouses/${App.listNameMethod}/`} component={listReceiptsWarehouses} />
-                        <Route path={`/receiptswarehouses/${App.viewNameMethod}`} component={viewReceiptWarehouse} />
-                        <Route path={`/receiptswarehouses/${App.createNameMethod}`} component={createReceiptWarehouse} />
-                        <Route path={`/receiptswarehouses/${App.deleteNameMethod}`} component={deleteReceiptWarehouse} />
+                        <Route path={`/receiptswarehousesdocuments/${App.listNameMethod}/`} component={listReceiptsWarehouses} />
+                        <Route path={`/receiptswarehousesdocuments/${App.viewNameMethod}`} component={viewReceiptWarehouse} />
+                        <Route path={`/receiptswarehousesdocuments/${App.createNameMethod}`} component={createReceiptWarehouse} />
+                        <Route path={`/receiptswarehousesdocuments/${App.deleteNameMethod}`} component={deleteReceiptWarehouse} />
 
                         {/** склады учёта */}
                         <Route path={`/warehouses/${App.listNameMethod}/`} component={listWarehouses} />

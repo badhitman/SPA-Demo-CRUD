@@ -117,9 +117,9 @@ export class listUnitsGoods extends aPageList {
             <>
                 <label htmlFor="basic-url">Создание новой единицы измерения</label>
                 <div className="input-group mb-3">
-                    <input onChange={this.handleNewNameChange} value={this.state.newName} type="text" className="form-control" placeholder="Наименование (краткое) новой ед.изм." aria-label="Введите краткое название новой единицы измерения" aria-describedby="button-addon4" />
+                    <input onChange={this.handleNewNameChange} value={this.state.newName} type="text" className="form-control" placeholder="Наименование (краткое) новой ед.изм." aria-label="Введите краткое название новой единицы измерения" />
                     <input onChange={this.handleNewInfoChange} value={this.state.newInfo} type="text" className="form-control" placeholder="Наименование (полное) новой ед.изм." aria-label="Введите полное название новой единицы измерения" />
-                    <div className="input-group-append" id="button-addon4">
+                    <div className="input-group-append">
                         {myButtons}
                     </div>
 

@@ -10,6 +10,11 @@ namespace SPADemoCRUD.Models
     public class AppDataBaseContext : DbContext
     {
         /// <summary>
+        /// Маркеры (пользовательские) объектов признака: [избранное]
+        /// </summary>
+        public DbSet<UserFavoriteMarkModel> UserFavoriteLocators { get; set; }
+
+        /// <summary>
         /// документы движения номенклатуры
         /// </summary>
         public DbSet<BodyGoodMovementDocumentModel> GoodMovementDocuments { get; set; }
@@ -65,6 +70,10 @@ namespace SPADemoCRUD.Models
         public DbSet<BtcTransactionOutObjectModel> BtcTransactionOuts { get; set; }
 
         /// <summary>
+        /// Группы товаров
+        /// </summary>
+        public DbSet<GroupGoodsObjectModel> GroupsGoods { get; set; }
+        /// <summary>
         /// Единицы измерения
         /// </summary>
         public DbSet<UnitGoodObjectModel> Units { get; set; }
@@ -73,25 +82,26 @@ namespace SPADemoCRUD.Models
         /// </summary>
         public DbSet<GoodObjectModel> Goods { get; set; }
         /// <summary>
-        /// Группы товаров
-        /// </summary>
-        public DbSet<GroupGoodsObjectModel> GroupsGoods { get; set; }
-        /// <summary>
         /// Склады
         /// </summary>
-        public DbSet<WarehouseGoodObjectModel> WarehousesGoods { get; set; }
+        public DbSet<WarehouseObjectModel> Warehouses { get; set; }
         /// <summary>
         /// Остатки в разрезах аналитики
         /// </summary>
-        public DbSet<InventoryGoodBalancesWarehousesAnalyticalModel> InventoryGoodsBalancesWarehouses { get; set; }
+        public DbSet<InventoryBalancesWarehousesAnalyticalModel> InventoryGoodsBalancesWarehouses { get; set; }
+
+        /// <summary>
+        /// Складские документы
+        /// </summary>
+        public DbSet<WarehouseDocumentsModel> WarehouseDocuments { get; set; }
         /// <summary>
         /// Документы поступления на склад
         /// </summary>
-        public DbSet<ReceiptToWarehouseDocumentModel> ReceiptesGoodsToWarehousesRegisters { get; set; }
+        public DbSet<ReceiptToWarehouseDocumentModel> ReceiptesGoodsToWarehousesDocuments { get; set; }
         /// <summary>
         /// Документы внутреннего перемещения со склада на склад
         /// </summary>
-        public DbSet<InternalDisplacementWarehouseDocumentModel> InternalDisplacementWarehouseRegisters { get; set; }
+        public DbSet<InternalDisplacementWarehouseDocumentModel> InternalDisplacementWarehouseDocuments { get; set; }
 
         /// <summary>
         /// Методы доставки
@@ -109,7 +119,7 @@ namespace SPADemoCRUD.Models
         /// <summary>
         /// остатки номенклатуры в доставке в разрезе аналитики
         /// </summary>
-        public DbSet<InventoryGoodBalancesDeliveriesAnalyticalModel> InventoryGoodsBalancesDeliveries { get; set; }
+        public DbSet<InventoryBalancesDeliveriesAnalyticalModel> InventoryGoodsBalancesDeliveries { get; set; }
 
         public AppDataBaseContext(DbContextOptions<AppDataBaseContext> options)
             : base(options)

@@ -9,8 +9,8 @@ namespace SPADemoCRUD.Models
     /// <summary>
     /// Склад номенклатуры (учёт/остатки)
     /// </summary>
-    public class WarehouseGoodObjectModel : AvatarObjEntityModel
+    public class WarehouseObjectModel : AvatarObjEntityModel
     {
-        public List<InventoryGoodBalancesWarehousesAnalyticalModel> BalancesGoods { get; set; }
+        public List<InventoryBalancesWarehousesAnalyticalModel> BalancesGoods { get; set; }
     }
 }

@@ -19,12 +19,14 @@ export class deleteDepartment extends viewDepartment {
 
     cardBody() {
         var department = App.data;
+        const allowDelete = (department.isReadonly === false || App.session.role.toLowerCase() === 'root') && Array.isArray(department.users) && department.users.length === 0;
+
         return (
             <>
-                <div className="alert alert-danger" role="alert">Безвозратное удаление департамента и связаных с ним пользователей! Данное дейтсвие нельзя будет отменить!</div>
+                <div className="alert alert-danger" role="alert">{(allowDelete === true ? 'Безвозратное удаление департамента! Данное дейтсвие нельзя будет отменить!' : 'Департамент с сотрудниками или помеченый как "только для чтения" нельзя удалять')}</div>
                 <form className="mb-3">
-                    {this.mapObjectToReadonlyForm(department, ['id'])}
-                    {this.deleteButtons()}
+                    {this.mapObjectToReadonlyForm(department, ['id', 'avatar'])}
+                    {this.deleteButtons(allowDelete)}
                 </form>
                 <DepatmentUsers />
             </>

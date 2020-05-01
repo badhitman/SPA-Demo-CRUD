@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using System.Linq;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,43 +17,44 @@ namespace SPADemoCRUD.Controllers
     public class ProfileController : ControllerBase
     {
         private readonly AppDataBaseContext _context;
-        private readonly SessionUser _sessionUser;
+        private readonly UserObjectModel _user;
 
-        public ProfileController(AppDataBaseContext context, SessionUser sessionUser)
+        public ProfileController(AppDataBaseContext context, SessionUser session)
         {
             _context = context;
-            _sessionUser = sessionUser;
+            _user = session.user;
         }
 
-        // GET: api/Profile
+        // GET: api/Profilies
         [HttpGet]
         public ActionResult<object> GetProfile()
         {
-            if (_sessionUser.user is null)
-            {
-                return new ObjectResult(new ServerActionResult()
-                {
-                    Success = false,
-                    Info = "Ошибка обработки запроса профиля. Пользователь текущей сессии не определён",
-                    Status = StylesMessageEnum.danger.ToString()
-                });
-            }
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
                 Info = "Запрос профиля обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { _sessionUser.user.DateCreate, Department = _sessionUser.user.Department.Name, _sessionUser.user.Email, _sessionUser.user.Id, _sessionUser.user.isDisabled, _sessionUser.user.Name, _sessionUser.user.Readonly, Role = _sessionUser.user.Role.ToString() }
+                Tag = new
+                {
+                    _user.DateCreate,
+                    Department = _user.Department.Name,
+                    _user.Email,
+                    _user.Id,
+                    _user.isDisabled,
+                    _user.Name,
+                    _user.isReadonly,
+                    Role = _user.Role.ToString()
+                }
             });
         }
 
         // GET: api/Profile/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<СonversationDocumentModel>> GetProfileModel(int id)
+        public async Task<ActionResult<СonversationDocumentModel>> GetProfile(int id)
         {
-            var сonversationModel = await _context.Сonversations.FindAsync(id);
+            var сonversation = await _context.Сonversations.FindAsync(id);
 
-            if (сonversationModel == null)
+            if (сonversation == null)
             {
                 return null; // NotFound();
             }
@@ -65,29 +66,22 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProfileModel(int id, СonversationDocumentModel сonversationModel)
+        public async Task<IActionResult> PutProfile(int id, СonversationDocumentModel ajaxConversation)
         {
-            if (id != сonversationModel.Id)
+            if (id != ajaxConversation.Id)
             {
                 return null; // BadRequest();
             }
 
-            _context.Entry(сonversationModel).State = EntityState.Modified;
+            _context.Entry(ajaxConversation).State = EntityState.Modified;
 
             try
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!СonversationModelExists(id))
-                {
-                    return null; // NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return null; // NoContent();
@@ -97,9 +91,9 @@ namespace SPADemoCRUD.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<СonversationDocumentModel>> PostProfileModel(СonversationDocumentModel сonversationModel)
+        public async Task<ActionResult<object>> PostProfile(СonversationDocumentModel ajaxConversation)
         {
-            _context.Сonversations.Add(сonversationModel);
+            _context.Сonversations.Add(ajaxConversation);
             await _context.SaveChangesAsync();
 
             return null; // CreatedAtAction("GetСonversationModel", new { id = сonversationModel.Id }, сonversationModel);
@@ -107,23 +101,18 @@ namespace SPADemoCRUD.Controllers
 
         // DELETE: api/Profile/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<СonversationDocumentModel>> DeleteProfileModel(int id)
+        public async Task<ActionResult<object>> DeleteProfile(int id)
         {
-            var сonversationModel = await _context.Сonversations.FindAsync(id);
-            if (сonversationModel == null)
+            СonversationDocumentModel сonversation = await _context.Сonversations.FindAsync(id);
+            if (сonversation == null)
             {
                 return null; // NotFound();
             }
 
-            //_context.Сonversations.Remove(сonversationModel);
-            //await _context.SaveChangesAsync();
+            _context.Сonversations.Remove(сonversation);
+            await _context.SaveChangesAsync();
 
             return null; // сonversationModel;
-        }
-
-        private bool СonversationModelExists(int id)
-        {
-            return _context.Сonversations.Any(e => e.Id == id);
         }
     }
 }

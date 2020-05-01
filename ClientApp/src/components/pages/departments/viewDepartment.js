@@ -12,21 +12,24 @@ export class viewDepartment extends aPageCard {
     static displayName = viewDepartment.name;
 
     async load() {
-        await this.ajax();
+        await super.load(true);
         this.cardTitle = `Департамент: [#${App.data.id}] ${App.data.name}`;
         this.setState({ loading: false });
     }
 
     cardBody() {
         var department = App.data;
+        
         return (
             <>
                 <form className='mb-2'>
+                    <input name='id' defaultValue={department.id} type='hidden' />
                     <div className="form-group">
-                        <input name='id' defaultValue={department.id} type='hidden' />
                         <label htmlFor="departments-input">Наименование</label>
                         <input name='name' defaultValue={department.name} type="text" className="form-control" id="departments-input" placeholder="Новое название" />
                     </div>
+                    {this.getInformation()}
+                    {this.rootPanelObject}
                     {this.viewButtons()}
                 </form>
                 <DepatmentUsers />

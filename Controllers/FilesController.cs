@@ -499,7 +499,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Доступ к хранимой папке успешно обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = files.Take(pagingParameters.PageSize).ToList().Where(x => System.IO.File.Exists(Path.Combine(StoragePath, x.Id.ToString() + Path.GetExtension(x.Name)))).Select(x => new { x.Id, x.Name, Size = glob_tools.SizeDataAsString(x.Length), x.isDisabled, x.Readonly }).ToArray()
+                Tag = files.Take(pagingParameters.PageSize).ToList().Where(x => System.IO.File.Exists(Path.Combine(StoragePath, x.Id.ToString() + Path.GetExtension(x.Name)))).Select(x => new { x.Id, x.Name, Size = glob_tools.SizeDataAsString(x.Length), x.isDisabled, x.isReadonly }).ToArray()
             });
         }
 
@@ -528,7 +528,7 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Доступ к начальной папке успешно обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = new { Id = fileStorage.Id.ToString() + md.FileInfo.Extension, fileStorage.Name, Size = glob_tools.SizeDataAsString(fileStorage.Length), fileStorage.isDisabled, fileStorage.Readonly }
+                Tag = new { Id = fileStorage.Id.ToString() + md.FileInfo.Extension, fileStorage.Name, Size = glob_tools.SizeDataAsString(fileStorage.Length), fileStorage.isDisabled, fileStorage.isReadonly }
             });
         }
 

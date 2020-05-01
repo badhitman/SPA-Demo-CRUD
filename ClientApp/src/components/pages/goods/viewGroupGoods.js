@@ -21,10 +21,8 @@ export class viewGroupGoods extends aPageList {
         super(props);
 
         this.state.groupName = '';
-        this.state.buttonsDisabled = true;
         this.state.newGoodName = '';
         this.state.newGoodUnitId = 0;
-        this.state.newGoodButtonsDisabled = true;
 
         /** изменение значения селектора еденицы измеренеия новой номенклатуры */
         this.handleNewGoodUnitChange = this.handleNewGoodUnitChange.bind(this);
@@ -43,18 +41,15 @@ export class viewGroupGoods extends aPageList {
         this.handleSaveClick = this.handleSaveClick.bind(this);
     }
 
-
     /**
      * событие изменения единицы измерения "создаваемой" номенклатуры
      * @param {object} e - object sender
      */
     handleNewGoodUnitChange(e) {
         const target = e.target;
-        const newGoodButtonsDisabled = target.value === 0;
 
         this.setState({
-            newGoodUnitId: target.value,
-            newGoodButtonsDisabled: newGoodButtonsDisabled
+            newGoodUnitId: target.value
         });
     }
 
@@ -64,16 +59,9 @@ export class viewGroupGoods extends aPageList {
      */
     handleNewGoodNameChange(e) {
         const target = e.target;
-        var newGoodButtonsDisabled = true;
-        if (target.value) {
-            if (target.value.length > 0 && target.value.trim() !== App.data.name) {
-                newGoodButtonsDisabled = false;
-            }
-        }
 
         this.setState({
-            newGoodName: target.value,
-            newGoodButtonsDisabled: newGoodButtonsDisabled
+            newGoodName: target.value
         });
     }
 
@@ -81,8 +69,7 @@ export class viewGroupGoods extends aPageList {
     handleNewGoodResetClick() {
         this.setState({
             newGoodName: '',
-            newGoodUnitId: 0,
-            newGoodButtonsDisabled: true
+            newGoodUnitId: 0
         });
     }
 
@@ -120,30 +107,32 @@ export class viewGroupGoods extends aPageList {
      */
     handleGroupNameChange(e) {
         const target = e.target;
-        var buttonsDisabled = true;
-        if (target.value) {
-            if (target.value.length > 0 && target.value.trim() !== App.data.name) {
-                buttonsDisabled = false;
-            }
-        }
 
         this.setState({
-            groupName: target.value,
-            buttonsDisabled: buttonsDisabled
+            groupName: target.value
         });
     }
 
     /** Сброс формы создания новой группы номенклатуры */
     handleResetClick() {
         this.setState({
-            groupName: App.data.name,
-            buttonsDisabled: true
+            groupName: App.data.name
         });
     }
 
-    /** сохранение имени номенклатурной группы */
+    /** сохранение номенклатурной группы */
     async handleSaveClick() {
-        var sendedFormData = { id: parseInt(App.id, 10), name: this.state.groupName };
+        var sendedFormData =
+        {
+            id: parseInt(App.id, 10),
+            name: this.state.groupName,
+            information: this.state.information,
+
+            isDisabled: this.state.isDisabled,
+            isGlobalFavorite: this.state.isGlobalFavorite,
+            isReadonly: this.state.isReadonly
+        };
+
         const response = await fetch(`${this.apiPrefix}/${App.controller}/${App.id}`, {
             method: 'PUT',
             body: JSON.stringify(sendedFormData),
@@ -156,14 +145,9 @@ export class viewGroupGoods extends aPageList {
             try {
                 const result = await response.json();
                 if (result.success === true) {
-                    result.tag.goods = App.data.goods;
-                    result.tag.units = App.data.units;
-                    App.data = result.tag;
-                    this.handleResetClick();
+                    await this.load();
                 }
-                else {
-                    this.clientAlert(result.info, result.status);
-                }
+                this.clientAlert(result.info, result.status);
             }
             catch (err) {
                 this.clientAlert(err);
@@ -174,49 +158,40 @@ export class viewGroupGoods extends aPageList {
     async ajax() {
         this.apiPostfix = `/${App.id}`;
         await super.ajax();
-        //this.servicePaginator
         this.setState({ groupName: App.data.name });
     }
 
     cardBody() {
         var apiName = App.controller;
-
-        const goods = App.data.goods;
-        const units = App.data.units;
+        const data = App.data;
+        const goods = data.goods;
+        const units = data.units;
         this.servicePaginator.urlRequestAddress = `/${App.controller}/${App.viewNameMethod}/${App.id}`;
 
-        const saveButtonDisabled = this.state.buttonsDisabled === true;
-        const resetButtonDisabled = saveButtonDisabled && this.state.groupName.length > 0;
-        const deleteButtonDisabled = (Array.isArray(goods) === false || goods.length > 0);
 
-        const saveButton = saveButtonDisabled === true
-            ? <button disabled title='Вы можете ввести новое имя группе' className="btn btn-outline-secondary" type="button">Ξ</button>
-            : <button title='Сохранить новое имя группы в БД' onClick={this.handleSaveClick} className="btn btn-outline-success" type="button">Ok</button>;
-
-        const resetButton = resetButtonDisabled === true
-            ? <></>
-            : <button title='Сброс имени на оригинальное значание из БД' onClick={this.handleResetClick} className="btn btn-outline-primary" type="reset">Отмена</button>;
+        const deleteButtonDisabled = this.servicePaginator.rowsCount > 0;
 
         const deleteButton = deleteButtonDisabled === true
             ? <button disabled title='Что бы удалить объект - предварительно перенесите номенклатуру в другие группы' className="btn btn-outline-secondary btn-block mb-3" type="button">Удаление невозможно</button>
             : <NavLink className='btn btn-outline-danger btn-block' to={`/${App.controller}/${App.deleteNameMethod}/${App.id}`} role='button' title='Диалог удаления объекта'>Удаление</NavLink>;
 
-        const saveNewGoodButtonDisabled = this.state.newGoodButtonsDisabled === true || this.state.newGoodName.length === 0 || this.state.newGoodUnitId === 0 || this.state.newGoodUnitId === '0';
+        const saveNewGoodButtonDisabled = this.state.newGoodName.length === 0 || this.state.newGoodUnitId === 0 || this.state.newGoodUnitId === '0';
         const resetNewGoodButtonDisabled = (this.state.newGoodName.length === 0 && (this.state.newGoodUnitId === 0 || this.state.newGoodUnitId === '0'));
 
         const saveNewGoodButton = saveNewGoodButtonDisabled ? <button disabled title='Укажите наименование и единицу измерения номенклатуре' className="btn btn-outline-secondary" type="button">•</button> : <button title='Сохранить номенклатуру в БД' onClick={this.handleSaveNewGoodClick} className="btn btn-outline-success" type="button">Add</button>;
         const resetNewGoodButton = resetNewGoodButtonDisabled ? <></> : <button title='Сброс формы' onClick={this.handleNewGoodResetClick} className="btn btn-outline-primary" type="reset">Сброс</button>;
 
-        var myButtons = <>{saveButton}{resetButton}</>;
         return (
             <>
-                <label htmlFor="basic-url">Имя группы номенклатуры</label>
-                <div className="input-group mb-3">
-                    <input onChange={this.handleGroupNameChange} value={this.state.groupName} type="text" className="form-control" placeholder="Введите название группы" aria-label="Введите название группы" aria-describedby="button-addon4" />
-                    <div className="input-group-append" id="button-addon4">
-                        {myButtons}
-                    </div>
+                <div className="form-group">
+                    <label htmlFor="exampleInputEmail1">Имя группы номенклатуры</label>
+                    <input onChange={this.handleGroupNameChange} value={this.state.groupName} type="text" aria-label="Введите название группы" className="form-control" id="exampleInputEmail1" placeholder="Введите название группы" />
                 </div>
+                {this.getInformation()}
+                {this.rootPanelObject()}
+                <br />
+                <button title='Сохранить новое изменения в БД' onClick={this.handleSaveClick} className="btn btn-block btn-outline-success" type="button">Сохранить</button>
+                <br />
                 <NavLink className='btn btn-outline-primary btn-block' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Перейти к списку групп номенклатуры'>К списку групп</NavLink>
                 {deleteButton}
                 <div className="card mt-3">
@@ -237,12 +212,12 @@ export class viewGroupGoods extends aPageList {
                                         <td colSpan='4'>
                                             <label>Ввод новой номенклатуры в справочник</label>
                                             <div className="input-group input-group-sm">
-                                                <input onChange={this.handleNewGoodNameChange} title='Название номенклатуры' value={this.state.newGoodName} type="text" className="form-control" placeholder="Наименование новой номенклатуры" aria-describedby="button-addon4" />
+                                                <input onChange={this.handleNewGoodNameChange} title='Название номенклатуры' value={this.state.newGoodName} type="text" className="form-control" placeholder="Наименование новой номенклатуры" />
                                                 <select onChange={this.handleNewGoodUnitChange} value={this.state.newGoodUnitId} title='Единица измерения' className="custom-select col-md-2" id="inputGroupSelect01">
                                                     <option value='0'>Ед.изм.</option>
                                                     {units.map(function (unit) { return <option key={unit.id} value={unit.id}>{unit.name}</option> })}
                                                 </select>
-                                                <div className="input-group-append" id="button-addon4">
+                                                <div className="input-group-append">
                                                     {saveNewGoodButton}
                                                     {resetNewGoodButton}
                                                 </div>
