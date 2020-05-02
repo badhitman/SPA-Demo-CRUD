@@ -12,6 +12,7 @@ export class viewDepartment extends aPage {
     static displayName = viewDepartment.name;
 
     async load() {
+        this.apiPostfix = `/${App.id}`;
         await super.load(true);
         this.cardTitle = `Департамент: [#${App.data.id}] ${App.data.name}`;
         this.setState({ loading: false });

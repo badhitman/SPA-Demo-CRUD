@@ -82,7 +82,7 @@ namespace SPADemoCRUD.Controllers
         {
             ReceiptToWarehouseDocumentModel document = await _context.ReceiptesGoodsToWarehousesDocuments
                 .Include(x => x.Author)
-                .Include(x=>x.Warehouse)
+                .Include(x => x.Warehouse)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (document == null)
@@ -96,6 +96,40 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
+            var rows = await _context.GoodMovementDocumentRows
+                    .Where(row => row.BodyDocumentId == document.Id)
+                    .Include(row => row.Good)
+                    .OrderBy(sel => sel.Good.Name)
+                    .Join(_context.Units, row => row.UnitId, unit => unit.Id, (row, unit) => new 
+                    { 
+                        row.Id, 
+                        row.Quantity,
+                        Good = new 
+                        { 
+                            row.Good.Id, 
+                            row.Good.Name, 
+                            row.Good.Information 
+                        },
+                        unit
+                    })
+                    .Select(selItem => new
+                    {
+                        selItem.Id,
+                        selItem.Quantity,
+                        Good = new
+                        {
+                            selItem.Good.Id,
+                            selItem.Good.Name,
+                            selItem.Good.Information
+                        },
+                        Unit = new 
+                        { 
+                            selItem.unit.Id, 
+                            selItem.unit.Name, 
+                            selItem.unit.Information 
+                        }
+                    }).ToListAsync();
+
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
@@ -105,7 +139,7 @@ namespace SPADemoCRUD.Controllers
                 {
                     document.Id,
                     document.Name,
-                    Warehouse =new 
+                    Warehouse = new
                     {
                         document.Warehouse.Id,
                         document.Warehouse.Name,
@@ -113,22 +147,7 @@ namespace SPADemoCRUD.Controllers
                     },
                     document.Information,
 
-                    rows = await _context.GoodMovementDocumentRows
-                    .Where(row => row.BodyDocumentId == document.Id)
-                    .Include(row => row.Good)
-                    .OrderBy(sel => sel.Good.Name)
-                    .Select(row => new
-                    {
-                        row.Id,
-                        row.Quantity,
-                        Good = new
-                        {
-                            row.Good.Id,
-                            row.Good.Name,
-                            row.Good.Information
-                        },
-                        row.UnitId
-                    }).ToListAsync(),
+                    rows,
 
                     Units = await _context.Units.OrderBy(x => x.Name).Select(u => new
                     {

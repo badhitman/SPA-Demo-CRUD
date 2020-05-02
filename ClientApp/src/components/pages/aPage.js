@@ -256,7 +256,7 @@ export class aPage extends Component {
 
     /** Рендер функциональной панели, размещённого в заголовочной части карточки (прижата к правой части) */
     cardHeaderPanel() {
-        return this.stub;
+        return <></>;
     }
 
     /** Рендер тела карточки страницы */
@@ -297,8 +297,8 @@ export class aPage extends Component {
         return (<div className="btn-toolbar justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
             <div className="btn-group" role="group" aria-label="First group">
                 <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Сохранить и перейти к списку'>Ok</button>
-                <button name={this.saveButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Записать в базу данных и продолжить редактирование'>Записать</button>
-                <NavLink className='btn btn-outline-primary' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Вернуться к списку</NavLink>
+                <button name={this.saveButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Записать в базу данных и продолжить редактирование'>Запись</button>
+                <NavLink className='btn btn-outline-primary' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Выйти</NavLink>
                 {allowDelete === true
                     ? <NavLink className='btn btn-outline-danger' to={`/${App.controller}/${App.deleteNameMethod}/${App.data.id}/`} role='button' title='Удалить объект из базы данных'>Удаление</NavLink>
                     : <button disabled className='btn btn-outline-danger' title='Удалить объект из базы данных нельзя'>Удаление недоступно</button>}
