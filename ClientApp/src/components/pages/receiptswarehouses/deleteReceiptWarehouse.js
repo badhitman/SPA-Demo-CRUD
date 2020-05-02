@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom';
 import { viewReceiptWarehouse } from './viewReceiptWarehouse';
 import App from '../../../App';
 
@@ -17,13 +17,12 @@ export class deleteReceiptWarehouse extends viewReceiptWarehouse {
         this.setState({ loading: false });
     }
 
-    //cardBody() {
-    //    return (
-    //        <>
-    //            {viewReceiptWarehouse.navTabs()}
-    //            <NavLink className='btn btn-outline-primary btn-block' to={`/${App.controller}/${App.listNameMethod}`} role='button' title='Вернуться в журнал документов поступления номенклатуры'>Вернуться</NavLink>
-    //            <p className="lead">В процессе разработки...</p>
-    //        </>
-    //    );
-    //}
+    cardBody() {
+        return (
+            <>
+                <p className="lead">В процессе разработки...</p>
+                Перейти <NavLink to={`/${App.controller}/${App.listNameMethod}`}>к списку </NavLink>
+            </>
+        );
+    }
 }

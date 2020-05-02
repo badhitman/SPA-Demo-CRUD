@@ -51,15 +51,16 @@ namespace SPADemoCRUD.Controllers
                 Success = true,
                 Info = "Запрос складов хранения обработан",
                 Status = StylesMessageEnum.success.ToString(),
-                Tag = Warehouses.Take(pagingParameters.PageSize).Select(warehouse => new
+                Tag = await Warehouses.Take(pagingParameters.PageSize).Select(warehouse => new
                 {
                     warehouse.Id,
                     warehouse.Name,
                     warehouse.Information,
+
                     warehouse.isReadonly,
                     warehouse.isDisabled,
                     warehouse.isGlobalFavorite
-                })
+                }).ToArrayAsync()
             });
         }
 
@@ -103,9 +104,11 @@ namespace SPADemoCRUD.Controllers
                     warehouse.Id,
                     warehouse.Name,
                     warehouse.Information,
+
                     warehouse.isDisabled,
                     warehouse.isGlobalFavorite,
                     warehouse.isReadonly,
+
                     Documents = (await wDocuments.ToListAsync()).Select(wDoc => BodyGoodMovementDocumentModel.getDocument(wDoc, _context)),
 
                     Avatar = new

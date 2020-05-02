@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 
-import { Route, Switch } from 'react-router';
+import { Route, Switch, Redirect } from 'react-router';
 import { Layout } from './components/Layout';
 import { NotFound } from './components/NotFound';
 import { Hub } from './Hub';
@@ -210,6 +210,7 @@ export default class App extends Component {
         return (
             <Layout>
                 <Switch>
+                    <Redirect from={`/goods/${App.listNameMethod}`} to={`/groupsgoods/${App.listNameMethod}`} />
                     <Route path='/:controller?/:method?/:id?' component={Hub} />
                     <Route component={NotFound} />
                 </Switch>

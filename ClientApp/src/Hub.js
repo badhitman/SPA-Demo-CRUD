@@ -45,7 +45,6 @@ import { deleteTurnover } from './components/pages/turnovers/deleteTurnover';
 
 import { listWarehouses } from './components/pages/warehouses/listWarehouses';
 import { viewWarehouse } from './components/pages/warehouses/viewWarehouse';
-import { createWarehouse } from './components/pages/warehouses/createWarehouse';
 import { deleteWarehouse } from './components/pages/warehouses/deleteWarehouse';
 
 import { listReceiptsWarehouses } from './components/pages/receiptswarehouses/listReceiptsWarehouses';
@@ -119,6 +118,8 @@ export class Hub extends Component {
                         <Route path={`/departments/${App.deleteNameMethod}`} component={deleteDepartment} />
 
                         {/** группы номенклатуры */}
+                        <Route path={`/goods/${App.listNameMethod}`} component={listGroupsGoods} />
+                        
                         <Route path={`/groupsgoods/${App.listNameMethod}/`} component={listGroupsGoods} />
                         <Route path={`/groupsgoods/${App.viewNameMethod}/`} component={viewGroupGoods} />
                         <Route path={`/groupsgoods/${App.deleteNameMethod}/`} component={deleteGroupGoods} />
@@ -157,7 +158,6 @@ export class Hub extends Component {
                         {/** склады учёта */}
                         <Route path={`/warehouses/${App.listNameMethod}/`} component={listWarehouses} />
                         <Route path={`/warehouses/${App.viewNameMethod}`} component={viewWarehouse} />
-                        <Route path={`/warehouses/${App.createNameMethod}`} component={createWarehouse} />
                         <Route path={`/warehouses/${App.deleteNameMethod}`} component={deleteWarehouse} />
 
                         {/** пользовательские уведомления */}
@@ -170,7 +170,7 @@ export class Hub extends Component {
                         <Route path={`/files/${App.viewNameMethod}`} component={viewFile} />
                         <Route path={`/files/${App.deleteNameMethod}`} component={deleteFile} />
 
-                        {/** еelegram bot */}
+                        {/** telegram bot */}
                         <Route path={`/telegram/${App.listNameMethod}/`} component={listTelegramBotUpdates} />
                         <Route path={`/telegram/${App.viewNameMethod}`} component={viewTelegramBotUpdate} />
                         <Route path={`/telegram/${App.deleteNameMethod}`} component={deleteTelegramBotUpdate} />

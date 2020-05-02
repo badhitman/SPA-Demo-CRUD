@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { viewWarehousesDisplacement } from './viewWarehousesDisplacement';
 import App from '../../../App';
 
@@ -25,6 +26,7 @@ export class createWarehousesDisplacement extends viewWarehousesDisplacement {
             <>
                 <form>
                     <p className="lead">В процессе разработки...</p>
+                    Перейти <NavLink to={`/${App.controller}/${App.listNameMethod}`}>к списку </NavLink>
                 </form>
             </>
         );

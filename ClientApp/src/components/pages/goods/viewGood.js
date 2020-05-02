@@ -15,68 +15,11 @@ export class viewGood extends aPageList {
     constructor(props) {
         super(props);
 
-        this.state.unitId = 0;
-        this.state.groupId = 0;
-        this.state.price = 0;
-
         /** изменение цены */
         this.handlePriceChange = this.handlePriceChange.bind(this);
-        /** изменение единицы измерения */
-        this.handleUnitChange = this.handleUnitChange.bind(this);
-        /** изменение группы */
-        this.handleGroupChange = this.handleGroupChange.bind(this);
-        /** сохранение в бд */
-        this.handleSaveClick = this.handleSaveClick.bind(this);
+        this.handleClickButton = this.handleClickButton.bind(this);
 
-        /** изменение наименования номенклатуры */
-        this.handleNameChange = this.handleNameChange.bind(this);
-    }
-
-    /**
-     * событие изменения имени
-     * @param {object} e - object sender
-     */
-    handleNameChange(e) {
-        const target = e.target;
-        this.setState({
-            name: target.value
-        });
-    }
-
-    /**
-    * событие изменения группы
-    * @param {object} e - object sender
-    */
-    handleGroupChange(e) {
-        const target = e.target;
-
-        try {
-            const targetValue = parseInt(target.value, 10);
-            this.setState({
-                groupId: targetValue
-            });
-        }
-        catch (err) {
-            this.clientAlert(err, 'danger');
-        }
-    }
-
-    /**
-    * событие изменения единицы измерения
-    * @param {object} e - object sender
-    */
-    handleUnitChange(e) {
-        const target = e.target;
-
-        try {
-            const targetValue = parseInt(target.value, 10);
-            this.setState({
-                unitId: targetValue
-            });
-        }
-        catch (err) {
-            this.clientAlert(err, 'danger');
-        }
+        this.priceRef = React.createRef();
     }
 
     /**
@@ -86,62 +29,33 @@ export class viewGood extends aPageList {
     handlePriceChange(e) {
         var targetValue = e.target.value;
         if (!(/^[\d,.]+$/.test(targetValue)) || (targetValue.match(/[^\d]/g) || []).length > 1) {
+            if (this.lastPrice) {
+                e.target.value = this.lastPrice;
+            }
+            else {
+                const data = App.data;
+                e.target.value = data.price;
+            }
             return;
         }
 
         targetValue = targetValue.replace(',', '.');
-
-        try {
-            this.setState({
-                price: targetValue
-            });
-        }
-        catch (err) {
-            this.clientAlert(err, 'danger');
-        }
+        e.target.value = targetValue;
+        this.lastPrice = targetValue;
     }
 
     /** сохранение */
-    async handleSaveClick() {
-        var priceValue = `${this.state.price}`;
-        if (/[,.]/.test(priceValue)) {
-            priceValue = `0${priceValue}0`;
+    async handleClickButton(e) {
+        var priceValue = `${this.priceRef.current.value}`;
+        if (/^[,.]/.test(priceValue)) {
+            priceValue = `0${priceValue}`;
         }
-        var sendedFormData =
-        {
-            id: parseInt(App.id, 10),
-            name: this.state.name,
-            unitId: this.state.unitId,
-            groupId: this.state.groupId,
-            price: parseFloat(parseFloat(priceValue.replace(',', '.')).toFixed(2)),
-            information: this.state.information,
-
-            isDisabled: this.state.isDisabled,
-            isGlobalFavorite: this.state.isGlobalFavorite,
-            isReadonly: this.state.isReadonly
-        };
-        const response = await fetch(`${this.apiPrefix}/${App.controller}/${App.id}`, {
-            method: 'PUT',
-            body: JSON.stringify(sendedFormData),
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8'
-            }
-        });
-
-        if (response.ok === true) {
-            try {
-                const result = await response.json();
-                if (result.success === true) {
-                    this.load();
-                }
-                else {
-                    this.clientAlert(result.info, result.status);
-                }
-            }
-            catch (err) {
-                this.clientAlert(err);
-            }
+        if (/[,.]$/.test(priceValue)) {
+            priceValue = `${priceValue}0`;
         }
+
+        this.priceRef.current.value = priceValue;
+        super.handleClickButton(e);
     }
 
     async load(continueLoading = false) {
@@ -160,14 +74,6 @@ export class viewGood extends aPageList {
     cardBody() {
         const good = App.data;
 
-        const buttonDeleteEnable = (this.servicePaginator.rowsCount === 0 || this.servicePaginator.rowsCount === '0') && App.data.noDelete !== true;
-
-        const buttonDelete = buttonDeleteEnable === true
-            ? <NavLink className='btn btn-outline-danger btn-block' to={`/${App.controller}/${App.deleteNameMethod}/${App.id}`} role='button' title='Диалог удаления объекта'>Удаление</NavLink>
-            : <button disabled type="button" className="btn btn-outline-secondary btn-block" title='Объект удалить невозможно'>Удаление невозможно</button>;
-
-        const buttonBack = <NavLink className='btn btn-outline-primary btn-block' to={`/groupsgoods/${App.viewNameMethod}/${good.groupId}`} role='button' title='Вернуться в группу номенклатуры'>В группу</NavLink>
-
         return (
             <>
                 <form className='mb-2'>
@@ -175,11 +81,11 @@ export class viewGood extends aPageList {
                     <div className="form-row">
                         <div className="col">
                             <label>Наименование</label>
-                            <input value={this.state.name} onChange={this.handleNameChange} name='name' type="text" className="form-control" placeholder="Новое название" />
+                            <input defaultValue={good.name} name='name' type="text" className="form-control" placeholder="Новое название" />
                         </div>
                         <div className="col">
                             <label>Группа</label>
-                            <select value={this.state.groupId} onChange={this.handleGroupChange} name='groupId' className="custom-select">
+                            <select defaultValue={good.groupId} name='groupId' className="custom-select">
                                 {good.groups.map(function (element) {
                                     return <option key={element.id} value={element.id} title={element.information}>{element.name}</option>
                                 })}
@@ -189,7 +95,7 @@ export class viewGood extends aPageList {
                     <div className="form-row mb-2">
                         <div className="col">
                             <label>Ед. измерения</label>
-                            <select value={this.state.unitId} name='unitId' onChange={this.handleUnitChange} className="custom-select" aria-describedby="unitHelp">
+                            <select defaultValue={good.unitId} name='unitId' className="custom-select" aria-describedby="unitHelp">
                                 {good.units.map(function (element) {
                                     return <option key={element.id} value={element.id} title={element.information}>{element.name}</option>
                                 })}
@@ -198,20 +104,15 @@ export class viewGood extends aPageList {
                         </div>
                         <div className="col">
                             <label>Цена</label>
-                            <input value={this.state.price} onChange={this.handlePriceChange} name='price' type="text" className="form-control" placeholder="0.0" aria-describedby="priceHelp" />
+                            <input ref={this.priceRef} defaultValue={good.price} onChange={this.handlePriceChange} isdouble='true' name='price' type="text" className="form-control" placeholder="0.0" aria-describedby="priceHelp" />
                             <small id="priceHelp" className="form-text text-muted">Цена продажи</small>
                         </div>
                     </div>
                     {this.getInformation()}
                     {this.rootPanelObject()}
-                </form>
-                <hr />
-                <button onClick={this.handleSaveClick} type="button" className="btn btn-outline-success btn-block mb-2" title='Сохранить объект в БД'>Сохранить</button>
-                <div className='form-row mb-3'>
-                    <div className='col'>{buttonDelete}</div>
-                    <div className='col'>{buttonBack}</div>
-                </div>
-                <hr />
+                    <hr />
+                    {this.viewButtons()}
+                </form>                
                 <div className='card'>
                     <div className='card-body'>
                         <legend>Регистры оборотов по номенклатуре</legend>

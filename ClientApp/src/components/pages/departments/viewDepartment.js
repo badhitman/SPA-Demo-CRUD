@@ -3,12 +3,12 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
-import { aPageCard } from '../aPageCard';
+import { aPage } from '../aPage';
 import App from '../../../App';
 import { DepatmentUsers } from './DepatmentUsers';
 
 /** Отображение/редактирование существующего департамента */
-export class viewDepartment extends aPageCard {
+export class viewDepartment extends aPage {
     static displayName = viewDepartment.name;
 
     async load() {

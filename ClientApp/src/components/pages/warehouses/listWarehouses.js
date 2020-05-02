@@ -100,7 +100,7 @@ export class listWarehouses extends aPageList {
                 <br />
                 <label htmlFor="basic-url">Создание нового склада</label>
                 <div title='Для создания нового склада введите его название и нажмите кнопку - Создать' className="input-group mb-3">
-                    <input onChange={this.handleNameChange} value={this.state.name} type="text" className="form-control" placeholder="Введите название нового склада" aria-label="Введите название нового склада" />
+                    <input onChange={this.handleNameChange} value={this.state.nameNewWarehouse} type="text" className="form-control" placeholder="Введите название нового склада" aria-label="Введите название нового склада" />
                     <div className="input-group-append">
                         {myButtons}
                     </div>

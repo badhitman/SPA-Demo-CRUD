@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////
 
 import React, { Component } from 'react';
+import { NavLink } from 'react-router-dom';
 import jQuery from 'jquery';
 import App from '../../App';
 
@@ -18,8 +19,10 @@ export class aPage extends Component {
     /** Строка запроса к api (та что: ?nameParam=valueParam&nameParam2=valueParam2) */
     apiQuery = '';
 
-    /** Последнее значение строки запроса (this.props.location.search) */
-    static prewQuery = '';
+    /** имя кнопки отправки данных на сервер (с последующим переходом к списку) */
+    okButtonName = 'okButton';
+    /** имя кнопки только отправки данных на сервер (без последующего перехода)*/
+    saveButtonName = 'saveButton';
 
     /** Текст заголовка карточки */
     cardTitle = 'Заголовок карточки';
@@ -36,41 +39,123 @@ export class aPage extends Component {
 
         this.state =
         {
-            name: '',
-            information: '',
-
-            loading: true,
-
-            isReadonly: false,
-            isDisabled: false,
-            isGlobalFavorite: false
+            loading: true
         };
 
-        this.rootPanelCheckboxChangeHandler = this.rootPanelCheckboxChangeHandler.bind(this);
-        this.InformationTextareaChangeHandler = this.InformationTextareaChangeHandler.bind(this);
+        /** Обработчик нажатия кнопки "Ок" */
+        this.handleClickButton = this.handleClickButton.bind(this);
     }
 
-    InformationTextareaChangeHandler(e) {
-        const target = e.target;
-        this.setState({ information: target.value });
-    }
+    /**
+     * Обработчик нажатия кнопки Ok/Записать
+     * @param {any} e - context handle button
+     */
+    async handleClickButton(e) {
+        var nameButton = e.target.name;
+        var form = e.target.form;
 
-    rootPanelCheckboxChangeHandler(e) {
-        const target = e.target;
-        const checkboxName = target.name;
-        switch (checkboxName.toLowerCase()) {
-            case 'isreadonly':
-                this.setState({ isReadonly: target.checked === true });
-                break;
-            case 'isdisabled':
-                this.setState({ isDisabled: target.checked === true });
-                break;
-            case 'isglobalfavorite':
-                this.setState({ isGlobalFavorite: target.checked === true });
-                break;
-            default:
-                console.error('Произошла ошибка во время отработки события переключения чекбокс-ов в root панели ([isReadonly][isdisabled][isGlobalFavorite]). Неизвестное имя поля формы: ' + checkboxName.toLowerCase());
-                break;
+        var response;
+        const apiName = App.controller;
+        var urlBody = `${this.apiPrefix}/${apiName}${this.apiPostfix}`;
+
+        var sendedFormData = jQuery(form).serializeArray().reduce(function (obj, item) {
+            if (item.name.toLowerCase() === 'id' || form[item.name].type.toLowerCase() === 'number' || form[item.name].tagName.toLowerCase() === 'select' || form[item.name].attributes.isinteger) {
+                obj[item.name] = parseInt(item.value, 10);
+            }
+            else if (form[item.name].attributes.isdouble) {
+                obj[item.name] = parseFloat(item.value.replace(',', '.'));
+            }
+            else if (form[item.name].type.toLowerCase() === 'checkbox') {
+                obj[item.name] = form[item.name].checked === true || form[item.name].value.toLowerCase() === 'on' || form[item.name].value.toLowerCase() === 'checked' || form[item.name].value.toLowerCase() === 'true';
+            }
+            else {
+                obj[item.name] = item.value;
+            }
+            return obj;
+        }, {});
+
+        try {
+            switch (App.method) {
+                case App.viewNameMethod:
+                    response = await fetch(urlBody, {
+                        method: 'PUT',
+                        body: JSON.stringify(sendedFormData),
+                        headers: {
+                            'Content-Type': 'application/json; charset=utf-8'
+                        }
+                    });
+                    break;
+                case App.createNameMethod:
+                    response = await fetch(urlBody, {
+                        method: 'POST',
+                        body: JSON.stringify(sendedFormData),
+                        headers: {
+                            'Content-Type': 'application/json; charset=utf-8'
+                        }
+                    });
+                    break;
+                case App.deleteNameMethod:
+                    response = await fetch(urlBody, {
+                        method: 'DELETE',
+                        body: JSON.stringify(sendedFormData),
+                        headers: {
+                            'Content-Type': 'application/json; charset=utf-8'
+                        }
+                    });
+                    break;
+                default:
+                    const msg = `Ошибка обработки события нажатия кнопки в контексте {${App.method}}.`;
+                    console.error(msg);
+                    alert(msg);
+                    break;
+            }
+
+            if (response.redirected === true) {
+                window.location.href = response.url;
+            }
+
+            var result = await response.json();
+            var domElement;
+            if (response.ok) {
+                if (result.success === false) {
+                    this.clientAlert(result.info, result.status, 1000, 15000);
+                    return;
+                }
+
+                if (App.method === App.viewNameMethod) {
+                    this.clientAlert('Команда успешно выполнена', 'success');
+                }
+                else if (App.method === App.createNameMethod) {
+
+                    if (nameButton === this.okButtonName) {
+                        this.props.history.push(`/${apiName}/${App.listNameMethod}/`)
+                    }
+                    else {
+                        this.props.history.push(`/${apiName}/${App.viewNameMethod}/${result.tag}/`);
+                    }
+
+                    return;
+                }
+                else if (App.method === App.deleteNameMethod) {
+                    this.props.history.push(`/${apiName}/${App.listNameMethod}/`);
+                }
+            }
+            else {
+                var errorsString = App.mapObjectToArr(result.errors).join('<br/>');
+                domElement = jQuery(`<div class="mt-2 alert alert-danger" role="alert"><h4 class="alert-heading">${result.title}</h4><p>${errorsString}</p><hr/><p>traceId: ${result.traceId}</p></div>`);
+                jQuery(form).after(domElement.hide().fadeIn(1000, 'swing', function () { domElement.fadeOut(15000); }));
+                const msg = `Ошибка обработки HTTP запроса. Status: ${response.status}`;
+                console.error(msg);
+                return;
+            }
+
+            if (nameButton === this.okButtonName) {
+                this.props.history.push(`/${apiName}/${App.listNameMethod}/`);
+            }
+        } catch (error) {
+            const msg = `Ошибка: ${error}`;
+            console.error(msg);
+            alert(msg);
         }
     }
 
@@ -183,15 +268,15 @@ export class aPage extends Component {
         if (App.session.role.toLowerCase() === 'root') {
             return <>
                 <div className="custom-control custom-checkbox">
-                    <input type="checkbox" className="custom-control-input" id="customCheck1" name='isReadonly' checked={this.state.isReadonly} onChange={this.rootPanelCheckboxChangeHandler} />
+                    <input type="checkbox" className="custom-control-input" id="customCheck1" name='isReadonly' defaultChecked={(App.data.isReadonly === true)} />
                     <label className="custom-control-label" htmlFor="customCheck1">только для чтения</label>
                 </div>
                 <div className="custom-control custom-checkbox">
-                    <input type="checkbox" className="custom-control-input" id="customCheck2" name='isDisabled' checked={this.state.isDisabled} onChange={this.rootPanelCheckboxChangeHandler} />
+                    <input type="checkbox" className="custom-control-input" id="customCheck2" name='isDisabled' defaultChecked={(App.data.isDisabled === true)} />
                     <label className="custom-control-label" htmlFor="customCheck2">отключить/деактивировать</label>
                 </div>
                 <div className="custom-control custom-checkbox">
-                    <input type="checkbox" className="custom-control-input" id="customCheck3" name='IsGlobalFavorite' checked={this.state.isGlobalFavorite} onChange={this.rootPanelCheckboxChangeHandler} />
+                    <input type="checkbox" className="custom-control-input" id="customCheck3" name='IsGlobalFavorite' defaultChecked={(App.data.isGlobalFavorite === true)} />
                     <label className="custom-control-label" htmlFor="customCheck3">Избранное (для всех)</label>
                 </div>
             </>
@@ -203,8 +288,49 @@ export class aPage extends Component {
     getInformation() {
         return <div className="form-group">
             <label htmlFor="infirmationFormControlTextarea">Комментарий</label>
-            <textarea value={this.state.information} onChange={this.InformationTextareaChangeHandler} id="infirmationFormControlTextarea" name='information' className="form-control" rows="3" placeholder='Комментарий/примечание'></textarea>
+            <textarea defaultValue={App.data.information} id="infirmationFormControlTextarea" name='information' className="form-control" rows="3" placeholder='Комментарий/примечание'></textarea>
         </div>
+    }
+
+    /** Набор кнопок управления для формы просмотра/редактирования объекта */
+    viewButtons(allowDelete = true) {
+        return (<div className="btn-toolbar justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
+            <div className="btn-group" role="group" aria-label="First group">
+                <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Сохранить и перейти к списку'>Ok</button>
+                <button name={this.saveButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Записать в базу данных и продолжить редактирование'>Записать</button>
+                <NavLink className='btn btn-outline-primary' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Вернуться к списку</NavLink>
+                {allowDelete === true
+                    ? <NavLink className='btn btn-outline-danger' to={`/${App.controller}/${App.deleteNameMethod}/${App.data.id}/`} role='button' title='Удалить объект из базы данных'>Удаление</NavLink>
+                    : <button disabled className='btn btn-outline-danger' title='Удалить объект из базы данных нельзя'>Удаление недоступно</button>}
+            </div>
+        </div>);
+    }
+
+    /** Набор кнопок управления для формы создания объекта */
+    createButtons() {
+        return (<div className="btn-toolbar justify-content-end" role="toolbar" aria-label="Toolbar with button groups">
+            <div className="btn-group" role="group" aria-label="First group">
+                <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Сохранить и перейти к списку'>Ok</button>
+                <button name={this.saveButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-success" title='Записать в базу данных и продолжить редактирование'>Записать</button>
+                <NavLink className='btn btn-outline-primary' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку без сохранения'>Отмена</NavLink>
+            </div>
+        </div>);
+    }
+
+    /** Набор кнопок управления для формы удаления объекта */
+    deleteButtons(allowDelete = true) {
+        return allowDelete === true
+            ? (<>
+                <NavLink className='btn btn-primary btn-block' to={`/${App.controller}/${App.viewNameMethod}/${App.id}`} role='button' title='Перейти к редактированию объекта'>Редактировать</NavLink>
+                <NavLink className='btn btn-outline-primary btn-block' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку/справочнику'>Отмена</NavLink>
+                <button name={this.okButtonName} onClick={this.handleClickButton} type="button" className="btn btn-outline-danger btn-block" title='Подтвердить удаление объекта'>Подтверждение удаления</button>
+            </>)
+
+            : (<>
+                <NavLink className='btn btn-primary btn-block' to={`/${App.controller}/${App.viewNameMethod}/${App.id}`} role='button' title='Перейти к редактированию объекта'>Редактировать</NavLink>
+                <NavLink className='btn btn-outline-primary btn-block' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку'>Отмена</NavLink>
+                <button disabled type="button" className="btn btn-outline-danger btn-block" title='Удаление объекта недоступно'>Удаление невозможно</button>
+            </>);
     }
 
     render() {
@@ -220,14 +346,6 @@ export class aPage extends Component {
         if (data === undefined) {
             return <p>ajax context tag-data is undefined...</p>;
         }
-
-        //const search = this.props.location.search;
-
-        //if (search !== aPage.prewQuery) {
-        //    aPage.prewQuery = search;
-        //    this.load();
-        //    return <p>reload...</p>;
-        //}
 
         return (
             <>

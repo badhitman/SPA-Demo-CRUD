@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { viewTurnover } from './viewTurnover';
 import App from '../../../App';
 
@@ -17,10 +18,10 @@ export class deleteTurnover extends viewTurnover {
     }
 
     cardBody() {
-        var turnover = App.data;
         return (
             <>
                 <p className="lead">В процессе разработки...</p>
+                Перейти <NavLink to={`/${App.controller}/${App.listNameMethod}`}>к списку </NavLink>
             </>
         );
     }
