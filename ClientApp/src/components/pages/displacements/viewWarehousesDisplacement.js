@@ -31,7 +31,7 @@ export class viewWarehousesDisplacement extends aPageCard {
                         </tr>
                     </thead>
                     <tbody>
-                        {App.data.registers.map(function (warehouseDisplacement) {
+                        {App.data.rows.map(function (warehouseDisplacement) {
                             const currentNavLink = warehouseDisplacement.isDisabled === true
                                 ? <del><NavLink className='text-muted' to={`/${App.controller}/${App.viewNameMethod}/${warehouseDisplacement.id}`} title='кликните для редактирования'>{warehouseDisplacement.name}</NavLink></del>
                                 : <NavLink to={`/${App.controller}/${App.viewNameMethod}/${warehouseDisplacement.id}`} title='кликните для редактирования'>{warehouseDisplacement.name}</NavLink>

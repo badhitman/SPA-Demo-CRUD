@@ -13,79 +13,13 @@ export class viewUnitGoods extends aPageList {
     static displayName = viewUnitGoods.name;
     cardTitle = 'Единица измерения';
 
-    constructor(props) {
-        super(props);
-
-        /** изменение значения поля краткого имени */
-        this.handleUnitNameChange = this.handleUnitNameChange.bind(this);
-        /** сохранение в бд группы номенклатуры */
-        this.handleSaveClick = this.handleSaveClick.bind(this);
-    }
-
-    /**
-     * событие изменения краткого имени единицы измерения
-     * @param {object} e - object sender
-     */
-    handleUnitNameChange(e) {
-        const target = e.target;
-
-        this.setState({
-            name: target.value
-        });
-    }
-
-    /** сохранение имени номенклатурной группы */
-    async handleSaveClick() {
-        var sendedFormData =
-        {
-            id: parseInt(App.id, 10),
-            name: this.state.name,
-            information: this.state.information
-        };
-
-        const response = await fetch(`${this.apiPrefix}/${App.controller}/${App.id}`, {
-            method: 'PUT',
-            body: JSON.stringify(sendedFormData),
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8'
-            }
-        });
-
-        if (response.ok === true) {
-            try {
-                const result = await response.json();
-                if (result.success === true) {
-                    //result.tag.goods = App.data.goods;
-                    //App.data = result.tag;
-                    await this.load();
-                }
-                else {
-                    this.clientAlert(result.info, result.status);
-                }
-            }
-            catch (err) {
-                this.clientAlert(err);
-            }
-        }
-    }
-
     async ajax() {
         this.apiPostfix = `/${App.id}`;
         await super.ajax();
-        const data = App.data;
-        this.setState({ name: data.name, information: data.information });
     }
 
     cardBody() {
         var goods = App.data.goods;
-
-        const saveButton = this.state.name === App.data.name && this.state.information === App.data.information === true
-            ? <button disabled className="btn btn-outline-secondary" type="button">Сохранить</button>
-            : <button onClick={this.handleSaveClick} className="btn btn-outline-success" type="button">Записать</button>;
-
-        const deleteButton = Array.isArray(goods) === true && goods.length === 0 && App.data.noDelete !== true
-            ? <NavLink className='btn btn-outline-danger btn-block' to={`/${App.controller}/${App.deleteNameMethod}/${App.id}`} role='button' title='Удалить единицу измерения'>Удаление</NavLink>
-            : <button disabled title='Нельзя удалять ед.изм., на которую есть ссылки в объектах справочника номенклатуры' type="button" className="btn btn-outline-secondary btn-block">Удаление невозможно</button>
 
         const dataTableDom = Array.isArray(goods) === true && goods.length > 0
             ? <><div className='card mt-4'>
@@ -103,16 +37,15 @@ export class viewUnitGoods extends aPageList {
 
         return (
             <>
-                <label htmlFor="basic-url">Название единицы измерения</label>
-                <div className="input-group mb-3">
-                    <input onChange={this.handleUnitNameChange} value={this.state.name} type="text" className="form-control" placeholder="Введите краткое название единицы измерения" aria-label="Введите краткое название ед.изм." />
-                    <input onChange={this.InformationTextareaChangeHandler} value={this.state.information} type="text" className="form-control" placeholder="Введите полное наименование единицы измерения" aria-label="Введите полное наименование ед.изм." />
-                    <div className="input-group-append">
-                        {saveButton}
+                <form>
+                    <input name='id' defaultValue={App.data.id} type='hidden' />
+                    <div className="form-group">
+                        <label htmlFor="departments-input">Наименование</label>
+                        <input name='name' defaultValue={App.data.name} type="text" className="form-control" id="departments-input" placeholder="Новое название" />
                     </div>
-                </div>
-                <NavLink className='btn btn-outline-info btn-block' to={`/${App.controller}/${App.listNameMethod}/`} role='button' title='Вернуться к списку единиц измерения номенклатуры'>К перечню едениц измерения</NavLink>
-                {deleteButton}
+                    {this.getInformation()}
+                    {this.viewButtons()}
+                </form>
                 {dataTableDom}
             </>
         );

@@ -92,7 +92,34 @@ namespace SPADemoCRUD.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<object>> GetDisplacementWarehouseDocument(int id)
         {
-            InternalDisplacementWarehouseDocumentModel doc = await _context.InternalDisplacementWarehouseDocuments.Include(x => x.Author).FirstOrDefaultAsync(x => x.Id == id);
+            var doc = await _context.InternalDisplacementWarehouseDocuments
+                .Include(x=>x.Warehouse)
+                .Include(x => x.Author)
+                .Join(_context.Warehouses, docObj => docObj.WarehouseDebitingId, wareObj => wareObj.Id, (docObj, wareObj) => new 
+                {
+                    docObj.Id,
+                    docObj.Name,
+                    docObj.Information,
+                    WarehouseReceipt = new 
+                    {
+                        docObj.Warehouse.Id,
+                        docObj.Warehouse.Name,
+                        docObj.Warehouse.Information
+                    },
+                    WarehouseDebiting = new
+                    {
+                        wareObj.Id,
+                        wareObj.Name,
+                        wareObj.Information
+                    },
+                    Author = new
+                    {
+                        docObj.Author.Id,
+                        docObj.Author.Name,
+                        docObj.Author.Information
+                    }
+                })
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (doc == null)
             {
@@ -105,6 +132,23 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
+            var rows = await _context.GoodMovementDocumentRows
+                    .Where(row => row.BodyDocumentId == doc.Id)
+                    .Include(row => row.Good)
+                    .OrderBy(sel => sel.Good.Name)
+                    .Select(row => new
+                    {
+                        row.Id,
+                        row.Quantity,
+                        Good = new
+                        {
+                            row.Good.Id,
+                            row.Good.Name,
+                            row.Good.Information
+                        },
+                        row.UnitId
+                    }).ToListAsync();
+
             return new ObjectResult(new ServerActionResult()
             {
                 Success = true,
@@ -114,14 +158,10 @@ namespace SPADemoCRUD.Controllers
                 {
                     doc.Id,
                     doc.Name,
-                    doc.WarehouseId,
+                    doc.WarehouseDebiting,
+                    doc.WarehouseReceipt,
                     doc.Information,
-                    Author = new
-                    {
-                        doc.Author.Id,
-                        doc.Author.Name,
-                        doc.Author.Information
-                    },
+                    doc.Author,
 
                     rows = await _context.GoodMovementDocumentRows
                     .Where(row => row.BodyDocumentId == doc.Id)
@@ -163,7 +203,8 @@ namespace SPADemoCRUD.Controllers
                             good.Name,
                             good.Information
                         })
-                    }).ToListAsync()
+                    }).ToListAsync(),
+                    Warehouses = await _context.Warehouses.Select(x => new { x.Id, x.Name, x.Information }).ToListAsync()
                 }
             });
         }
@@ -172,9 +213,9 @@ namespace SPADemoCRUD.Controllers
         [HttpPost]
         public async Task<ActionResult<object>> PostDisplacementWarehouseDocument(InternalDisplacementWarehouseDocumentModel ajaxDoc)
         {
-            if (ajaxDoc.WarehouseDebitingId == 0 
-                || ajaxDoc.WarehouseId == 0 
-                || !await _context.Warehouses.AnyAsync(x=>x.Id == ajaxDoc.WarehouseDebitingId)
+            if (ajaxDoc.WarehouseDebitingId == 0
+                || ajaxDoc.WarehouseId == 0
+                || !await _context.Warehouses.AnyAsync(x => x.Id == ajaxDoc.WarehouseDebitingId)
                 || !await _context.Warehouses.AnyAsync(x => x.Id == ajaxDoc.WarehouseId))
             {
                 return new ObjectResult(new ServerActionResult()

@@ -180,11 +180,11 @@ export class PaginatorComponent extends Component {
                 <Dropdown className='mr-2' size="sm" isOpen={this.state.dropdownOpenPaginator} toggle={this.togglePaginator}>
                     <DropdownToggle title='Размерность пагинатора' caret>{this.pageSize}</DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem><NavLink tag={Link} to={`${this.urlRequestAddress}?${clearQuery}pageSize=10&pageNum=1`} title=''>10</NavLink></DropdownItem>
-                        <DropdownItem><NavLink tag={Link} to={`${this.urlRequestAddress}?${clearQuery}pageSize=20&pageNum=1`} title=''>20</NavLink></DropdownItem>
-                        <DropdownItem><NavLink tag={Link} to={`${this.urlRequestAddress}?${clearQuery}pageSize=50&pageNum=1`} title=''>50</NavLink></DropdownItem>
-                        <DropdownItem><NavLink tag={Link} to={`${this.urlRequestAddress}?${clearQuery}pageSize=100&pageNum=1`} title=''>100</NavLink></DropdownItem>
-                        <DropdownItem><NavLink tag={Link} to={`${this.urlRequestAddress}?${clearQuery}pageSize=200&pageNum=1`} title=''>200</NavLink></DropdownItem>
+                        <DropdownItem className={(this.pageSize === 10 ? 'font-weight-bold shadow rounded' : '')}><NavLink tag={Link} to={`${this.urlRequestAddress}?${clearQuery}pageSize=10&pageNum=1`} title=''>10</NavLink></DropdownItem>
+                        <DropdownItem className={(this.pageSize === 20 ? 'font-weight-bold shadow rounded' : '')}><NavLink tag={Link} to={`${this.urlRequestAddress}?${clearQuery}pageSize=20&pageNum=1`} title=''>20</NavLink></DropdownItem>
+                        <DropdownItem className={(this.pageSize === 50 ? 'font-weight-bold shadow rounded' : '')}><NavLink tag={Link} to={`${this.urlRequestAddress}?${clearQuery}pageSize=50&pageNum=1`} title=''>50</NavLink></DropdownItem>
+                        <DropdownItem className={(this.pageSize === 100 ? 'font-weight-bold shadow rounded' : '')}><NavLink tag={Link} to={`${this.urlRequestAddress}?${clearQuery}pageSize=100&pageNum=1`} title=''>100</NavLink></DropdownItem>
+                        <DropdownItem className={(this.pageSize === 200 ? 'font-weight-bold shadow rounded' : '')}><NavLink tag={Link} to={`${this.urlRequestAddress}?${clearQuery}pageSize=200&pageNum=1`} title=''>200</NavLink></DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
                 <Pagination size="sm" aria-label="Page navigation example">
