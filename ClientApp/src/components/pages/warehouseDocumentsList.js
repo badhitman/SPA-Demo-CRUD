@@ -53,13 +53,13 @@ export class warehouseDocumentsList extends aPageList {
         const createNewDocument = App.controller.toLowerCase() === 'warehousedocuments'
             ? <button disabled type="button" className="btn btn-outline-secondary btn-block">Укажите тип документа</button>
             : <NavLink className="btn btn-primary btn-block" to={`/${App.controller}/${App.createNameMethod}`} role="button">Создать {type2DocumentTitle}</NavLink>;
-        
+
         return (
             <>
                 <nav className="nav nav-pills nav-fill">
                     <NavLink to={`/warehouses/${App.listNameMethod}`} className='nav-item nav-link'>Склады</NavLink>
                     <Dropdown nav isOpen={this.state.dropdownOpenPaginator} toggle={this.togglePaginator}>
-                        <DropdownToggle style={{ 'color': '#fff', 'backgroundColor': '#007bff'}} nav caret>
+                        <DropdownToggle style={{ 'color': '#fff', 'backgroundColor': '#007bff' }} nav caret>
                             {typeDocumentTitle}
                         </DropdownToggle>
                         <DropdownMenu>
@@ -72,7 +72,7 @@ export class warehouseDocumentsList extends aPageList {
                 </nav>
                 <br />
                 {createNewDocument}
-                <table className='table table-striped mt-4'>
+                <table className='table table-sm table-striped mt-4'>
                     <thead>
                         <tr>
                             <th>id</th>
@@ -82,7 +82,6 @@ export class warehouseDocumentsList extends aPageList {
                     </thead>
                     <tbody>
                         {App.data.map(function (docWarehouse) {
-
                             var controllerName = '';
                             var aboutInfo = <></>;
                             switch (docWarehouse.discriminator.toLowerCase()) {
