@@ -261,7 +261,7 @@ export class aPage extends userAlertComponent {
                 <div className='form-group row' key={i}>
                     <label htmlFor={keyName} className='col-sm-2 col-form-label'>{keyName}</label>
                     <div className='col-sm-10'>
-                        <input name={keyName} id={keyName} readOnly={true} defaultValue={(obj[keyName].name ? obj[keyName].name : obj[keyName])} className='form-control' type='text' />
+                        <input name={keyName} id={keyName} readOnly={true} defaultValue={obj[keyName]} className='form-control' type='text' />
                     </div>
                 </div>
         })

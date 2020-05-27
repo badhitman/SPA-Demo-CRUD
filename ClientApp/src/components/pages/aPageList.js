@@ -12,6 +12,11 @@ export class aPageList extends aPage {
     static displayName = aPageList.name;
     servicePaginator = new PaginatorComponent();
 
+    constructor(props) {
+        super(props);
+        this.servicePaginator.urlQuery = '/api';
+    }
+
     async ajax() {
         this.servicePaginator = new PaginatorComponent(this.props);
         const urlAddress = `${this.apiPrefix}/${App.controller + this.apiPostfix}`;
