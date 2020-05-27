@@ -65,4 +65,7 @@ Web интерфейс управления файлами в папке Uploads
 ![конфигурационный файл приложения](./screenshots/appsettings.json.jpg)
 
 Раздел складского учёта номенклатуры
-![конфигурационный файл приложения](./screenshots/warehouse-gate.jpg)
+![складской учёт](./screenshots/warehouse-gate.jpg)
+
+Документ складского учёта (перемещение)
+![документ внутреннего перемещения номенклатуры](./screenshots/warehouse-doc.jpg)
