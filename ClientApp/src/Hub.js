@@ -47,15 +47,17 @@ import { listWarehouses } from './components/pages/warehouses/listWarehouses';
 import { viewWarehouse } from './components/pages/warehouses/viewWarehouse';
 import { deleteWarehouse } from './components/pages/warehouses/deleteWarehouse';
 
-import { listReceiptsWarehouses } from './components/pages/receiptswarehouses/listReceiptsWarehouses';
+import { warehouseDocumentsList } from './components/pages/warehouseDocumentsList';
+
 import { viewReceiptWarehouse } from './components/pages/receiptswarehouses/viewReceiptWarehouse';
 import { createReceiptWarehouse } from './components/pages/receiptswarehouses/createReceiptWarehouse';
 import { deleteReceiptWarehouse } from './components/pages/receiptswarehouses/deleteReceiptWarehouse';
 
-import { listWarehousesDisplacements } from './components/pages/displacements/listWarehousesDisplacements';
 import { viewWarehousesDisplacement } from './components/pages/displacements/viewWarehousesDisplacement';
 import { createWarehousesDisplacement } from './components/pages/displacements/createWarehousesDisplacement';
 import { deleteWarehousesDisplacement } from './components/pages/displacements/deleteWarehousesDisplacement';
+
+import { WarehousesReports } from './components/pages/WarehousesReports';
 
 import { listFiles } from './components/pages/files/listFiles';
 import { viewFile } from './components/pages/files/viewFile';
@@ -85,14 +87,14 @@ export class Hub extends Component {
         App.id = this.props.match.params.id;
         App.data = null;
 
-        if (App.controller !== undefined && App.allowsControllers.includes(App.controller) !== true) {
+        if (App.controller !== undefined && App.allowsControllers.includes(App.controller.toLowerCase()) !== true) {
             console.error('Недопустимое имя контроллера: ' + App.controller);
-            return <NotFound>Ошибка имени контроллера: {App.controller}<br />Доступные имена метдов: {App.allowsControllers.join()}</NotFound>;
+            return <NotFound><hr /><p>Запрашиваемый контроллер: <span className="badge badge-warning"><b>{App.controller}</b></span></p>Доступные имена контроллеров: {App.allowsControllers.map(function (controllerName) { return <span key={controllerName} className="badge badge-primary mx-1">{controllerName}</span> })}</NotFound>;
         }
 
         if (App.method !== undefined && App.allowsMethods.includes(App.method) !== true) {
-            console.error('Недопустимое имя метода: ' + App.method);
-            return <NotFound>Ошибка имени метода: {App.method}<br />Доступные имена метдов: {App.allowsMethods.join()}</NotFound>;
+            console.error('Недопустимое имя метода: ' + App.method + '');
+            return <NotFound><hr /><p>Ошибка имени метода: <span className="badge badge-warning"><b>{App.method}</b></span></p>Доступные имена метдов: {App.allowsMethods.map(function (methodName) { return <span key={methodName} className="badge badge-primary mx-1">{methodName}</span> })}</NotFound>;
         }
 
         return (
@@ -119,7 +121,7 @@ export class Hub extends Component {
 
                         {/** группы номенклатуры */}
                         <Route path={`/goods/${App.listNameMethod}`} component={listGroupsGoods} />
-                        
+
                         <Route path={`/groupsgoods/${App.listNameMethod}/`} component={listGroupsGoods} />
                         <Route path={`/groupsgoods/${App.viewNameMethod}/`} component={viewGroupGoods} />
                         <Route path={`/groupsgoods/${App.deleteNameMethod}/`} component={deleteGroupGoods} />
@@ -143,17 +145,23 @@ export class Hub extends Component {
                         <Route path={`/turnovers/${App.createNameMethod}`} component={createTurnover} />
                         <Route path={`/turnovers/${App.deleteNameMethod}`} component={deleteTurnover} />
 
+                        {/** журнал складских документов */}
+                        <Route path={`/warehouseDocuments/${App.listNameMethod}`} component={warehouseDocumentsList} />
+                        <Route path={`/receiptsWarehousesDocuments/${App.listNameMethod}`} component={warehouseDocumentsList} />
+                        <Route path={`/displacementsDocuments/${App.listNameMethod}`} component={warehouseDocumentsList} />
+
                         {/** внутреннее перемещение (между складами) */}
-                        <Route path={`/displacementsdocuments/${App.listNameMethod}/`} component={listWarehousesDisplacements} />
                         <Route path={`/displacementsdocuments/${App.viewNameMethod}`} component={viewWarehousesDisplacement} />
                         <Route path={`/displacementsdocuments/${App.createNameMethod}`} component={createWarehousesDisplacement} />
                         <Route path={`/displacementsdocuments/${App.deleteNameMethod}`} component={deleteWarehousesDisplacement} />
 
                         {/** поступление на склад */}
-                        <Route path={`/receiptswarehousesdocuments/${App.listNameMethod}/`} component={listReceiptsWarehouses} />
                         <Route path={`/receiptswarehousesdocuments/${App.viewNameMethod}`} component={viewReceiptWarehouse} />
                         <Route path={`/receiptswarehousesdocuments/${App.createNameMethod}`} component={createReceiptWarehouse} />
                         <Route path={`/receiptswarehousesdocuments/${App.deleteNameMethod}`} component={deleteReceiptWarehouse} />
+
+                        {/** складские отчёты */}
+                        <Route path={`/warehousesreports`} component={WarehousesReports} />
 
                         {/** склады учёта */}
                         <Route path={`/warehouses/${App.listNameMethod}/`} component={listWarehouses} />

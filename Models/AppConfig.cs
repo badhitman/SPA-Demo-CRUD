@@ -88,5 +88,10 @@ namespace SPADemoCRUD.Models
         /// Системная учётная запись. От её имени совершаются системные события.
         /// </summary>
         public int SystemUser { get; set; } = 1;
+
+        /// <summary>
+        /// Максимальное количество строк в документе (табличная часть)
+        /// </summary>
+        public int MaxNumRowsDocument { get; set; } = 128;
     }
 }

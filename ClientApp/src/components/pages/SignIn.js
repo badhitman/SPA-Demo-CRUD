@@ -84,7 +84,7 @@ export class SignIn extends Component {
     }
 
     onloadCallback() {
-        if (App.session.AllowedWebLogin === false && App.session.AllowedWebRegistration === false) {
+        if (App.webAuthSettings.AllowedWebLogin === false && App.webAuthSettings.AllowedWebRegistration === false) {
             return;
         }
 
@@ -137,7 +137,7 @@ export class SignIn extends Component {
                 <div className="col-sm-5 mb-3">
                     <div className="card">
                         <div className="card-body">
-                            <fieldset disabled={App.session.AllowedWebLogin !== true}>
+                            <fieldset disabled={App.webAuthSettings.AllowedWebLogin !== true}>
                                 <h5 className="card-title">Вход</h5>
                                 <p className="card-text">Вход в существующий акаунт</p>
                                 <form name={this.authorisationFormName}>
@@ -160,7 +160,7 @@ export class SignIn extends Component {
                 <div className="col-sm-7">
                     <div className="card">
                         <div className="card-body">
-                            <fieldset disabled={App.session.AllowedWebRegistration !== true}>
+                            <fieldset disabled={App.webAuthSettings.AllowedWebRegistration !== true}>
                                 <h5 className="card-title">Регистрация</h5>
                                 <p className="card-text">Регистрация нового акаунта</p>
                                 <form name={this.registrationFormName}>
@@ -210,16 +210,16 @@ export class SignIn extends Component {
      * @param {any} prefix - префикс: регистрация или авторизация
      */
     getRecaptchaDiv(prefix) {
-        if (App.session.AllowedWebLogin !== true && prefix === this.authorisationFormName) {
+        if (App.webAuthSettings.AllowedWebLogin !== true && prefix === this.authorisationFormName) {
             return <div className="alert alert-warning mt-3 mb-1" role="alert">Авторизация при помощи Web формы отключена администратором!</div>;
         }
-        if (App.session.AllowedWebRegistration !== true && prefix === this.registrationFormName) {
+        if (App.webAuthSettings.AllowedWebRegistration !== true && prefix === this.registrationFormName) {
             return <div className="alert alert-warning mt-3 mb-1" role="alert">Регистрация при помощи Web формы отключена администратором!</div>;
         }
 
         const PublicKey = this.getRecaptchaPublicKey();
         if (App.session.isAuthenticated !== true && PublicKey !== null && PublicKey.length > 0 &&
-            (App.session.AllowedWebLogin === true || App.session.AllowedWebRegistration === true)) {
+            (App.webAuthSettings.AllowedWebLogin === true || App.webAuthSettings.AllowedWebRegistration === true)) {
             return (<div id={`recaptchaWıdget${prefix}`} className="g-recaptcha mt-2" data-sitekey={PublicKey}></div>);
         }
 
@@ -228,18 +228,18 @@ export class SignIn extends Component {
 
     /** Получить публичный ключ reCaptcha (null если ни одного ключа не установлено). Приоритет/порядок проверки наличия установленного ключа: 1) Invisible 2) Widget */
     getRecaptchaPublicKey() {
-        if (App.session.AllowedWebLogin === false && App.session.AllowedWebRegistration === false) {
+        if (App.webAuthSettings.AllowedWebLogin === false && App.webAuthSettings.AllowedWebRegistration === false) {
             return null;
         }
 
         // firs priority try Invisible version reCaptcha
-        var PublicKey = App.session.reCaptchaV2InvisiblePublicKey;
+        var PublicKey = App.reCaptchaSettings.reCaptchaV2InvisiblePublicKey;
         if (PublicKey && PublicKey.length > 0) {
             return PublicKey;
         }
 
         // second try Widget version reCaptcha
-        PublicKey = App.session.reCaptchaV2PublicKey;
+        PublicKey = App.reCaptchaSettings.reCaptchaV2PublicKey;
         if (PublicKey && PublicKey.length > 0) {
             return PublicKey;
         }

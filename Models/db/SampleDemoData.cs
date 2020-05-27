@@ -63,19 +63,19 @@ namespace SPADemoCRUD.Models
                 new GoodObjectModel { Name = "Варежки", Price = 1350, Group = groupGoodsDemo[1], Unit = unitsDemo[7] },
                 new GoodObjectModel { Name = "Лента (отрез)", Price = 50, Group = groupGoodsDemo[1], Unit = unitsDemo[1] },
 
-                new GoodObjectModel { Name = "мука", Price = 45, Group = groupGoodsDemo[2], Unit = unitsDemo[4] },
-                new GoodObjectModel { Name = "гречка", Price = 87, Group = groupGoodsDemo[2], Unit = unitsDemo[4] },
-                new GoodObjectModel { Name = "овсянка", Price = 64, Group = groupGoodsDemo[2], Unit = unitsDemo[6] },
-                new GoodObjectModel { Name = "рис", Price = 0, Group = groupGoodsDemo[2], Unit = unitsDemo[4] },
-                new GoodObjectModel { Name = "горох", Price = 134, Group = groupGoodsDemo[2], Unit = unitsDemo[5] },
-                new GoodObjectModel { Name = "фасоль", Price = 200, Group = groupGoodsDemo[2], Unit = unitsDemo[4] },
-                new GoodObjectModel { Name = "чечевица", Price = 87, Group = groupGoodsDemo[2], Unit = unitsDemo[5] },
-                new GoodObjectModel { Name = "лапша", Price = 100, Group = groupGoodsDemo[2], Unit = unitsDemo[5] },
-                new GoodObjectModel { Name = "кетчуп", Price = 280, Group = groupGoodsDemo[2], Unit = unitsDemo[4] },
-                new GoodObjectModel { Name = "майонез", Price = 0, Group = groupGoodsDemo[2], Unit = unitsDemo[6] },
-                new GoodObjectModel { Name = "сахар", Price = 76, Group = groupGoodsDemo[2], Unit = unitsDemo[5] },
-                new GoodObjectModel { Name = "соль", Price = 64, Group = groupGoodsDemo[2], Unit = unitsDemo[6] },
-                new GoodObjectModel { Name = "сода", Price = 165, Group = groupGoodsDemo[2], Unit = unitsDemo[6] }
+                new GoodObjectModel { Name = "Мука", Price = 45, Group = groupGoodsDemo[2], Unit = unitsDemo[4] },
+                new GoodObjectModel { Name = "Гречка", Price = 87, Group = groupGoodsDemo[2], Unit = unitsDemo[4] },
+                new GoodObjectModel { Name = "Овсянка", Price = 64, Group = groupGoodsDemo[2], Unit = unitsDemo[6] },
+                new GoodObjectModel { Name = "Рис", Price = 0, Group = groupGoodsDemo[2], Unit = unitsDemo[4] },
+                new GoodObjectModel { Name = "Горох", Price = 134, Group = groupGoodsDemo[2], Unit = unitsDemo[5] },
+                new GoodObjectModel { Name = "Фасоль", Price = 200, Group = groupGoodsDemo[2], Unit = unitsDemo[4] },
+                new GoodObjectModel { Name = "Чечевица", Price = 87, Group = groupGoodsDemo[2], Unit = unitsDemo[5] },
+                new GoodObjectModel { Name = "Лапша", Price = 100, Group = groupGoodsDemo[2], Unit = unitsDemo[5] },
+                new GoodObjectModel { Name = "Кетчуп", Price = 280, Group = groupGoodsDemo[2], Unit = unitsDemo[4] },
+                new GoodObjectModel { Name = "Майонез", Price = 0, Group = groupGoodsDemo[2], Unit = unitsDemo[6] },
+                new GoodObjectModel { Name = "Сахар", Price = 76, Group = groupGoodsDemo[2], Unit = unitsDemo[5] },
+                new GoodObjectModel { Name = "Соль", Price = 64, Group = groupGoodsDemo[2], Unit = unitsDemo[6] },
+                new GoodObjectModel { Name = "Сода", Price = 165, Group = groupGoodsDemo[2], Unit = unitsDemo[6] }
             };
             if (!context.Goods.Any())
             {
@@ -147,20 +147,20 @@ namespace SPADemoCRUD.Models
             {
                 ReceiptToWarehouseDocumentModel[] warehouseReceipts = new ReceiptToWarehouseDocumentModel[]
                 {
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 3, Name = "demo поступление на склад 1", Information = "demo пополнение 1. склад: " + warehousesDemo[2].Name, Warehouse = warehousesDemo[2]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 2, Name = "demo поступление на склад 2", Information = "demo пополнение 2. склад: " + warehousesDemo[0].Name, Warehouse = warehousesDemo[0]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 1, Name = "demo поступление на склад 3", Information = "demo пополнение 3. склад: " + warehousesDemo[1].Name, Warehouse = warehousesDemo[1]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 1, Name = "demo поступление на склад 4", Information = "demo пополнение 4. склад: " + warehousesDemo[2].Name, Warehouse = warehousesDemo[2]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 3, Name = "demo поступление на склад 5", Information = "demo пополнение 5. склад: " + warehousesDemo[1].Name, Warehouse = warehousesDemo[1]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 1, Name = "demo поступление на склад 6", Information = "demo пополнение 6. склад: " + warehousesDemo[0].Name, Warehouse = warehousesDemo[0]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 2, Name = "demo поступление на склад 7", Information = "demo пополнение 7. склад: " + warehousesDemo[1].Name, Warehouse = warehousesDemo[1]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 3, Name = "demo поступление на склад 8", Information = "demo пополнение 8. склад: " + warehousesDemo[2].Name, Warehouse = warehousesDemo[2]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 2, Name = "demo поступление на склад 9", Information = "demo пополнение 9. склад: " + warehousesDemo[0].Name, Warehouse = warehousesDemo[0]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 1, Name = "demo поступление на склад 10", Information = "demo пополнение 10. склад: " + warehousesDemo[0].Name, Warehouse = warehousesDemo[0]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 3, Name = "demo поступление на склад 11", Information = "demo пополнение 11. склад: " + warehousesDemo[2].Name, Warehouse = warehousesDemo[2]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 2, Name = "demo поступление на склад 12", Information = "demo пополнение 12. склад: " + warehousesDemo[2].Name, Warehouse = warehousesDemo[2]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 1, Name = "demo поступление на склад 13", Information = "demo пополнение 13. склад: " + warehousesDemo[1].Name, Warehouse = warehousesDemo[1]},
-                    new ReceiptToWarehouseDocumentModel(){AuthorId = 2, Name = "demo поступление на склад 14", Information = "demo пополнение 14. склад: " + warehousesDemo[1].Name, Warehouse = warehousesDemo[1]}
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 3, Name = "demo поступление на склад 14", Information = "demo пополнение 14. склад: " + warehousesDemo[2].Name, WarehouseReceipt = warehousesDemo[2]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 2, Name = "demo поступление на склад 13", Information = "demo пополнение 13. склад: " + warehousesDemo[0].Name, WarehouseReceipt = warehousesDemo[0]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 1, Name = "demo поступление на склад 12", Information = "demo пополнение 12. склад: " + warehousesDemo[1].Name, WarehouseReceipt = warehousesDemo[1]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 1, Name = "demo поступление на склад 11", Information = "demo пополнение 11. склад: " + warehousesDemo[2].Name, WarehouseReceipt = warehousesDemo[2]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 3, Name = "demo поступление на склад 10", Information = "demo пополнение 10. склад: " + warehousesDemo[1].Name, WarehouseReceipt = warehousesDemo[1]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 1, Name = "demo поступление на склад 9", Information = "demo пополнение 9. склад: " + warehousesDemo[0].Name, WarehouseReceipt = warehousesDemo[0]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 2, Name = "demo поступление на склад 8", Information = "demo пополнение 8. склад: " + warehousesDemo[1].Name, WarehouseReceipt = warehousesDemo[1]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 3, Name = "demo поступление на склад 7", Information = "demo пополнение 7. склад: " + warehousesDemo[2].Name, WarehouseReceipt = warehousesDemo[2]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 2, Name = "demo поступление на склад 6", Information = "demo пополнение 6. склад: " + warehousesDemo[0].Name, WarehouseReceipt = warehousesDemo[0]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 1, Name = "demo поступление на склад 5", Information = "demo пополнение 5. склад: " + warehousesDemo[0].Name, WarehouseReceipt = warehousesDemo[0]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 3, Name = "demo поступление на склад 4", Information = "demo пополнение 4. склад: " + warehousesDemo[2].Name, WarehouseReceipt = warehousesDemo[2]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 2, Name = "demo поступление на склад 3", Information = "demo пополнение 3. склад: " + warehousesDemo[2].Name, WarehouseReceipt = warehousesDemo[2]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 1, Name = "demo поступление на склад 2", Information = "demo пополнение 2. склад: " + warehousesDemo[1].Name, WarehouseReceipt = warehousesDemo[1]},
+                    new ReceiptToWarehouseDocumentModel(){AuthorId = 2, Name = "demo поступление на склад 1", Information = "demo пополнение 1. склад: " + warehousesDemo[1].Name, WarehouseReceipt = warehousesDemo[1]}
                 };
                 context.ReceiptesGoodsToWarehousesDocuments.AddRange(warehouseReceipts);
                 context.SaveChanges();
@@ -237,13 +237,13 @@ namespace SPADemoCRUD.Models
             {
                 InternalDisplacementWarehouseDocumentModel[] internalDisplacements = new InternalDisplacementWarehouseDocumentModel[]
                 {
-                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[0].Id, WarehouseId = warehousesDemo[1].Id, AuthorId = 1, Name = "demo перемещение 1", Information = $"demo внутреннее перемещение 1. [{warehousesDemo[0].Name}] -> [{warehousesDemo[1].Name}]" },
-                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[1].Id, WarehouseId = warehousesDemo[2].Id, AuthorId = 2, Name = "demo перемещение 2", Information = $"demo внутреннее перемещение 2. [{warehousesDemo[1].Name}] -> [{warehousesDemo[2].Name}]" },
-                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[2].Id, WarehouseId = warehousesDemo[0].Id, AuthorId = 3, Name = "demo перемещение 3", Information = $"demo внутреннее перемещение 3. [{warehousesDemo[2].Name}] -> [{warehousesDemo[0].Name}]" },
-                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[0].Id, WarehouseId = warehousesDemo[1].Id, AuthorId = 1, Name = "demo перемещение 4", Information = $"demo внутреннее перемещение 4. [{warehousesDemo[0].Name}] -> [{warehousesDemo[1].Name}]" },
-                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[1].Id, WarehouseId = warehousesDemo[2].Id, AuthorId = 3, Name = "demo перемещение 5", Information = $"demo внутреннее перемещение 5. [{warehousesDemo[1].Name}] -> [{warehousesDemo[2].Name}]" },
-                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[2].Id, WarehouseId = warehousesDemo[0].Id, AuthorId = 2, Name = "demo перемещение 6", Information = $"demo внутреннее перемещение 6. [{warehousesDemo[2].Name}] -> [{warehousesDemo[0].Name}]" },
-                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[0].Id, WarehouseId = warehousesDemo[1].Id, AuthorId = 1, Name = "demo перемещение 7", Information = $"demo внутреннее перемещение 7. [{warehousesDemo[0].Name}] -> [{warehousesDemo[1].Name}]" }
+                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[0].Id, WarehouseReceiptId = warehousesDemo[1].Id, AuthorId = 1, Name = "demo перемещение 7", Information = $"demo внутреннее перемещение 7. [{warehousesDemo[0].Name}] -> [{warehousesDemo[1].Name}]" },
+                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[1].Id, WarehouseReceiptId = warehousesDemo[2].Id, AuthorId = 2, Name = "demo перемещение 6", Information = $"demo внутреннее перемещение 6. [{warehousesDemo[1].Name}] -> [{warehousesDemo[2].Name}]" },
+                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[2].Id, WarehouseReceiptId = warehousesDemo[0].Id, AuthorId = 3, Name = "demo перемещение 5", Information = $"demo внутреннее перемещение 5. [{warehousesDemo[2].Name}] -> [{warehousesDemo[0].Name}]" },
+                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[0].Id, WarehouseReceiptId = warehousesDemo[1].Id, AuthorId = 1, Name = "demo перемещение 4", Information = $"demo внутреннее перемещение 4. [{warehousesDemo[0].Name}] -> [{warehousesDemo[1].Name}]" },
+                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[1].Id, WarehouseReceiptId = warehousesDemo[2].Id, AuthorId = 3, Name = "demo перемещение 3", Information = $"demo внутреннее перемещение 3. [{warehousesDemo[1].Name}] -> [{warehousesDemo[2].Name}]" },
+                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[2].Id, WarehouseReceiptId = warehousesDemo[0].Id, AuthorId = 2, Name = "demo перемещение 2", Information = $"demo внутреннее перемещение 2. [{warehousesDemo[2].Name}] -> [{warehousesDemo[0].Name}]" },
+                    new InternalDisplacementWarehouseDocumentModel(){ WarehouseDebitingId = warehousesDemo[0].Id, WarehouseReceiptId = warehousesDemo[1].Id, AuthorId = 1, Name = "demo перемещение 1", Information = $"demo внутреннее перемещение 1. [{warehousesDemo[0].Name}] -> [{warehousesDemo[1].Name}]" }
                 };
 
                 internalDisplacements[0].RowsDocument = new List<RowGoodMovementRegisterModel>(new RowGoodMovementRegisterModel[]

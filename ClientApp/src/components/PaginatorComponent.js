@@ -36,7 +36,6 @@ export class PaginatorComponent extends Component {
         const servicePaginator = this.props.servicePaginator;
         if (servicePaginator) {
             this.urlRequestAddress = servicePaginator.urlRequestAddress;
-            //this.urlQuery = servicePaginator.urlQuery;
 
             this.rowsCount = servicePaginator.rowsCount;
             this.pagesCount = servicePaginator.pagesCount;

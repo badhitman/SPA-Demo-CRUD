@@ -16,6 +16,7 @@ namespace SPADemoCRUD.Models
         /// Единица измерения
         /// </summary>
         public int UnitId { get; set; }
+        //public UnitGoodObjectModel Unit { get; set; }
 
         /// <summary>
         /// Остаток (количество)

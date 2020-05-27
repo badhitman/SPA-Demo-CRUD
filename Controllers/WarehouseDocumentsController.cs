@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
@@ -24,15 +25,67 @@ namespace SPADemoCRUD.Controllers
     [Authorize(Policy = "AccessMinLevelManager")]
     public class WarehouseDocumentsController : ControllerBase
     {
+        private readonly AppConfig AppOptions;
         private readonly AppDataBaseContext _context;
         private readonly ILogger<WarehouseDocumentsController> _logger;
         private readonly UserObjectModel _user;
 
-        public WarehouseDocumentsController(AppDataBaseContext context, ILogger<WarehouseDocumentsController> logger, SessionUser session)
+        public WarehouseDocumentsController(AppDataBaseContext context, ILogger<WarehouseDocumentsController> logger, SessionUser session, IOptions<AppConfig> options)
         {
+            AppOptions = options.Value;
             _context = context;
             _logger = logger;
             _user = session.user;
+        }
+
+        /// <summary>
+        /// Получить записи/строки журнала складских документов
+        /// </summary>
+        /// <param name="pagingParameters">параметры пагинатора</param>
+        // GET: api/WarehouseDocuments
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<object>>> GetWarehouseDocuments([FromQuery] PaginationParametersModel pagingParameters)
+        {
+            IQueryable<WarehouseDocumentsModel> documents = _context.WarehouseDocuments.Where(x => x.Discriminator.ToLower() != nameof(WarehouseDocumentsModel).ToLower()).AsQueryable();
+
+            pagingParameters.Init(await documents.CountAsync());
+            HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
+
+            documents = documents.OrderByDescending(doc => doc.Id);
+            if (pagingParameters.PageNum > 1)
+                documents = documents.Skip(pagingParameters.Skip);
+
+            documents = documents
+                .Take(pagingParameters.PageSize)
+                .Include(doc => doc.Author)
+                .Include(doc => doc.WarehouseReceipt);
+
+            return new ObjectResult(new ServerActionResult()
+            {
+                Success = true,
+                Info = "Запрос складских документов обработан",
+                Status = StylesMessageEnum.success.ToString(),
+                Tag = await documents.Select(doc => new
+                {
+                    doc.Id,
+                    doc.DateCreate,
+                    doc.Name,
+                    doc.Information,
+                    Author = new
+                    {
+                        doc.Author.Id,
+                        doc.Author.Name
+                    },
+                    WarehouseReceipt = new
+                    {
+                        doc.WarehouseReceipt.Id,
+                        doc.WarehouseReceipt.Name,
+                        doc.WarehouseReceipt.Information
+                    },
+                    CountRows = _context.GoodMovementDocumentRows.Count(row => row.BodyDocumentId == doc.Id),
+                    doc.Discriminator
+                }).ToListAsync()
+            });
         }
 
         /// <summary>
@@ -42,7 +95,7 @@ namespace SPADemoCRUD.Controllers
         /// <returns></returns>
         // GET: api/WarehouseDocuments/ReceiptToWarehouseDocumentModel
         [HttpGet("{id}")]
-        public async Task<ActionResult<object>> GetWarehouseDocument(string id)
+        public async Task<ActionResult<object>> GetWarehouseDocument([FromRoute] string id)
         {
             id = id.Trim();
             if (string.IsNullOrEmpty(id))
@@ -54,11 +107,6 @@ namespace SPADemoCRUD.Controllers
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
-
-            WarehouseDocumentsModel doc = await _context.WarehouseDocuments
-                .Where(wDocument => wDocument.Discriminator == nameof(WarehouseDocumentsModel) && wDocument.Name == id && wDocument.AuthorId == _user.Id)
-                .Include(wDocument => wDocument.Warehouse)
-                .FirstOrDefaultAsync();
 
             var Units = await _context.Units
                 .OrderBy(unit => unit.Name)
@@ -93,12 +141,17 @@ namespace SPADemoCRUD.Controllers
                     })
                 }).ToListAsync();
 
+            WarehouseDocumentsModel doc = await _context.WarehouseDocuments
+                .Where(wDocument => wDocument.Discriminator == nameof(WarehouseDocumentsModel) && wDocument.Name == id && wDocument.AuthorId == _user.Id)
+                .Include(wDocument => wDocument.WarehouseReceipt)
+                .FirstOrDefaultAsync();
+
             if (doc == null)
             {
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = true,
-                    Info = "Запрос временного складского документа обработан. Документа нет => ответом будет пустышка.",
+                    Info = "Запрос временного складского документа обработан [" + id + "]. Документа нет => ответом будет пустышка.",
                     Status = StylesMessageEnum.secondary.ToString(),
                     Tag = new
                     {
@@ -106,7 +159,7 @@ namespace SPADemoCRUD.Controllers
                         GroupsGoods,
 
                         Name = "",
-                        WarehouseId = 0,
+                        warehouseReceipt = new { id = 0, name = "" },
                         Information = "",
                         rows = Array.Empty<object>()
                     }
@@ -124,10 +177,15 @@ namespace SPADemoCRUD.Controllers
                     GroupsGoods,
 
                     doc.Name,
-                    doc.WarehouseId,
+                    warehouseReceipt = new 
+                    { 
+                        doc.WarehouseReceipt.Id, 
+                        doc.WarehouseReceipt.Name, 
+                        doc.WarehouseReceipt.Information 
+                    },
                     doc.Information,
                     rows = await _context.GoodMovementDocumentRows
-                    .Where(doc => doc.BodyDocumentId == doc.Id)
+                    .Where(row => row.BodyDocumentId == doc.Id)
                     .Include(x => x.Good)
                     .Join(_context.Units, documentRow => documentRow.UnitId, unit => unit.Id, (documentRow, joinedUnit) => new { documentRow.Id, documentRow.Quantity, documentRow.Good, Unit = new { joinedUnit.Id, joinedUnit.Name } })
                     .Select(documentRow => new { documentRow.Id, documentRow.Quantity, Good = new { documentRow.Good.Id, documentRow.Good.Name }, documentRow.Unit }).OrderBy(documentRow => documentRow.Good.Name + documentRow.Unit.Name).ToListAsync()
@@ -145,14 +203,14 @@ namespace SPADemoCRUD.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutWarehouseDocument([FromBody]WarehouseDocumentsModel ajaxWarehouseDocument, [FromRoute] string id)
         {
-            _logger.LogInformation($"Запрос инициализации временного документа [type: '{id}']. Инициатор: " + _user.FullInfo);
             ajaxWarehouseDocument.Name = ajaxWarehouseDocument.Name.Trim();
             ajaxWarehouseDocument.Information = ajaxWarehouseDocument.Information.Trim();
-            ajaxWarehouseDocument.Name = ajaxWarehouseDocument.Name.Trim();
+
             id = id.Trim();
 
-            if (string.IsNullOrEmpty(id) || !await _context.Warehouses.AnyAsync(x => x.Id == ajaxWarehouseDocument.WarehouseId))
+            if (string.IsNullOrEmpty(id) || !await _context.Warehouses.AnyAsync(x => x.Id == ajaxWarehouseDocument.WarehouseReceiptId))
             {
+                _logger.LogInformation($"Запрос инициализации временного документа [type: '{id}']. Инициатор: " + _user.FullInfo);
                 return new ObjectResult(new ServerActionResult()
                 {
                     Success = false,
@@ -161,14 +219,16 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            WarehouseDocumentsModel warehouseDocumentDb = await _context.WarehouseDocuments.Include(x => x.Warehouse).FirstOrDefaultAsync(x => x.Discriminator == nameof(WarehouseDocumentsModel) && x.Name.ToLower() == id.ToLower() && x.AuthorId == _user.Id);
+            WarehouseDocumentsModel warehouseDocumentDb = await _context.WarehouseDocuments.Include(x => x.WarehouseReceipt).FirstOrDefaultAsync(x => x.Discriminator == nameof(WarehouseDocumentsModel) && x.Name.ToLower() == id.ToLower() && x.AuthorId == _user.Id);
             if (warehouseDocumentDb == null)
             {
+
+                _logger.LogInformation($"Запрос инициализации временного документа [type: '{id}']. Инициатор: " + _user.FullInfo);
                 warehouseDocumentDb = new WarehouseDocumentsModel()
                 {
                     Name = id,
                     Information = ajaxWarehouseDocument.Information,
-                    WarehouseId = ajaxWarehouseDocument.WarehouseId,
+                    WarehouseReceiptId = ajaxWarehouseDocument.WarehouseReceiptId,
                     AuthorId = _user.Id
                 };
                 _context.WarehouseDocuments.Add(warehouseDocumentDb);
@@ -176,11 +236,10 @@ namespace SPADemoCRUD.Controllers
             }
             else
             {
-                warehouseDocumentDb.Name = ajaxWarehouseDocument.Name;
                 warehouseDocumentDb.Information = ajaxWarehouseDocument.Information;
-                warehouseDocumentDb.WarehouseId = ajaxWarehouseDocument.WarehouseId;
+                warehouseDocumentDb.WarehouseReceiptId = ajaxWarehouseDocument.WarehouseReceiptId;
                 _context.WarehouseDocuments.Update(warehouseDocumentDb);
-                _logger.LogInformation($"обновлёние <существующего> документа [#{warehouseDocumentDb.Id}]");
+                //_logger.LogInformation($"обновлёние <существующего> документа [#{warehouseDocumentDb.Id}]");
             }
             try
             {
@@ -224,7 +283,7 @@ namespace SPADemoCRUD.Controllers
                 || !await _context.GoodMovementDocuments.AnyAsync(x => x.Discriminator == nameof(WarehouseDocumentsModel) && x.Name.ToLower() == id.ToLower())
                 // если не указан id - значит строка для добавления => указаные [good] и [unit] должны существовать в БД, а количество движения должно быть отличным от нуля
                 || (warehouseRowDocumentAjax.Id == 0 && (warehouseRowDocumentAjax.Quantity == 0 || !await _context.Goods.AnyAsync(x => x.Id == warehouseRowDocumentAjax.GoodId) || !await _context.Units.AnyAsync(x => x.Id == warehouseRowDocumentAjax.UnitId)))
-                // если id указан - значит строку нужно удалить => проверяем существования подходящей строки
+                // если id указан - значит строку нужно удалить => проверяем существования подходящей строки документа
                 || (warehouseRowDocumentAjax.Id > 0 && !await _context.GoodMovementDocumentRows.Where(x => x.Id == warehouseRowDocumentAjax.Id).Include(x => x.BodyDocument).AnyAsync(x => x.BodyDocument.Discriminator == nameof(WarehouseDocumentsModel) && x.BodyDocument.Name.ToLower() == id.ToLower())))
             {
                 msg = $"Ошибка проверки запроса. Задание над строкой временного документа отклонено";
@@ -237,14 +296,27 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
+            if (warehouseRowDocumentAjax.Id == 0 && await _context.GoodMovementDocumentRows.CountAsync(x => x.BodyDocument.Name.ToLower() == id.ToLower()) > AppOptions.MaxNumRowsDocument + 1)
+            {
+                msg = $"Добавление новой строки к документу невозможно. Достигнут предельный лимит количества строк: " + AppOptions.MaxNumRowsDocument;
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
             WarehouseDocumentsModel warehouseDocumentDb = await _context.WarehouseDocuments
                 .Where(wDocument => wDocument.Discriminator == nameof(WarehouseDocumentsModel) && wDocument.Name == id && wDocument.AuthorId == _user.Id)
-                .Include(wDocument => wDocument.Warehouse)
+                .Include(wDocument => wDocument.WarehouseReceipt)
                 .FirstOrDefaultAsync();
 
             if (warehouseRowDocumentAjax.Id > 0)
             {
-                _context.GoodMovementDocumentRows.Remove(new RowGoodMovementRegisterModel() { Id = warehouseRowDocumentAjax.Id });
+                warehouseRowDocumentAjax = _context.GoodMovementDocumentRows.FirstOrDefault(x => x.Id == warehouseRowDocumentAjax.Id);
+                _context.GoodMovementDocumentRows.Remove(warehouseRowDocumentAjax);
                 await _context.SaveChangesAsync();
                 msg = "Строка временного документа удалена";
                 _logger.LogError(msg);

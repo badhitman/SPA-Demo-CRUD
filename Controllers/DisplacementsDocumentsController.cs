@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SPADemoCRUD.Models;
 
 namespace SPADemoCRUD.Controllers
@@ -24,12 +25,14 @@ namespace SPADemoCRUD.Controllers
     [Authorize(Policy = "AccessMinLevelManager")]
     public class DisplacementsDocumentsController : ControllerBase
     {
+        private readonly AppConfig AppOptions;
         private readonly AppDataBaseContext _context;
         private readonly ILogger<DisplacementsDocumentsController> _logger;
         private readonly UserObjectModel _user;
 
-        public DisplacementsDocumentsController(AppDataBaseContext context, ILogger<DisplacementsDocumentsController> logger, SessionUser session)
+        public DisplacementsDocumentsController(AppDataBaseContext context, ILogger<DisplacementsDocumentsController> logger, SessionUser session, IOptions<AppConfig> options)
         {
+            AppOptions = options.Value;
             _context = context;
             _logger = logger;
             _user = session.user;
@@ -44,14 +47,14 @@ namespace SPADemoCRUD.Controllers
             pagingParameters.Init(await documents.CountAsync());
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
 
-            documents = documents.OrderBy(doc => doc.Id);
+            documents = documents.OrderByDescending(doc => doc.Id);
             if (pagingParameters.PageNum > 1)
                 documents = documents.Skip(pagingParameters.Skip);
 
             documents = documents
                 .Take(pagingParameters.PageSize)
                 .Include(doc => doc.Author)
-                .Include(doc => doc.Warehouse);
+                .Include(doc => doc.WarehouseReceipt);
 
             var exDoc = documents.Join(_context.Warehouses, doc => doc.WarehouseDebitingId, warehouse => warehouse.Id, (doc, warehouseDebiting) => new
             {
@@ -72,11 +75,12 @@ namespace SPADemoCRUD.Controllers
                 },
                 WarehouseReceipt = new
                 {
-                    doc.Warehouse.Id,
-                    doc.Warehouse.Name,
-                    doc.Warehouse.Information
+                    doc.WarehouseReceipt.Id,
+                    doc.WarehouseReceipt.Name,
+                    doc.WarehouseReceipt.Information
                 },
-                CountRows = _context.GoodMovementDocumentRows.Count(row => row.BodyDocumentId == doc.Id)
+                CountRows = _context.GoodMovementDocumentRows.Count(row => row.BodyDocumentId == doc.Id),
+                doc.Discriminator
             });
 
             return new ObjectResult(new ServerActionResult()
@@ -93,18 +97,18 @@ namespace SPADemoCRUD.Controllers
         public async Task<ActionResult<object>> GetDisplacementWarehouseDocument(int id)
         {
             var doc = await _context.InternalDisplacementWarehouseDocuments
-                .Include(x=>x.Warehouse)
+                .Include(x => x.WarehouseReceipt)
                 .Include(x => x.Author)
-                .Join(_context.Warehouses, docObj => docObj.WarehouseDebitingId, wareObj => wareObj.Id, (docObj, wareObj) => new 
+                .Join(_context.Warehouses, docObj => docObj.WarehouseDebitingId, wareObj => wareObj.Id, (docObj, wareObj) => new
                 {
                     docObj.Id,
                     docObj.Name,
                     docObj.Information,
-                    WarehouseReceipt = new 
+                    WarehouseReceipt = new
                     {
-                        docObj.Warehouse.Id,
-                        docObj.Warehouse.Name,
-                        docObj.Warehouse.Information
+                        docObj.WarehouseReceipt.Id,
+                        docObj.WarehouseReceipt.Name,
+                        docObj.WarehouseReceipt.Information
                     },
                     WarehouseDebiting = new
                     {
@@ -136,7 +140,7 @@ namespace SPADemoCRUD.Controllers
                     .Where(row => row.BodyDocumentId == doc.Id)
                     .Include(row => row.Good)
                     .OrderBy(sel => sel.Good.Name)
-                    .Select(row => new
+                    .Join(_context.Units, row => row.UnitId, unit => unit.Id, (row, unit) => new
                     {
                         row.Id,
                         row.Quantity,
@@ -146,7 +150,24 @@ namespace SPADemoCRUD.Controllers
                             row.Good.Name,
                             row.Good.Information
                         },
-                        row.UnitId
+                        unit
+                    })
+                    .Select(selItem => new
+                    {
+                        selItem.Id,
+                        selItem.Quantity,
+                        Good = new
+                        {
+                            selItem.Good.Id,
+                            selItem.Good.Name,
+                            selItem.Good.Information
+                        },
+                        Unit = new
+                        {
+                            selItem.unit.Id,
+                            selItem.unit.Name,
+                            selItem.unit.Information
+                        }
                     }).ToListAsync();
 
             return new ObjectResult(new ServerActionResult()
@@ -163,22 +184,7 @@ namespace SPADemoCRUD.Controllers
                     doc.Information,
                     doc.Author,
 
-                    rows = await _context.GoodMovementDocumentRows
-                    .Where(row => row.BodyDocumentId == doc.Id)
-                    .Include(row => row.Good)
-                    .OrderBy(sel => sel.Good.Name)
-                    .Select(row => new
-                    {
-                        row.Id,
-                        row.Quantity,
-                        Good = new
-                        {
-                            row.Good.Id,
-                            row.Good.Name,
-                            row.Good.Information
-                        },
-                        row.UnitId
-                    }).ToListAsync(),
+                    rows,
 
                     Units = await _context.Units.OrderBy(x => x.Name).Select(u => new
                     {
@@ -214,9 +220,10 @@ namespace SPADemoCRUD.Controllers
         public async Task<ActionResult<object>> PostDisplacementWarehouseDocument(InternalDisplacementWarehouseDocumentModel ajaxDoc)
         {
             if (ajaxDoc.WarehouseDebitingId == 0
-                || ajaxDoc.WarehouseId == 0
+                || ajaxDoc.WarehouseReceiptId == 0
+                || ajaxDoc.WarehouseDebitingId == ajaxDoc.WarehouseReceiptId
                 || !await _context.Warehouses.AnyAsync(x => x.Id == ajaxDoc.WarehouseDebitingId)
-                || !await _context.Warehouses.AnyAsync(x => x.Id == ajaxDoc.WarehouseId))
+                || !await _context.Warehouses.AnyAsync(x => x.Id == ajaxDoc.WarehouseReceiptId))
             {
                 return new ObjectResult(new ServerActionResult()
                 {
@@ -227,7 +234,7 @@ namespace SPADemoCRUD.Controllers
             }
 
             WarehouseDocumentsModel parentDoc = await _context.WarehouseDocuments
-                .Include(x => x.Warehouse)
+                .Include(x => x.WarehouseReceipt)
                 .Include(x => x.RowsDocument)
                 .FirstOrDefaultAsync(x => x.Discriminator == nameof(WarehouseDocumentsModel) && x.Name == nameof(InternalDisplacementWarehouseDocumentModel) && x.AuthorId == _user.Id);
 
@@ -240,6 +247,7 @@ namespace SPADemoCRUD.Controllers
                     Status = StylesMessageEnum.danger.ToString()
                 });
             }
+
             using (IDbContextTransaction transaction = _context.Database.BeginTransaction(System.Data.IsolationLevel.Serializable))
             {
                 try
@@ -250,7 +258,7 @@ namespace SPADemoCRUD.Controllers
                         Name = "~ перемещение",
                         Information = parentDoc.Information,
                         WarehouseDebitingId = ajaxDoc.WarehouseDebitingId,
-                        WarehouseId = ajaxDoc.WarehouseId,
+                        WarehouseReceiptId = ajaxDoc.WarehouseReceiptId,
                         AuthorId = _user.Id
                     };
 
@@ -263,14 +271,18 @@ namespace SPADemoCRUD.Controllers
                             rows.RemoveAt(0);
                             continue;
                         }
-                        rows[0].BodyDocumentId = doc.Id;
+                        
+                        int rowBodyDocumentId = doc.Id;
+                        int rowGoodId = rows[0].GoodId;
+                        double rowQuantity = rows[0].Quantity;
+                        int rowUnitId = rows[0].UnitId;
 
                         InventoryBalancesWarehousesAnalyticalModel iBalance;
                         #region списание количества номенклатуры со склада списания
 
                         iBalance = _context.InventoryGoodsBalancesWarehouses.FirstOrDefault(InventoryBalance =>
-                        InventoryBalance.GoodId == rows[0].GoodId
-                        && InventoryBalance.UnitId == rows[0].UnitId
+                        InventoryBalance.GoodId == rowGoodId
+                        && InventoryBalance.UnitId == rowUnitId
                         && InventoryBalance.WarehouseId == doc.WarehouseDebitingId);
 
                         if (iBalance is null)
@@ -278,16 +290,16 @@ namespace SPADemoCRUD.Controllers
                             iBalance = new InventoryBalancesWarehousesAnalyticalModel()
                             {
                                 Name = "*",
-                                WarehouseId = parentDoc.WarehouseId,
-                                GoodId = rows[0].GoodId,
-                                Quantity = rows[0].Quantity * -1,
-                                UnitId = rows[0].UnitId
+                                WarehouseId = doc.WarehouseDebitingId,
+                                GoodId = rowGoodId,
+                                Quantity = rowQuantity * -1,
+                                UnitId = rowUnitId
                             };
                             _context.InventoryGoodsBalancesWarehouses.Add(iBalance);
                         }
                         else
                         {
-                            iBalance.Quantity -= rows[0].Quantity;
+                            iBalance.Quantity -= rowQuantity;
                             if (iBalance.Quantity == 0)
                             {
                                 _context.InventoryGoodsBalancesWarehouses.Remove(iBalance);
@@ -303,25 +315,25 @@ namespace SPADemoCRUD.Controllers
                         #region зачисление количества номенклатуры на склад приёмник
 
                         iBalance = _context.InventoryGoodsBalancesWarehouses.FirstOrDefault(InventoryBalance =>
-                        InventoryBalance.GoodId == rows[0].GoodId
-                        && InventoryBalance.UnitId == rows[0].UnitId
-                        && InventoryBalance.WarehouseId == doc.WarehouseId);
-
+                        InventoryBalance.GoodId == rowGoodId
+                        && InventoryBalance.UnitId == rowUnitId
+                        && InventoryBalance.WarehouseId == doc.WarehouseReceiptId);
+                        
                         if (iBalance is null)
                         {
                             iBalance = new InventoryBalancesWarehousesAnalyticalModel()
                             {
                                 Name = "*",
-                                WarehouseId = parentDoc.WarehouseId,
-                                GoodId = rows[0].GoodId,
-                                Quantity = rows[0].Quantity,
-                                UnitId = rows[0].UnitId
+                                WarehouseId = doc.WarehouseReceiptId,
+                                GoodId = rowGoodId,
+                                Quantity = rowQuantity,
+                                UnitId = rowUnitId
                             };
                             _context.InventoryGoodsBalancesWarehouses.Add(iBalance);
                         }
                         else
                         {
-                            iBalance.Quantity += rows[0].Quantity;
+                            iBalance.Quantity += rowQuantity;
                             if (iBalance.Quantity == 0)
                             {
                                 _context.InventoryGoodsBalancesWarehouses.Remove(iBalance);
@@ -331,6 +343,8 @@ namespace SPADemoCRUD.Controllers
                                 _context.InventoryGoodsBalancesWarehouses.Update(iBalance);
                             }
                         }
+                        rows[0].BodyDocumentId = doc.Id;
+                        _context.GoodMovementDocumentRows.Update(rows[0]);
                         await _context.SaveChangesAsync();
 
                         #endregion
@@ -372,7 +386,7 @@ namespace SPADemoCRUD.Controllers
             if (!ModelState.IsValid
                 || id != ajaxDisplacementWarehouseDocument.Id
                 || id < 1
-                || !await _context.Warehouses.AnyAsync(x => x.Id == ajaxDisplacementWarehouseDocument.WarehouseId || x.Id == ajaxDisplacementWarehouseDocument.WarehouseDebitingId))
+                || !await _context.Warehouses.AnyAsync(x => x.Id == ajaxDisplacementWarehouseDocument.WarehouseReceiptId || x.Id == ajaxDisplacementWarehouseDocument.WarehouseDebitingId))
             {
                 return new ObjectResult(new ServerActionResult()
                 {
@@ -386,7 +400,7 @@ namespace SPADemoCRUD.Controllers
             InternalDisplacementWarehouseDocumentModel doc = await _context.InternalDisplacementWarehouseDocuments
                 .Where(x => x.Id == id)
                 .Include(x => x.Author)
-                .Include(x => x.Warehouse)
+                .Include(x => x.WarehouseReceipt)
                 //.Include(x => x.RowsDocument).ThenInclude(x => x.Good)
                 .FirstOrDefaultAsync();
 
@@ -402,12 +416,12 @@ namespace SPADemoCRUD.Controllers
             }
 
             if (doc.Information == ajaxDisplacementWarehouseDocument.Information
-                && doc.WarehouseId == ajaxDisplacementWarehouseDocument.WarehouseId
+                && doc.WarehouseReceiptId == ajaxDisplacementWarehouseDocument.WarehouseReceiptId
                 && doc.WarehouseDebitingId == ajaxDisplacementWarehouseDocument.WarehouseDebitingId)
             {
                 return new ObjectResult(new ServerActionResult()
                 {
-                    Success = false,
+                    Success = true,
                     Info = "В документе нет изменений. Сохранению подлежат [склад поступления/списания] и [комментарий/примечание]",
                     Status = StylesMessageEnum.warning.ToString()
                 });
@@ -502,13 +516,13 @@ namespace SPADemoCRUD.Controllers
                         #endregion
 
                         #region при изменении склада поступления
-                        if (doc.WarehouseId != ajaxDisplacementWarehouseDocument.WarehouseId)
+                        if (doc.WarehouseReceiptId != ajaxDisplacementWarehouseDocument.WarehouseReceiptId)
                         {
                             #region списание с предыдущего склада поступления
 
                             ballance = await _context.InventoryGoodsBalancesWarehouses
                                 .FirstOrDefaultAsync(InventoryBalance =>
-                                InventoryBalance.WarehouseId == doc.WarehouseId
+                                InventoryBalance.WarehouseId == doc.WarehouseReceiptId
                                 && InventoryBalance.GoodId == sel.row.GoodId
                                 && InventoryBalance.UnitId == sel.row.UnitId);
 
@@ -517,7 +531,7 @@ namespace SPADemoCRUD.Controllers
                                 ballance = new InventoryBalancesWarehousesAnalyticalModel()
                                 {
                                     Name = $"[good: {sel.row.Good.Name}]/[unit: {sel.unit.Name}]",
-                                    WarehouseId = doc.WarehouseId,
+                                    WarehouseId = doc.WarehouseReceiptId,
                                     GoodId = sel.row.GoodId,
                                     UnitId = sel.row.UnitId,
                                     Quantity = sel.row.Quantity * -1
@@ -543,7 +557,7 @@ namespace SPADemoCRUD.Controllers
                             #region зачисление на новый склад поступления
 
                             ballance = await _context.InventoryGoodsBalancesWarehouses.FirstOrDefaultAsync(x =>
-                            x.WarehouseId == ajaxDisplacementWarehouseDocument.WarehouseId
+                            x.WarehouseId == ajaxDisplacementWarehouseDocument.WarehouseReceiptId
                             && x.GoodId == sel.row.GoodId
                             && x.UnitId == sel.row.UnitId);
 
@@ -552,7 +566,7 @@ namespace SPADemoCRUD.Controllers
                                 ballance = new InventoryBalancesWarehousesAnalyticalModel()
                                 {
                                     Name = $"[good: {sel.row.Good.Name}]/[unit: {sel.unit.Name}]",
-                                    WarehouseId = ajaxDisplacementWarehouseDocument.WarehouseId,
+                                    WarehouseId = ajaxDisplacementWarehouseDocument.WarehouseReceiptId,
                                     GoodId = sel.row.GoodId,
                                     UnitId = sel.row.UnitId,
                                     Quantity = sel.row.Quantity
@@ -578,7 +592,7 @@ namespace SPADemoCRUD.Controllers
                         #endregion
                     }
 
-                    doc.WarehouseId = ajaxDisplacementWarehouseDocument.WarehouseId;
+                    doc.WarehouseReceiptId = ajaxDisplacementWarehouseDocument.WarehouseReceiptId;
                     doc.WarehouseDebitingId = ajaxDisplacementWarehouseDocument.WarehouseDebitingId;
                     doc.Information = ajaxDisplacementWarehouseDocument.Information;
                     _context.InternalDisplacementWarehouseDocuments.Update(doc);
@@ -590,7 +604,7 @@ namespace SPADemoCRUD.Controllers
                         Success = true,
                         Info = "Документ сохранён",
                         Status = StylesMessageEnum.success.ToString(),
-                        Tag = new { doc.Id, doc.Information, doc.WarehouseId }
+                        Tag = new { doc.Id, doc.Information, doc.WarehouseReceiptId }
                     });
                 }
                 catch (Exception ex)
@@ -638,13 +652,25 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
+            if (ajaxDocumentRow.Id == 0 && await _context.GoodMovementDocumentRows.CountAsync(x => x.BodyDocumentId == id) > AppOptions.MaxNumRowsDocument + 1)
+            {
+                msg = $"Добавление новой строки к документу невозможно. Достигнут предельный лимит количества строк: " + AppOptions.MaxNumRowsDocument;
+                _logger.LogError(msg);
+                return new ObjectResult(new ServerActionResult()
+                {
+                    Success = false,
+                    Info = msg,
+                    Status = StylesMessageEnum.danger.ToString()
+                });
+            }
+
             var docDb = await _context.InternalDisplacementWarehouseDocuments
                 .Where(x => x.Id == id)
-                .Include(x => x.Warehouse)
+                .Include(x => x.WarehouseReceipt)
                 .Include(x => x.RowsDocument)
                 .Join(_context.Warehouses, doc => doc.WarehouseDebitingId, warehouse => warehouse.Id, (doc, debWarehouse) => new
                 {
-                    ReceiptWarehouse = new { doc.Warehouse.Id, doc.Warehouse.Name, doc.Warehouse.Information },
+                    ReceiptWarehouse = new { doc.WarehouseReceipt.Id, doc.WarehouseReceipt.Name, doc.WarehouseReceipt.Information },
                     DebitingWarehouse = new { debWarehouse.Id, debWarehouse.Name, debWarehouse.Information }
                 })
                 .FirstOrDefaultAsync();
@@ -931,7 +957,7 @@ namespace SPADemoCRUD.Controllers
 
             var selDoc = await _context.InternalDisplacementWarehouseDocuments
                 .Where(receiptDoc => receiptDoc.Id == id)
-                .Include(x => x.Warehouse)
+                .Include(x => x.WarehouseReceipt)
                 .Include(x => x.RowsDocument)
                 .Join(_context.Warehouses, doc => doc.WarehouseDebitingId, warehouse => warehouse.Id, (Document, DebitingWarehouse) => new
                 {
@@ -966,14 +992,14 @@ namespace SPADemoCRUD.Controllers
                         iBalance = _context.InventoryGoodsBalancesWarehouses.FirstOrDefault(iBalance =>
                         iBalance.GoodId == row.GoodId
                         && iBalance.UnitId == row.UnitId
-                        && iBalance.WarehouseId == selDoc.Document.WarehouseId);
+                        && iBalance.WarehouseId == selDoc.Document.WarehouseReceiptId);
 
                         if (iBalance is null)
                         {
                             iBalance = new InventoryBalancesWarehousesAnalyticalModel()
                             {
                                 Name = "*",
-                                WarehouseId = selDoc.Document.WarehouseId,
+                                WarehouseId = selDoc.Document.WarehouseReceiptId,
                                 GoodId = row.GoodId,
                                 Quantity = row.Quantity * -1,
                                 UnitId = row.UnitId

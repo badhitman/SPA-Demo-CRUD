@@ -36,7 +36,7 @@ namespace SPADemoCRUD.Models
                 case nameof(ReceiptToWarehouseDocumentModel):
                     ReceiptToWarehouseDocumentModel movDocument = context.ReceiptesGoodsToWarehousesDocuments
                         .Where(x => x.Id == document.Id)
-                        .Include(x => x.Warehouse)
+                        .Include(x => x.WarehouseReceipt)
                         .FirstOrDefault();
 
                     return new
@@ -48,9 +48,9 @@ namespace SPADemoCRUD.Models
                         document.Discriminator,
                         Warehouse = new
                         {
-                            movDocument.Warehouse.Id,
-                            movDocument.Warehouse.Name,
-                            movDocument.Warehouse.Information
+                            movDocument.WarehouseReceipt.Id,
+                            movDocument.WarehouseReceipt.Name,
+                            movDocument.WarehouseReceipt.Information
                         },
                         Author = new
                         {
@@ -60,35 +60,8 @@ namespace SPADemoCRUD.Models
                         }
                     };
                 case nameof(InternalDisplacementWarehouseDocumentModel):
-                    InternalDisplacementWarehouseDocumentModel InternalDisplacementWarehouseDocument = context.InternalDisplacementWarehouseDocuments.Include(x => x.Author).Include(x => x.Warehouse).FirstOrDefault(x => x.Id == document.Id);
+                    InternalDisplacementWarehouseDocumentModel InternalDisplacementWarehouseDocument = context.InternalDisplacementWarehouseDocuments.Include(x => x.Author).Include(x => x.WarehouseReceipt).FirstOrDefault(x => x.Id == document.Id);
                     WarehouseObjectModel WarehouseDebiting = context.Warehouses.Find(InternalDisplacementWarehouseDocument.WarehouseDebitingId);
-                    //case nameof(InternalDisplacementWarehouseDocumentModel):
-
-                    //    WarehouseObjectModel WarehouseDebiting = context.Warehouses.Find(((InternalDisplacementWarehouseDocumentModel)document).WarehouseDebitingId);
-
-                    //    return new
-                    //    {
-                    //        document.Id,
-                    //        document.Name,
-                    //        document.Information,
-                    //        document.Discriminator,
-                    //        CountRows = context.GoodMovementDocumentRows.Count(x => x.BodyDocumentId == document.Id),
-                    //        Author = new
-                    //        {
-                    //            document.Author.Id,
-                    //            document.Author.Name
-                    //        },
-                    //        WarehouseDebiting = new
-                    //        {
-                    //            WarehouseDebiting.Id,
-                    //            WarehouseDebiting.Name
-                    //        },
-                    //        WarehouseReceipt = new
-                    //        {
-                    //            document.Warehouse.Id,
-                    //            document.Warehouse.Name
-                    //        }
-                    //    };
                     return new
                     {
                         document.DateCreate,
@@ -99,56 +72,10 @@ namespace SPADemoCRUD.Models
                         document.Discriminator,
                         about = "Поступление на склад",
                         WarehouseDebiting = new { WarehouseDebiting.Id, WarehouseDebiting.Name },
-                        WarehouseReceipt = new { InternalDisplacementWarehouseDocument.Warehouse.Id, InternalDisplacementWarehouseDocument.Warehouse.Name, InternalDisplacementWarehouseDocument.Warehouse.Information }
+                        WarehouseReceipt = new { InternalDisplacementWarehouseDocument.WarehouseReceipt.Id, InternalDisplacementWarehouseDocument.WarehouseReceipt.Name, InternalDisplacementWarehouseDocument.WarehouseReceipt.Information }
                     };
                 case nameof(MovementTurnoverDeliveryDocumentModel):
                     MovementTurnoverDeliveryDocumentModel MovementTurnoverDeliveryDocument = context.MovementTurnoverDeliveryDocuments.Include(x => x.DeliveryService).Include(x => x.DeliveryMethod).Include(x => x.Buyer).FirstOrDefault(x => x.Id == document.Id);
-                    //case nameof(MovementTurnoverDeliveryDocumentModel):
-
-                    //    MovementTurnoverDeliveryDocumentModel MovementTurnoverDeliveryDocument = context.MovementTurnoverDeliveryDocuments
-                    //        .Include(x => x.Buyer)
-                    //        .Include(x => x.DeliveryMethod)
-                    //        .Include(x => x.DeliveryService)
-                    //        .FirstOrDefault(x => x.Id == document.Id);
-
-                    //    return new
-                    //    {
-                    //        document.Id,
-                    //        document.Name,
-                    //        document.Information,
-                    //        document.Discriminator,
-                    //        CountRows = context.GoodMovementDocumentRows.Count(row => row.BodyDocumentId == document.Id),
-                    //        Author = new
-                    //        {
-                    //            document.Author.Id,
-                    //            document.Author.Name,
-                    //            document.Author.Information
-                    //        },
-                    //        WarehouseReceipt = new
-                    //        {
-                    //            document.Warehouse.Id,
-                    //            document.Warehouse.Name,
-                    //            document.Warehouse.Information
-                    //        },
-                    //        Buyer = new
-                    //        {
-                    //            MovementTurnoverDeliveryDocument.Buyer.Id,
-                    //            MovementTurnoverDeliveryDocument.Buyer.Name,
-                    //            MovementTurnoverDeliveryDocument.Buyer.Information
-                    //        },
-                    //        DeliveryMethod = new
-                    //        {
-                    //            MovementTurnoverDeliveryDocument.DeliveryMethod.Id,
-                    //            MovementTurnoverDeliveryDocument.DeliveryMethod.Name
-                    //        },
-                    //        DeliveryService = new
-                    //        {
-                    //            MovementTurnoverDeliveryDocument.DeliveryService.Id,
-                    //            MovementTurnoverDeliveryDocument.DeliveryService.Name
-                    //        },
-                    //        MovementTurnoverDeliveryDocument.DeliveryAddress1,
-                    //        MovementTurnoverDeliveryDocument.DeliveryAddress2
-                    //    };
                     return new
                     {
                         document.DateCreate,
@@ -177,25 +104,6 @@ namespace SPADemoCRUD.Models
                         MovementTurnoverDeliveryDocument.DeliveryAddress2
                     };
                 default:
-                    //default:
-                    //    return new
-                    //    {
-                    //        document.Id,
-                    //        document.Name,
-                    //        document.Information,
-                    //        document.Discriminator,
-                    //        CountRows = context.GoodMovementDocumentRows.Count(x => x.BodyDocumentId == document.Id),
-                    //        Author = new
-                    //        {
-                    //            document.Author.Id,
-                    //            document.Author.Name
-                    //        },
-                    //        WarehouseReceipt = new
-                    //        {
-                    //            document.Warehouse.Id,
-                    //            document.Warehouse.Name
-                    //        }
-                    //    };
                     return new
                     {
                         document.Id,

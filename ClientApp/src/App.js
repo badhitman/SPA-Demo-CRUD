@@ -5,6 +5,7 @@
 import React, { Component } from 'react';
 
 import { Route, Switch, Redirect } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { NotFound } from './components/NotFound';
 import { Hub } from './Hub';
@@ -13,7 +14,7 @@ import Cookies from 'universal-cookie';
 
 import './custom.css'
 
-/** Контекст приложения */
+/** контекст SPA/UI приложения */
 export default class App extends Component {
     static displayName = App.name;
 
@@ -48,6 +49,10 @@ export default class App extends Component {
             'receiptswarehousesdocuments',
             /** документы регистров внутреннего перемещения */
             'displacementsdocuments',
+            /** просмотр журнала складских документов */
+            'warehousedocuments',
+            /** отчёты по номенклатуре и складам */
+            'warehousesreports',
             /** доставка (настройки служб и методов) */
             'delivery',
             /** Telegram bot */
@@ -66,90 +71,98 @@ export default class App extends Component {
     static createNameMethod = 'create';
     /** Имя метода для отображения формы удаления объекта*/
     static deleteNameMethod = 'delete';
-    /** Список доступных CRUD методов */
+    /** Список доступных методов (aka CRUD) */
     static allowsMethods = [App.listNameMethod, App.viewNameMethod, App.createNameMethod, App.deleteNameMethod];
 
-    /** Запрашиваемый контроллер (из react props) */
-    static controller;
-    /** Имя запрашиваемого метода (из react props) */
-    static method;
-    /** ID запрашиваемого объекта (из react props) */
+    /** Имя запрашиваемого контроллера (из react props/route) */
+    static controller = '';
+    /** Имя запрашиваемого метода (из react props/route) */
+    static method = '';
+    /** ID запрашиваемого объекта (из react props/route) */
     static id;
 
     /** полученные с сервера (ajax) контекстные данные */
     static data = null;
 
-    /** context user session */
-    static session =
-        {
-            /** Пользователь авторизован */
-            isAuthenticated: false,
-            /** Имя (публичное) авторизованного пользователя */
-            name: '',
-            /** Роль, под которой авторизован пользователь в текущей сессии. При изменении роли пользователю необходимо заново авторизоваться */
-            role: '',
-
-            /** Публичный ключ для работы reCaptcha v2 Invisible */
-            reCaptchaV2InvisiblePublicKey: '',
-            /** Публичный ключ для работы reCaptcha v2 Invisible */
-            reCaptchaV2PublicKey: '',
-
-            /** Разрешение авторизаии через Web форму */
-            AllowedWebLogin: false,
-            /** Разрешение регистрации через Web форму */
-            AllowedWebRegistration: false
-        };
-
+    /** user session context */
+    static session = {
+        /** Пользователь авторизован? */
+        isAuthenticated: false,
+        /** Имя (публичное) авторизованного пользователя */
+        name: '',
+        /** Роль, под которой авторизован пользователь в текущей сессии. При изменении роли пользователю на сторое сервера - необходимо заново авторизоваться в spa/gui.
+         * Не смотря на то что в контексте сервера новые права/роль начинают дейтсвовать немедленно, пользовательский интерфейс имя текущей роли пользователя получает в момент входа */
+        role: ''
+    };
     /** Чтение состояния сессии пользователя */
     static readSession() {
         const cookies = new Cookies();
-        var name = cookies.get('name');
-        var role = cookies.get('role');
+        const name = cookies.get('name');
+        const role = cookies.get('role');
 
         if (name && name.length > 0) {
-            App.session =
-            {
+            App.session = {
                 name: name,
                 role: role,
                 isAuthenticated: true
             };
         }
         else {
-            var AllowedWebLogin = cookies.get('AllowedWebLogin');
-            if (AllowedWebLogin && AllowedWebLogin.length > 0) {
-                AllowedWebLogin = (AllowedWebLogin.toLowerCase() === "true");
-            }
-            else {
-                AllowedWebLogin = false;
-            }
-
-            var AllowedWebRegistration = cookies.get('AllowedWebRegistration');
-            if (AllowedWebRegistration && AllowedWebRegistration.length > 0) {
-                AllowedWebRegistration = (AllowedWebRegistration.toLowerCase() === "true");
-            }
-            else {
-                AllowedWebRegistration = false;
-            }
-
-            App.session =
-            {
-                AllowedWebLogin: AllowedWebLogin,
-                AllowedWebRegistration: AllowedWebRegistration,
+            App.session = {
                 isAuthenticated: false
             };
-
-            if (AllowedWebLogin === true || AllowedWebRegistration === true) {
-                App.session.reCaptchaV2InvisiblePublicKey = cookies.get('reCaptchaV2InvisiblePublicKey');
-                App.session.reCaptchaV2PublicKey = cookies.get('reCaptchaV2PublicKey');
-            }
-            else {
-                App.session.reCaptchaV2InvisiblePublicKey = '';
-                App.session.reCaptchaV2PublicKey = '';
-            }
         }
-        if (cookies.get('debug') === 'demo') {
+
+        if (cookies.get('debug').toLowerCase() === 'demo') {
             App.session.isDemo = true;
         }
+    }
+
+    /** текущие настройки WEB формы входа/регистрации */
+    static webAuthSettings = {
+        /** Разрешение авторизаии через Web форму */
+        AllowedWebLogin: false,
+        /** Разрешение регистрации через Web форму */
+        AllowedWebRegistration: false
+    }
+    /** чтение настроек авторизации через Web форму */
+    static webAuthSettingsRead() {
+        if (App.session.isAuthenticated === true) {
+            if (App.webAuthSettings) {
+                delete App.webAuthSettings;
+            }
+            return;
+        }
+
+        const cookies = new Cookies();
+        //
+        const AllowedWebLogin = `${cookies.get('AllowedWebLogin')}`.toLowerCase() === 'true';
+        const AllowedWebRegistration = `${cookies.get('AllowedWebRegistration')}`.toLowerCase() === 'true';
+
+        App.webAuthSettings = {
+            AllowedWebLogin,
+            AllowedWebRegistration
+        }
+    }
+
+    /** текущие настройки reCaptcha */
+    static reCaptchaSettings = {
+        /** Публичный ключ для работы reCaptcha v2 /Invisible sub-ver./ */
+        reCaptchaV2InvisiblePublicKey: '',
+        /** Публичный ключ для работы reCaptcha v2 /Widget sub-ver./ */
+        reCaptchaV2PublicKey: ''
+    }
+    /** чтение настроек reCaptcha */
+    static reCaptchaSettingsRead() {
+        const cookies = new Cookies();
+
+        const reCaptchaV2InvisiblePublicKey = cookies.get('reCaptchaV2InvisiblePublicKey');
+        const reCaptchaV2PublicKey = cookies.get('reCaptchaV2PublicKey');
+
+        App.reCaptchaSettings = {
+            reCaptchaV2InvisiblePublicKey,
+            reCaptchaV2PublicKey
+        };
     }
 
     /**
@@ -207,6 +220,16 @@ export default class App extends Component {
 
     render() {
         App.readSession();
+        if (App.session.isAuthenticated === true) {
+            if (App.webAuthSettings) {
+                delete App.webAuthSettings;
+            }
+        }
+        else {
+            App.webAuthSettingsRead();
+        }
+        App.reCaptchaSettingsRead();
+
         return (
             <Layout>
                 <Switch>
@@ -216,6 +239,15 @@ export default class App extends Component {
                 </Switch>
                 <footer></footer>
             </Layout>
+        );
+    }
+
+    static get emptyCardBody() {
+        return (
+            <>
+                <p className="lead">Запрашиваемая страница находится в процессе разработки...</p>
+                Перейти <NavLink to={`/${App.controller}/${App.listNameMethod}`}>к списку </NavLink> {App.method.toLowerCase() === App.deleteNameMethod.toLowerCase() && !isNaN(App.id) ? <> или <NavLink to={`/${App.controller}/${App.viewNameMethod}/${App.id}`}>открыть карточку объекта</NavLink></> : <></>}
+            </>
         );
     }
 }

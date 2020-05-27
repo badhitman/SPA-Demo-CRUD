@@ -9,10 +9,10 @@ namespace SPADemoCRUD.Models
     /// </summary>
     public class WarehouseDocumentsModel : BodyGoodMovementDocumentModel
     {
-        public int WarehouseId { get; set; }
+        public int WarehouseReceiptId { get; set; }
         /// <summary>
-        /// Склад движения
+        /// Склад поступления
         /// </summary>
-        public WarehouseObjectModel Warehouse { get; set; }
+        public WarehouseObjectModel WarehouseReceipt { get; set; }
     }
 }

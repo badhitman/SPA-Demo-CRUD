@@ -21,10 +21,6 @@ export class createTurnover extends viewTurnover {
     }
 
     cardBody() {
-        return (
-            <>
-                <p className="lead">В процессе разработки...</p>
-            </>
-        );
+        return App.emptyCardBody;
     }
 }

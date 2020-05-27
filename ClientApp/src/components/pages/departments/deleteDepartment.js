@@ -12,6 +12,7 @@ export class deleteDepartment extends viewDepartment {
     static displayName = deleteDepartment.name;
 
     async load() {
+        this.apiPostfix = `/${App.id}`;
         await this.ajax();
         this.cardTitle = `Удаление объекта: [#${App.data.id}] ${App.data.name}`;
         this.setState({ loading: false });

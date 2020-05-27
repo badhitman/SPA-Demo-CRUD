@@ -21,7 +21,7 @@ export class TableGoodsMovingDocument extends Component {
             loading: true
         };
 
-        //this.state.warehouseId = 0;
+        //this.state.warehouseReceiptId = 0;
         //this.state.information = '';
 
         //this.state.quantity = '0';
@@ -104,12 +104,12 @@ export class TableGoodsMovingDocument extends Component {
         //    quantity = quantity.replace(',', '.');
         //}
 
-        //if (App.data.warehouseId < 1) {
+        //if (App.data.warehouseReceiptId < 1) {
         //    const storageInformation = localStorage.getItem(`${this.displayName}/${App.method}/information`);
-        //    this.setState({ loading: false, information: storageInformation, warehouseId: App.data.warehouseId, goodId, unitId, quantity });
+        //    this.setState({ loading: false, information: storageInformation, warehouseReceiptId: App.data.warehouseReceiptId, goodId, unitId, quantity });
         //}
         //else {
-        //    this.setState({ loading: false, information: App.data.information, warehouseId: App.data.warehouseId, goodId, unitId, quantity });
+        //    this.setState({ loading: false, information: App.data.information, warehouseReceiptId: App.data.warehouseReceiptId, goodId, unitId, quantity });
         //}
         this.setState({ loading: false });
     }

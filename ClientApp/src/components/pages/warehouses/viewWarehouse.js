@@ -25,14 +25,7 @@ export class viewWarehouse extends aPageList {
     }
 
     cardBody() {
-        const deleteButtonDisabled = this.servicePaginator.rowsCount > 0 || App.data.noDelete === true;
-
-        const deleteButton = deleteButtonDisabled === true
-            ? <button disabled title='На объект существуют ссылки' className="btn btn-outline-secondary btn-block mb-3" type="button">Удаление невозможно</button>
-            : <NavLink className='btn btn-outline-danger btn-block mb-3' to={`/${App.controller}/${App.deleteNameMethod}/${App.id}`} role='button' title='Диалог удаления объекта'>Удаление</NavLink>;
-
         const warehouse = App.data;
-
         return (
             <>
                 <form>

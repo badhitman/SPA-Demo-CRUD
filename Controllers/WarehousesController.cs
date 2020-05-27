@@ -82,7 +82,7 @@ namespace SPADemoCRUD.Controllers
             }
 
             IQueryable<WarehouseDocumentsModel> wDocuments = _context.WarehouseDocuments
-                .Where(wDoc => wDoc.WarehouseId == id || (wDoc.Discriminator == nameof(InternalDisplacementWarehouseDocumentModel) && ((InternalDisplacementWarehouseDocumentModel)wDoc).WarehouseDebitingId == id)).OrderBy(x => x.Id);
+                .Where(wDoc => wDoc.WarehouseReceiptId == id || (wDoc.Discriminator == nameof(InternalDisplacementWarehouseDocumentModel) && ((InternalDisplacementWarehouseDocumentModel)wDoc).WarehouseDebitingId == id)).OrderBy(x => x.Id);
 
             pagingParameters.Init(await wDocuments.CountAsync());
             if (pagingParameters.PageNum > 1)
@@ -90,7 +90,7 @@ namespace SPADemoCRUD.Controllers
 
             wDocuments = wDocuments.Take(pagingParameters.PageSize)
                 .Include(wDoc => wDoc.Author)
-                .Include(wDoc => wDoc.Warehouse);
+                .Include(wDoc => wDoc.WarehouseReceipt);
 
             HttpContext.Response.Cookies.Append("rowsCount", pagingParameters.CountAllElements.ToString());
 
@@ -117,7 +117,7 @@ namespace SPADemoCRUD.Controllers
                         warehouse.Avatar?.Name
                     },
 
-                    noDelete = _context.WarehouseDocuments.Any(wDoc => wDoc.WarehouseId == id)
+                    noDelete = _context.WarehouseDocuments.Any(wDoc => wDoc.WarehouseReceiptId == id)
                     || _context.InternalDisplacementWarehouseDocuments.Any(dwDoc => dwDoc.WarehouseDebitingId == id)
                     || _context.InventoryGoodsBalancesWarehouses.Any(x => x.WarehouseId == id)
                 }
@@ -300,7 +300,7 @@ namespace SPADemoCRUD.Controllers
                 });
             }
 
-            if (await _context.WarehouseDocuments.AnyAsync(x => x.WarehouseId == id)
+            if (await _context.WarehouseDocuments.AnyAsync(x => x.WarehouseReceiptId == id)
                 || await _context.InternalDisplacementWarehouseDocuments.AnyAsync(x => x.WarehouseDebitingId == id)
                 || await _context.InventoryGoodsBalancesWarehouses.AnyAsync(x => x.WarehouseId == id))
             {

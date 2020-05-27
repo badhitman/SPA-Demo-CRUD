@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+//import { NavLink } from 'react-router-dom';
 import { aPageCard } from '../aPageCard';
 import App from '../../../App';
 
@@ -18,13 +18,8 @@ export class viewTurnover extends aPageCard {
     }
 
     cardBody() {
-        var turnover = App.data;
-        return (
-            <>
-                <p className="lead">В процессе разработки...</p>
-                Перейти <NavLink to={`/${App.controller}/${App.listNameMethod}`}>к списку </NavLink>
-            </>
-        );
+        //var turnover = App.data;
+        return App.emptyCardBody;
     }
 
     cardHeaderPanel() {

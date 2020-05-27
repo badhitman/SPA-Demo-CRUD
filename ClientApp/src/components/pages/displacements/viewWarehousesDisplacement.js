@@ -3,55 +3,62 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
-import { NavLink } from 'react-router-dom'
-import { aPageCard } from '../aPageCard';
 import App from '../../../App';
+import { aWarehouseDocumentViewing } from '../aWarehouseDocumentViewing';
 
 /** Отображение существующего документа внутреннего перемещения */
-export class viewWarehousesDisplacement extends aPageCard {
+export class viewWarehousesDisplacement extends aWarehouseDocumentViewing {
     static displayName = viewWarehousesDisplacement.name;
+    userFriendlyNameDocument = 'Внутреннее перемещение';
 
-    async load() {
-        await this.ajax();
-        this.cardTitle = `Документ внутреннего перемещения: [#${App.data.id}] ${App.data.name}`;
-        this.setState({ loading: false });
+    constructor(props) {
+        super(props);
+
+        /** событие изменения склада списания */
+        this.handleDebitingWarehouseChange = this.handleDebitingWarehouseChange.bind(this);
     }
 
-    cardBody() {
-        return (
-            <>
-                <NavLink to={`/${App.controller}/${App.listNameMethod}/`} className="btn btn-primary btn-block mt-3" role="button">Вернуться</NavLink>
-
-                <table className='table table-striped mt-4'>
-                    <thead>
-                        <tr>
-                            <th>id</th>
-                            <th>Name</th>
-                            <th>About</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {App.data.rows.map(function (warehouseDisplacement) {
-                            const currentNavLink = warehouseDisplacement.isDisabled === true
-                                ? <del><NavLink className='text-muted' to={`/${App.controller}/${App.viewNameMethod}/${warehouseDisplacement.id}`} title='кликните для редактирования'>{warehouseDisplacement.name}</NavLink></del>
-                                : <NavLink to={`/${App.controller}/${App.viewNameMethod}/${warehouseDisplacement.id}`} title='кликните для редактирования'>{warehouseDisplacement.name}</NavLink>
-
-                            return <tr key={warehouseDisplacement.id}>
-                                <td>{warehouseDisplacement.id}</td>
-                                <td>
-                                    {currentNavLink}
-                                    <NavLink to={`/${App.controller}/${App.deleteNameMethod}/${warehouseDisplacement.id}`} title='удалить объект' className='text-danger ml-3'>del</NavLink>
-                                </td>
-                                <td>x{warehouseDisplacement.countRows}</td>
-                            </tr>
-                        })}
-                    </tbody>
-                </table>
-            </>
-        );
+    /** обработчик изменения склада списания */
+    handleDebitingWarehouseChange(e) {
+        const target = e.target;
+        const id = parseInt(target.value, 10);
+        if (id > 0 && App.data.warehouseReceipt.id > 0 && id === App.data.warehouseReceipt.id) {
+            this.clientAlert('Склад отгрузки не может совпадать со складом поступления', 'danger');
+        }
+        else {
+            App.data.warehouseDebiting = { id };
+        }
+        this.forceUpdate();
     }
 
-    cardHeaderPanel() {
-        return <></>;
+    get getTopBodyForm() {
+        const data = App.data;
+        const warehouses = data.warehouses;
+        const warehouseDebitingId = data.warehouseDebiting
+            ? data.warehouseDebiting.id
+            : 0;
+
+        return <div className="form-row">
+            <div className="form-group col-md-6">
+                <label htmlFor="warehouseDebitingId">Склад списания</label>
+                <select name='warehouseDebitingId' id='warehouseDebitingId' defaultValue={warehouseDebitingId} onChange={this.handleDebitingWarehouseChange} aria-describedby="debitingWarehouseHelp" className="custom-select">
+                    {warehouseDebitingId > 0 ? <></> : <option disabled value={0}>склад списания</option>}
+                    {warehouses.map(function (element) {
+                        return <option key={element.id} title={element.information} value={element.id}>{element.name}</option>
+                    })}
+                </select>
+                <small id="debitingWarehouseHelp" className="form-text text-muted">укажите склад списания</small>
+            </div>
+            <div className="form-group col-md-6">
+                <label htmlFor="warehouseReceiptId">Склад поступления</label>
+                <select name='warehouseReceiptId' id='warehouseReceiptId' defaultValue={data.warehouseReceipt.id} onChange={this.handleReceiptWarehouseChange} aria-describedby="receiptWarehouseHelp" className="custom-select">
+                    {data.warehouseReceipt.id > 0 ? <></> : <option disabled value={0}>склад поступления</option>}
+                    {warehouses.map(function (element) {
+                        return <option key={element.id} title={element.information} value={element.id}>{element.name}</option>
+                    })}
+                </select>
+                <small id="receiptWarehouseHelp" className="form-text text-muted">укажите склад назначения</small>
+            </div>
+        </div>;
     }
 }

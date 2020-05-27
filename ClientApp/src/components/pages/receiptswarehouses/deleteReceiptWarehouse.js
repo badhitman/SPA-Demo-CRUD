@@ -2,8 +2,8 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+//import React from 'react';
+//import { NavLink } from 'react-router-dom';
 import { viewReceiptWarehouse } from './viewReceiptWarehouse';
 import App from '../../../App';
 
@@ -18,11 +18,6 @@ export class deleteReceiptWarehouse extends viewReceiptWarehouse {
     }
 
     cardBody() {
-        return (
-            <>
-                <p className="lead">В процессе разработки...</p>
-                Перейти <NavLink to={`/${App.controller}/${App.listNameMethod}`}>к списку </NavLink>
-            </>
-        );
+        return App.emptyCardBody;
     }
 }

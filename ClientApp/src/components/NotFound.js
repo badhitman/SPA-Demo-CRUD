@@ -10,9 +10,10 @@ export class NotFound extends Component {
     render() {
         return (
             <div className="card text-center">
-                <div className="card-header">Объект не найден</div>
-                <div className="card-body">
-                    Не возможно отобразить результат запроса. Возможно компонент ещё не реализован или не внедрён в маршрутизацию. Обратитесь к разработчикам.
+                <div className="card-header">Ошибка обработки запроса</div>
+                <div className="card-body text-left">
+                    Не возможно отобразить результат запроса
+                    <br />Возможно компонент ещё не реализован или не внедрён в маршрутизацию
                     {this.props.children}
                 </div>
                 <div className="card-footer text-muted">

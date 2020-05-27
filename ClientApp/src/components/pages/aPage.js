@@ -5,10 +5,11 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import jQuery from 'jquery';
+import { userAlertComponent } from '../userAlertComponent';
 import App from '../../App';
 
 /** Базовый (типа абстрактный) компонент */
-export class aPage extends Component {
+export class aPage extends userAlertComponent {
     static displayName = aPage.name;
     stub = <div className="alert alert-danger" role="alert">Заглушка. Требуется переопределения в потомке</div>
 
@@ -159,10 +160,6 @@ export class aPage extends Component {
         }
     }
 
-    componentDidMount() {
-        this.load();
-    }
-
     pushApiQueryParametr(paramName, paramValue) {
         this.apiQuery = this.apiQuery.trim();
         if (this.apiQuery && this.apiQuery.length > 0) {
@@ -208,30 +205,46 @@ export class aPage extends Component {
      */
     async load(continueLoading = false) {
         await this.ajax();
-        this.setState(
-            {
-                name: App.data.name,
-                information: App.data.information,
+        const data = App.data;
+        const stateData = { loading: continueLoading === true };
 
-                loading: continueLoading === true,
+        if (data.name) {
+            //if (!this.state.name) {
+            //    this.state.name = data.name;
+            //}
+            stateData.name = data.name;
+        }
+        else {
+            //if (this.state.name) {
+            //    delete this.state.name;
+            //}
+        }
+        if (data.information) {
+            //if (!this.state.information) {
 
-                isReadonly: App.data.isReadonly === true,
-                isDisabled: App.data.isDisabled === true,
-                isGlobalFavorite: App.data.isGlobalFavorite === true
-            });
+            //}
+            stateData.information = data.information;
+        }
+
+        if (data.isReadonly === true || data.isReadonly === false) {
+            stateData.isReadonly = data.isReadonly;
+        }
+        if (data.isDisabled === true || data.isDisabled === false) {
+            stateData.isDisabled = data.isDisabled;
+        }
+        if (data.isGlobalFavorite === true || data.isGlobalFavorite === false) {
+            stateData.isGlobalFavorite = data.isGlobalFavorite;
+        }
+
+        this.setState(stateData);
     }
 
-    /**
-     * Отправка уведомления клиенту в виде ALERT
-     * @param {string} message - текст сообщения
-     * @param {string} status - bootstrap статус (цветовое оформление: primary, secondary, success, danger, warning)
-     * @param {number} fadeIn - скорость вывода сообщения
-     * @param {number} fadeOut - скорость увядания сообщения
-     * @param {string} fadeBehavior - jquery флаг поведения анимации
-     */
-    clientAlert(message, status = 'secondary', fadeIn = 1000, fadeOut = 5000, fadeBehavior = 'swing') {
-        var domElement = jQuery(`<div class="mt-2 alert alert-${status}" role="alert">${message}</div>`);
-        jQuery('footer').last().after(domElement.fadeIn(fadeIn, fadeBehavior, function () { domElement.fadeOut(fadeOut); }));
+    componentDidMount() {
+        this.load();
+    }
+
+    clientAlert(message, status = 'secondary', anchor = 'footer', fadeIn = 1000, fadeOut = 5000, fadeBehavior = 'swing') {
+        super.clientAlert(message, status, anchor, fadeIn, fadeOut, fadeBehavior);
     }
 
     /**

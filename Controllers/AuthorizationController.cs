@@ -145,7 +145,10 @@ namespace SPADemoCRUD.Controllers
 
             if (AppOptions.IsEnableReCaptchaV2 || AppOptions.IsEnableReCaptchaV2Invisible)
             {
-                reCaptcha2ResponseModel reCaptcha2Status = reCaptchaVerifier.reCaptcha2SiteVerify(AppOptions.reCaptchaV2PrivatKey, regUser.g_recaptcha_response, HttpContext.Connection.RemoteIpAddress.ToString());
+                string privatKey = AppOptions.IsEnableReCaptchaV2Invisible
+                    ? AppOptions.reCaptchaV2InvisiblePrivatKey
+                    : AppOptions.reCaptchaV2PrivatKey;
+                reCaptcha2ResponseModel reCaptcha2Status = reCaptchaVerifier.reCaptcha2SiteVerify(privatKey, regUser.g_recaptcha_response, HttpContext.Connection.RemoteIpAddress.ToString());
 
                 if (reCaptcha2Status is null || !reCaptcha2Status.success || (reCaptcha2Status.ErrorСodes != null && reCaptcha2Status.ErrorСodes.Length > 0))
                 {

@@ -3,8 +3,9 @@
 ////////////////////////////////////////////////
 
 import React from 'react';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { NavLink, Link } from 'react-router-dom'
 import { aPageList } from '../aPageList';
-import { NavLink } from 'react-router-dom'
 import App from '../../../App';
 import { PaginatorComponent } from '../../PaginatorComponent';
 
@@ -16,7 +17,8 @@ export class listWarehouses extends aPageList {
     constructor(props) {
         super(props);
 
-        this.state.nameNewWarehouse = '';
+        this.state.nameWarehouse = '';
+        this.state.dropdownOpenDropdownMenu = false;
 
         /** изменение значения поля имени склада */
         this.handleNameChange = this.handleNameChange.bind(this);
@@ -24,6 +26,14 @@ export class listWarehouses extends aPageList {
         this.handleResetClick = this.handleResetClick.bind(this);
         /** создание в бд склада */
         this.handleCreateClick = this.handleCreateClick.bind(this);
+
+        this.toggleDropdownMenu = this.toggleDropdownMenu.bind(this);
+    }
+
+    toggleDropdownMenu() {
+        this.setState({
+            dropdownOpenDropdownMenu: !this.state.dropdownOpenDropdownMenu
+        });
     }
 
     /**
@@ -34,14 +44,14 @@ export class listWarehouses extends aPageList {
         const target = e.target;
 
         this.setState({
-            nameNewWarehouse: target.value
+            nameWarehouse: target.value
         });
     }
 
     /** сброс формы редактирования склада */
     handleResetClick() {
         this.setState({
-            nameNewWarehouse: ''
+            nameWarehouse: ''
         });
     }
 
@@ -49,7 +59,7 @@ export class listWarehouses extends aPageList {
     async handleCreateClick() {
         var sendedFormData =
         {
-            name: this.state.nameNewWarehouse
+            name: this.state.nameWarehouse
         };
 
         const response = await fetch(`${this.apiPrefix}/${App.controller}`, {
@@ -65,7 +75,7 @@ export class listWarehouses extends aPageList {
                 const result = await response.json();
                 if (result.success === true) {
                     await this.ajax();
-                    this.setState({ loading: false, name: ''});
+                    this.setState({ loading: false, nameWarehouse: '' });
                 }
                 else {
                     this.clientAlert(result.info, result.status);
@@ -78,29 +88,33 @@ export class listWarehouses extends aPageList {
     }
 
     cardBody() {
-        const myButtons = this.state.nameNewWarehouse.length === 0
+        const myButtons = this.state.nameWarehouse.length === 0
             ? <><button disabled className="btn btn-outline-secondary" type="button">Создать</button>
                 <button disabled className="btn btn-outline-secondary" type="reset">Сброс</button></>
             : <><button onClick={this.handleCreateClick} className="btn btn-outline-success" type="button">Создать</button>
                 <button onClick={this.handleResetClick} className="btn btn-outline-primary" type="reset">Сброс</button></>
-
+        
+        const controllerName = App.controller.toLowerCase();
         return (
             <>
-                <ul className="nav nav-tabs">
-                    <li className="nav-item">
-                        <NavLink to={`/warehouses/${App.listNameMethod}`} className='nav-link active'>Склады</NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink to={`/receiptswarehousesdocuments/${App.listNameMethod}`} className='nav-link' title='Перейти в журнал документов поступления номенклатуры'>Поступления</NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink to={`/displacementsdocuments/${App.listNameMethod}`} className='nav-link' title='Перейти в журнал документов внутреннего перемещения номенклатуры'>Перемещения</NavLink>
-                    </li>
-                </ul>
+                <nav className="nav nav-pills nav-fill">
+                    <NavLink to={`/warehouses/${App.listNameMethod}`} className='nav-item nav-link active'>Склады</NavLink>
+                    <Dropdown nav isOpen={this.state.dropdownOpenDropdownMenu} toggle={this.toggleDropdownMenu}>
+                        <DropdownToggle nav caret title='Журнал складских документов'>
+                            Журнал
+                        </DropdownToggle>
+                        <DropdownMenu>
+                            <DropdownItem className={(controllerName === 'warehousedocuments' ? 'font-weight-bold shadow rounded' : '')}><NavLink tag={Link} to={`/WarehouseDocuments/${App.listNameMethod}`} title='Полный журнал складских поступлений и перемещений'>Все (складские документы)</NavLink></DropdownItem>
+                            <DropdownItem className={(controllerName === 'receiptswarehousesdocuments' ? 'font-weight-bold shadow rounded' : '')}><NavLink tag={Link} to={`/ReceiptsWarehousesDocuments/${App.listNameMethod}`} title='Журнал документов поступления на склад'>Поступления на склад</NavLink></DropdownItem>
+                            <DropdownItem className={(controllerName === 'displacementsdocuments' ? 'font-weight-bold shadow rounded' : '')}><NavLink tag={Link} to={`/DisplacementsDocuments/${App.listNameMethod}`} title='Журнал внутренних перемещений со склада на склад'>Внутренние перемещения</NavLink></DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                    <NavLink to={`/warehousesReports/${App.listNameMethod}`} className='nav-item nav-link' title='Остатки номенклатуры' role='button'>Отчёты</NavLink>
+                </nav>
                 <br />
                 <label htmlFor="basic-url">Создание нового склада</label>
                 <div title='Для создания нового склада введите его название и нажмите кнопку - Создать' className="input-group mb-3">
-                    <input onChange={this.handleNameChange} value={this.state.nameNewWarehouse} type="text" className="form-control" placeholder="Введите название нового склада" aria-label="Введите название нового склада" />
+                    <input onChange={this.handleNameChange} value={this.state.nameWarehouse} type="text" className="form-control" placeholder="Введите название нового склада" aria-label="Введите название нового склада" />
                     <div className="input-group-append">
                         {myButtons}
                     </div>
