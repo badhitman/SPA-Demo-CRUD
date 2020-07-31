@@ -17,6 +17,7 @@ namespace SPADemoCRUD.Models
 
         public string DeliveryAddress1 { get; set; }
         public string DeliveryAddress2 { get; set; }
+        public string DeliveryAddress3 { get; set; }
 
         public int? BuyerId { get; set; }
         public UserObjectModel Buyer { get; set; }

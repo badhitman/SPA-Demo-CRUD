@@ -17,8 +17,8 @@ namespace SPADemoCRUD.Controllers
     {
         public static Dictionary<int, string> AllowedReports = new Dictionary<int, string>()
         {
-            {1, "Номенклатура->Склад" },
-            {2, "Склад->Номенклатура" }
+            {1, "Остатки: Номенклатура->Склад" },
+            {2, "Остатки: Склад->Номенклатура" }
         };
         private readonly AppDataBaseContext _context;
 
