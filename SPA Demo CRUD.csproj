@@ -61,9 +61,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="Electrum-JSONRPC\Electrum-JSONRPC.csproj" />
-    <ProjectReference Include="MultiTool\MultiTool.csproj" />
-    <ProjectReference Include="reCaptcha\reCaptcha.csproj" />
+    <ProjectReference Include="..\Electrum-JSONRPC\Electrum-JSONRPC.csproj" />
+    <ProjectReference Include="..\MultiTool\MultiTool.csproj" />
+    <ProjectReference Include="..\reCaptcha\reCaptcha.csproj" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

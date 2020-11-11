@@ -4,19 +4,19 @@ VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SPA Demo CRUD", "SPA Demo CRUD.csproj", "{4AD171A3-D732-4B0D-84CA-DF2335A62DDA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "reCaptcha", "reCaptcha\reCaptcha.csproj", "{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "reCaptcha", "..\reCaptcha\reCaptcha.csproj", "{CF2FBD53-8582-4D46-B763-8D3E1D0F4CD1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ext", "ext", "{FD8D2A10-0360-400E-B189-7DDEEA16A567}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTool", "MultiTool\MultiTool.csproj", "{EDFB8727-A4F9-4DAA-B5FE-151AAA9559F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTool", "..\MultiTool\MultiTool.csproj", "{EDFB8727-A4F9-4DAA-B5FE-151AAA9559F6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Electrum-JSONRPC", "Electrum-JSONRPC\Electrum-JSONRPC.csproj", "{B66AC14A-BE10-42BA-9463-BA1C372B48BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Electrum-JSONRPC", "..\Electrum-JSONRPC\Electrum-JSONRPC.csproj", "{B66AC14A-BE10-42BA-9463-BA1C372B48BD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleWebClient", "SimpleWebClient\SimpleWebClient.csproj", "{FFEB2FC8-D46C-443F-A860-C71E1FC9B51E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleWebClient", "..\SimpleWebClient\SimpleWebClient.csproj", "{FFEB2FC8-D46C-443F-A860-C71E1FC9B51E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HmacHttp", "HmacHttp\HmacHttp.csproj", "{0DE70454-13E0-4856-82DE-8CB7623EBE4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HmacHttp", "..\HmacHttp\HmacHttp.csproj", "{0DE70454-13E0-4856-82DE-8CB7623EBE4E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramBot-API", "TelegramBot-API\TelegramBot-API.csproj", "{ACDF4078-10FB-444D-B91F-EE526C92491A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramBot-API", "..\TelegramBot-API\TelegramBot-API.csproj", "{ACDF4078-10FB-444D-B91F-EE526C92491A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
